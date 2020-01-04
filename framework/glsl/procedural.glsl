@@ -134,7 +134,7 @@ vec2 uv_scale(vec2 uv, vec2 scale)
     return uv * scale;
 }
 
-vec2 uv_rotate(vec2 uv, float angle, vec2 origin)
+vec2 uv_rotate(vec2 uv, vec2 origin, float angle)
 {
     angle *= DEGTORAD;
     float s = sin(angle);
@@ -156,15 +156,30 @@ vec2 uv_to_polar(vec2 uv, vec2 origin)
     return vec2(angle, len);
 }
 
-vec2 uv_tilling(vec2 uv, vec2 tiles)
+vec2 uv_tilling(vec2 uv, vec2 tiles, out vec2 tile_id)
 {
+    uv *= tiles;
     
-
-    return vec2(.0);
+    tile_id = floor(uv);
+    return fract(uv);
 }
 
+vec2 uv_tilling_offset(vec2 uv, out vec2 tile_id, float offset_step, float offset)
+{
+    uv += tile_id;
+    uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
+    
+    tile_id = floor(uv);
+    return fract(uv);
+}
 
-
+vec2 uv_tilling_change(vec2 uv, vec2 tile_id, float step, float change)
+{
+    uv += tile_id;
+    
+    tile_id = floor(uv);
+    return fract(uv);
+}
 
 
 
@@ -174,9 +189,13 @@ void main() {
     vec2 uv = gl_FragCoord.xy / iResolution.y;
     float blur = abs(sin(iTime * .5) * 0.1);
     
-    uv = uv_to_polar(uv, vec2(.5, .5));
+    vec2 id;
+    uv = uv_tilling(uv, vec2(10.0), id);
+    uv = uv_tilling_offset(uv, id, 1.0, 0.5);
 
+    float shape = shape_spiral(uv, vec2(.5), 0.0);
+    shape = shape_rectangle(uv, vec2(.5), vec2(.9), vec2(.02));
 
-    vec3 color = vec3(uv, .0);
+    vec3 color = vec3(shape);
 	gl_FragColor = vec4(color, 1.0);
 }
