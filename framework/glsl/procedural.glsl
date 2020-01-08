@@ -1,6 +1,8 @@
 //////////////////////////////
-// Defines
+// Constants
 //////////////////////////////
+float PI025 = 0.78539816339;
+float PI05 = 1.57079632674;
 float PI = 3.14159265359;
 float PI2 = 6.28318530718;
 float RADTODEG = 57.295779513;
@@ -91,13 +93,52 @@ float easing_circular_inout(float x)
 
 
 //////////////////////////////
+// Noises
+//////////////////////////////
+float noise_white(vec2 seed)
+{
+    return fract(sin(dot(seed, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+
+float noise_perlin(vec2 seed, float scale)
+{
+    vec2 p = seed * scale;
+
+    float p1 = noise_white(vec2(floor(p)));
+    float p2 = noise_white(vec2(ceil(p.x), floor(p.y)));
+    float p3 = noise_white(vec2(floor(p.x), ceil(p.y)));
+    float p4 = noise_white(vec2(ceil(p)));
+
+    p = fract(p);
+    p.x = easing_circular_inout(p.x);
+    p.y = easing_circular_inout(p.y);
+
+    float nx = mix(p1, p2, p.x);
+    float ny = mix(p3, p4, p.x);
+
+    return mix(nx, ny, p.y);
+}
+
+float noise_simplex(vec2 seed)
+{
+    return 0.0;
+}
+
+float noise_voronoi(vec2 seed)
+{
+    return 0.0;
+}
+
+
+
+//////////////////////////////
 // Shapes
 //////////////////////////////
 float shape_circle(vec2 uv, vec2 origin, float radius, float blur)
 {
     float len = length(uv - origin);
-    float circle = 1.0 - value_linear_step(len, radius, blur);
-    return clamp(circle, 0.0, 1.0);
+    return 1.0 - value_linear_step(len, radius, blur);
 }
 
 float shape_rectangle(vec2 uv, vec2 origin, vec2 size, vec2 blur)
@@ -119,6 +160,17 @@ float shape_spiral(vec2 uv, vec2 origin, float start)
     return spiral;  
 }
 
+float shape_ngon(vec2 uv, vec2 origin, float radius, float edges, float bend, float blur)
+{
+    float dist = length(uv - origin);
+    float spiral = shape_spiral(uv, origin, 0.0); 
+
+    bend = (bend + 1.0) * 0.5 * PI2;
+    spiral = fract(spiral * edges) * 2.0 - 1.0;
+    dist *= cos(spiral * (bend / edges));
+
+    return 1.0 - value_linear_step(dist, radius, blur);
+}
 
 
 //////////////////////////////
@@ -167,20 +219,12 @@ vec2 uv_tilling(vec2 uv, vec2 tiles, out vec2 tile_id)
 vec2 uv_tilling_offset(vec2 uv, out vec2 tile_id, float offset_step, float offset)
 {
     uv += tile_id;
+
     uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
     
     tile_id = floor(uv);
     return fract(uv);
 }
-
-vec2 uv_tilling_change(vec2 uv, vec2 tile_id, float step, float change)
-{
-    uv += tile_id;
-    
-    tile_id = floor(uv);
-    return fract(uv);
-}
-
 
 
 
@@ -190,12 +234,12 @@ void main() {
     float blur = abs(sin(iTime * .5) * 0.1);
     
     vec2 id;
-    uv = uv_tilling(uv, vec2(10.0), id);
-    uv = uv_tilling_offset(uv, id, 1.0, 0.5);
+    //uv = uv_tilling(uv, vec2(30.0), id);
+    //uv = uv_tilling_offset(uv, id, 1.0, 0.0);
 
-    float shape = shape_spiral(uv, vec2(.5), 0.0);
-    shape = shape_rectangle(uv, vec2(.5), vec2(.9), vec2(.02));
+    float result = noise_perlin(uv, 30.0);
 
-    vec3 color = vec3(shape);
+
+    vec3 color = vec3(result);
 	gl_FragColor = vec4(color, 1.0);
 }
