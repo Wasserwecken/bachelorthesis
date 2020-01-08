@@ -93,40 +93,80 @@ float easing_circular_inout(float x)
 
 
 //////////////////////////////
-// Noises
+// Random / Noises
 //////////////////////////////
-float noise_white(vec2 seed)
+vec2 random_vector(vec2 point)
 {
-    return fract(sin(dot(seed, vec2(12.9898, 78.233))) * 43758.5453);
+    point = vec2(
+            dot(point,vec2(127.1,311.7)),
+            dot(point,vec2(269.5,183.3))
+        );
+    return -1.0 + 2.0 * fract(sin(point) * 43758.5453123);
 }
 
-
-float noise_perlin(vec2 seed, float scale)
+float random_number(float point)
 {
-    vec2 p = seed * scale;
-
-    float p1 = noise_white(vec2(floor(p)));
-    float p2 = noise_white(vec2(ceil(p.x), floor(p.y)));
-    float p3 = noise_white(vec2(floor(p.x), ceil(p.y)));
-    float p4 = noise_white(vec2(ceil(p)));
-
-    p = fract(p);
-    p.x = easing_circular_inout(p.x);
-    p.y = easing_circular_inout(p.y);
-
-    float nx = mix(p1, p2, p.x);
-    float ny = mix(p3, p4, p.x);
-
-    return mix(nx, ny, p.y);
+    return fract(sin(point) * 43758.5453123);
 }
 
-float noise_simplex(vec2 seed)
+float noise_white(vec2 point)
 {
-    return 0.0;
+    return fract(sin(dot(point, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-float noise_voronoi(vec2 seed)
+float noise_value(vec2 point, float scale)
 {
+    point *= scale;
+    vec2 corner = floor(point);
+    float A = noise_white(corner + vec2(0.0, 0.0));
+    float B = noise_white(corner + vec2(1.0, 0.0));
+    float C = noise_white(corner + vec2(0.0, 1.0));
+    float D = noise_white(corner + vec2(1.0, 1.0));
+    
+    vec2 interpolation = fract(point);
+    interpolation = smoothstep(0.0, 1.0, interpolation);
+
+    return mix(
+        mix(A, B, interpolation.x),
+        mix(C, D, interpolation.x),
+        interpolation.y
+    );
+}
+
+float noise_perlin(vec2 point, float scale)
+{
+    point *= scale;
+
+    vec2 corner = floor(point);
+    vec2 A = random_vector(corner + vec2(0.0, 0.0));
+    vec2 B = random_vector(corner + vec2(1.0, 0.0));
+    vec2 C = random_vector(corner + vec2(0.0, 1.0));
+    vec2 D = random_vector(corner + vec2(1.0, 1.0));
+
+    point = fract(point);
+    vec2 interpolation = smoothstep(0.0, 1.0, point);
+
+    return mix(
+            mix(
+                dot(A, point - vec2(0.0, 0.0)),
+                dot(B, point - vec2(1.0, 0.0)),
+                interpolation.x
+            ),
+            mix(
+                dot(C, point - vec2(0.0, 1.0)),
+                dot(D, point - vec2(1.0, 1.0)),
+                interpolation.x
+            ),
+            interpolation.y
+    ) * 0.5 + 0.5;
+}
+
+float noise_voronoi(vec2 point, float scale)
+{
+    point *= scale;
+
+
+
     return 0.0;
 }
 
@@ -234,10 +274,10 @@ void main() {
     float blur = abs(sin(iTime * .5) * 0.1);
     
     vec2 id;
-    //uv = uv_tilling(uv, vec2(30.0), id);
+    //uv = uv_tilling(uv, vec2(0.0), id);
     //uv = uv_tilling_offset(uv, id, 1.0, 0.0);
 
-    float result = noise_perlin(uv, 30.0);
+    float result = noise_perlin(uv, 20.0);
 
 
     vec3 color = vec3(result);
