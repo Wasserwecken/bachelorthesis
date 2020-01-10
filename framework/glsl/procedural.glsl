@@ -11,7 +11,6 @@ float RADTODEG = 57.295779513;
 float DEGTORAD = 0.01745329252;
 
 
-
 //////////////////////////////
 // Value manipulations
 //////////////////////////////
@@ -120,12 +119,12 @@ vec2 random_vector(vec2 p)
 	return -1. + 2.*fract(sin(p+3.)*53758.5453123);
 }
 
-float random_number(float point)
+float random_value(float point)
 {
     return fract(sin(point) * 43758.5453123);
 }
 
-float noise_white(vec2 point)
+float random_value(vec2 point)
 {
     return fract(sin(dot(point, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -136,10 +135,10 @@ float noise_value(vec2 point, float scale)
     vec2 corner = floor(point);
     vec2 interpol = easing_smoother_step(fract(point));
     
-    float A = noise_white(corner + vec2(0.0, 0.0));
-    float B = noise_white(corner + vec2(1.0, 0.0));
-    float C = noise_white(corner + vec2(0.0, 1.0));
-    float D = noise_white(corner + vec2(1.0, 1.0));
+    float A = random_value(corner + vec2(0.0, 0.0));
+    float B = random_value(corner + vec2(1.0, 0.0));
+    float C = random_value(corner + vec2(0.0, 1.0));
+    float D = random_value(corner + vec2(1.0, 1.0));
 
     return mix(
         mix(A, B, interpol.x),
@@ -176,6 +175,14 @@ float noise_perlin(vec2 point, float scale)
     ) * 0.5 + 0.5;
 }
 
+vec2 noise_perlin_vector(vec2 point, float scale)
+{
+    return vec2(
+        noise_perlin(point, scale),
+        noise_perlin(-point, scale)
+    );
+}
+
 float noise_voronoi(vec2 point, float scale)
 {
     point = point * scale;
@@ -183,43 +190,68 @@ float noise_voronoi(vec2 point, float scale)
     vec2 tile_id = floor(point);
     vec2 tile_pos = fract(point);
 
-    vec2 neighbour = vec2(0.0, 0.0);
-    vec2 center = abs(random_vector(tile_id));
-    float min_distance = length(center - tile_pos); 
+    vec2 neighbour;
+    vec2 center;
+    float dist = 10.0;
 
-    neighbour = vec2(0.0, 1.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
+    for(float x = -1.0; x < 2.0; x++)
+    {
+        for(float y = -1.0; y < 2.0; y++)
+        {
+            neighbour = vec2(x, y);
+            center = abs(random_vector(tile_id + neighbour));
+            dist = min(dist, length(center - tile_pos + neighbour));
+        }
+    }
 
-    neighbour = vec2(1.0, 1.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
-    
-    neighbour = vec2(1.0, 0.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
-    
-    neighbour = vec2(1.0, -1.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
-    
-    neighbour = vec2(0.0, -1.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
-    
-    neighbour = vec2(-1.0, -1.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
+    return dist * SQRT205;
+}
 
-    neighbour = vec2(-1.0, 0.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
-    
-    neighbour = vec2(-1.0, 1.0);
-    center = abs(random_vector(tile_id + neighbour));
-    min_distance = min(min_distance, length(center - tile_pos + neighbour));
+vec2 noise_voronoi_vector(vec2 point, float scale)
+{
+    return vec2(
+        noise_voronoi(point, scale),
+        noise_voronoi(-point, scale)
+    );
+}
 
-    return min_distance * SQRT205;
+float noise_voronoi_manhattan(vec2 point, float scale)
+{
+    point *= scale;
+
+    vec2 tile_id = floor(point);
+    vec2 tile_pos = fract(point);
+
+    vec2 neighbour;
+    vec2 center;
+    float dist = 10.0;
+
+    for(float x = -1.0; x < 2.0; x++)
+    {
+        for(float y = -1.0; y < 2.0; y++)
+        {
+            neighbour = vec2(x, y);
+            center = abs(random_vector(tile_id + neighbour));
+            dist = min(dist, value_manhatten_length(center - tile_pos + neighbour));
+        }
+    }
+
+    return dist * 0.5;
+}
+
+vec2 noise_voronoi_manhattan_vector(vec2 point, float scale)
+{
+    return vec2(
+        noise_voronoi_manhattan(point, scale),
+        noise_voronoi_manhattan(-point, scale)
+    );
+}
+
+float noise_simplex(vec2 point, float scale)
+{
+    point *= scale;
+
+    return 0.0;
 }
 
 
@@ -318,6 +350,18 @@ vec2 uv_tilling_offset(vec2 uv, out vec2 tile_id, float offset_step, float offse
     return fract(uv);
 }
 
+vec2 uv_warp_directional(vec2 uv, vec2 distortion, float strength)
+{
+    distortion = (distortion * 2.0 - 1.0) * strength;
+    return uv - distortion;
+}
+
+vec2 uv_warp_rotational(vec2 uv, float distortion, float strength)
+{
+    distortion = ((distortion * 360.0) - 180.0) * strength;
+    return uv_rotate(uv, uv + vec2(1.0), distortion);
+}
+
 
 
 
@@ -326,11 +370,20 @@ void main() {
     float blur = abs(sin(iTime * .5) * 0.1);
     
     vec2 id;
-    //uv = uv_tilling(uv, vec2(0.0), id);
-    //uv = uv_tilling_offset(uv, id, 1.0, 0.0);
 
-    float result = noise_voronoi(uv, 20.0);
 
-    vec3 color = vec3(result);
+    float time = iTime * 0.0;
+    vec2 move = vec2(sin(time), cos(time)) * 0.5;
+
+    float dist = shape_circle(uv, vec2(0.5), 0.1, 0.3);
+    dist = easing_smoother_step(dist);
+    vec2 dist_uv = uv_warp_rotational(uv + move, dist, 0.02);
+
+    vec2 tile_uv = uv_tilling(dist_uv, vec2(10.0), id);
+    float shape = shape_rectangle(tile_uv, vec2(.5), vec2(.5), vec2(.5));
+
+    vec3 color = vec3(shape);
+    //color = vec3(noise_voronoi_vector(uv, 10.0), 0.0);
+    
 	gl_FragColor = vec4(color, 1.0);
 }
