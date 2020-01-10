@@ -331,7 +331,6 @@ void main() {
 
     float result = noise_voronoi(uv, 20.0);
 
-
     vec3 color = vec3(result);
 	gl_FragColor = vec4(color, 1.0);
 }
