@@ -350,11 +350,12 @@ vec2 uv_to_polar(vec2 uv, vec2 origin)
     return vec2(angle, len);
 }
 
-vec2 uv_tilling(vec2 uv, vec2 tiles, out vec2 tile_id)
+vec2 uv_tilling(vec2 uv, vec2 tiles, out vec2 tile_id, out float tile_aspect_ratio)
 {
     uv *= tiles;
     
     tile_id = floor(uv);
+    tile_aspect_ratio = tiles.y / tiles.x;
     return fract(uv);
 }
 
@@ -383,16 +384,17 @@ vec2 uv_warp_rotational(vec2 uv, float offset, float distortion, float strength)
 
 
 
-void main() {
-    vec2 uv = gl_FragCoord.xy / iResolution.y;
-    float iTime2 = sin(iTime) * .5 + .5;
 
 
 
-    float line_weight = 0.2;
 
-    uv *= 1.5;
 
+
+
+
+
+float wood(vec2 uv)
+{
     vec2 noise_uv = uv * vec2(10.0, 1.5);
     float ring_noise = noise_perlin_layered(noise_uv, 1.0, 1.5, 4.0);
     ring_noise = pow(ring_noise, 2.0);
@@ -425,10 +427,45 @@ void main() {
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
 
-    float wood = rings * dots * variance;
+    return rings * dots * variance;
+}
 
 
 
-    vec3 color = vec3(wood);
+
+
+
+
+
+
+
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / iResolution.y;
+    float iTime2 = sin(iTime) * .5 + .5;
+
+
+
+    vec2 parquet_uv = uv;
+    vec2 bar_id;
+    float bar_aspect_ratio;
+    parquet_uv = uv_tilling(uv, vec2(2.0, 20.0), bar_id, bar_aspect_ratio);
+    float parquet_offset = random_value(bar_id.y * 6.0);
+    parquet_uv = uv_tilling_offset(parquet_uv, bar_id, 1.0, parquet_offset);
+
+    vec2 wood_uv = uv_rotate(uv, vec2(0.0), 90.0);
+    wood_uv += random_vector(bar_id);
+    wood_uv *= 4.0;
+
+    float wood = wood(wood_uv);
+    float bar = shape_rectangle(parquet_uv,
+            vec2(0.5),
+            vec2(0.995, 0.95),
+            vec2(0.01, 0.1)
+        );
+
+
+
+    vec3 color = vec3(wood * bar);
 	gl_FragColor = vec4(color, 1.0);
 }
