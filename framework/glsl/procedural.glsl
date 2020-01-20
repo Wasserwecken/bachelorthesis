@@ -175,6 +175,24 @@ float noise_perlin(vec2 point, float scale)
     ) * 0.5 + 0.5;
 }
 
+float noise_perlin_layered(vec2 uv, float scale, float diff, float layers)
+{
+    float noise = noise_perlin(uv, scale);
+    float weight = 1.0;
+    float max_value = 1.0;
+
+    for(float l = 1.0; l < layers; l++)
+    {
+        scale *= diff;
+        weight /= diff;
+        max_value += weight;
+
+        noise += noise_perlin(uv, scale) * weight;
+    }
+
+    return value_remap(noise, 0.0, max_value, 0.0, 1.0);
+}
+
 vec2 noise_perlin_vector(vec2 point, float scale)
 {
     return vec2(
@@ -356,10 +374,10 @@ vec2 uv_warp_directional(vec2 uv, vec2 distortion, float strength)
     return uv - distortion;
 }
 
-vec2 uv_warp_rotational(vec2 uv, float distortion, float strength)
+vec2 uv_warp_rotational(vec2 uv, float offset, float distortion, float strength)
 {
     distortion = ((distortion * 360.0) - 180.0) * strength;
-    return uv_rotate(uv, uv + vec2(1.0), distortion);
+    return uv_rotate(uv, uv + vec2(offset), distortion);
 }
 
 
@@ -367,23 +385,50 @@ vec2 uv_warp_rotational(vec2 uv, float distortion, float strength)
 
 void main() {
     vec2 uv = gl_FragCoord.xy / iResolution.y;
-    float blur = abs(sin(iTime * .5) * 0.1);
-    
-    vec2 id;
+    float iTime2 = sin(iTime) * .5 + .5;
 
 
-    float time = iTime * 0.0;
-    vec2 move = vec2(sin(time), cos(time)) * 0.5;
 
-    float dist = shape_circle(uv, vec2(0.5), 0.1, 0.3);
-    dist = easing_smoother_step(dist);
-    vec2 dist_uv = uv_warp_rotational(uv + move, dist, 0.02);
+    float line_weight = 0.2;
 
-    vec2 tile_uv = uv_tilling(dist_uv, vec2(10.0), id);
-    float shape = shape_rectangle(tile_uv, vec2(.5), vec2(.5), vec2(.5));
+    uv *= 1.5;
 
-    vec3 color = vec3(shape);
-    //color = vec3(noise_voronoi_vector(uv, 10.0), 0.0);
-    
+    vec2 noise_uv = uv * vec2(10.0, 1.5);
+    float ring_noise = noise_perlin_layered(noise_uv, 1.0, 1.5, 4.0);
+    ring_noise = pow(ring_noise, 2.0);
+    vec2 ring_uv = uv_warp_rotational(uv, 1.0, ring_noise, .06) * 20.0;
+
+    vec2 primary_uv = ring_uv;
+    float primary_id = floor(primary_uv.x);
+    float primary_gradient = random_value(primary_id);
+    float primary_lines = fract(primary_uv.x);
+    float primary = primary_gradient * primary_lines;
+    primary = value_remap(primary, 0.0, 1.0, 0.5, 1.0);
+
+    float secondary_line_count = 2.0 + ceil(random_value(primary_id) * 3.0);
+    vec2 secondary_uv = primary_uv * secondary_line_count;
+    float secondary_id = floor(secondary_uv.x);
+    float secondary_gradient = random_value(secondary_id);
+    float secondary_lines = fract(secondary_uv.x);
+    float secondary = secondary_gradient * secondary_lines;
+    secondary = value_remap(secondary, 0.0, 1.0, 0.75, 1.0);
+    float rings = primary * secondary;
+
+
+    vec2 dot_uv = uv * vec2(10.0, 2.0);
+    float dots = noise_perlin_layered(dot_uv, 75.0, 2.0, 2.0);
+    dots = easing_smoother_step(dots);
+    dots = value_remap(dots, 0.0, 1.0, 0.8, 1.0);
+
+    vec2 variance_uv = uv * vec2(10.0, 1.0) * 4.0;
+    float variance = noise_perlin_layered(variance_uv, 2.0, 4.0, 3.0);
+    variance = easing_smoother_step(variance);
+    variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
+
+    float wood = rings * dots * variance;
+
+
+
+    vec3 color = vec3(wood);
 	gl_FragColor = vec4(color, 1.0);
 }
