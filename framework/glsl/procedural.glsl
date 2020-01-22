@@ -44,6 +44,19 @@ vec2 value_linear_step(vec2 value, vec2 edge, vec2 edge_width)
     );
 }
 
+vec3 value_height_to_normal(float height, float strength)
+{
+    float x = -dFdx(height);
+    float y = -dFdy(height);
+    float depth = 1.0 / strength;
+
+    vec3 normal = vec3(x, y, depth);
+    normal = normalize(normal);
+    normal = normal * 0.5 + 0.5;
+
+    return normal;
+}
+
 
 
 //////////////////////////////
@@ -329,12 +342,11 @@ vec2 uv_to_polar(vec2 uv, vec2 origin)
     return vec2(angle, len);
 }
 
-vec2 uv_tilling(vec2 uv, vec2 tiles, out vec2 tile_id, out float tile_aspect_ratio)
+vec2 uv_tilling(vec2 uv, out vec2 tile_id, vec2 tiles)
 {
     uv *= tiles;
     
     tile_id = floor(uv);
-    tile_aspect_ratio = tiles.y / tiles.x;
     return fract(uv);
 }
 
@@ -370,15 +382,31 @@ vec2 uv_warp_rotational(vec2 uv, float offset, float distortion, float strength)
 
 
 
-
-
-float wood(vec2 uv, vec2 seed)
+vec2 parquet_tilling(vec2 uv, out vec2 bar_id, vec2 tiles)
 {
+    uv = uv_tilling(uv, bar_id, tiles);
+    uv = uv_tilling_offset(uv, bar_id, 1.0, noise_white(bar_id.y));
+
+    return uv;
+}
+
+
+float parquet_bar(vec2 uv, vec2 bar_id)
+{
+    float bar = shape_rectangle(uv, vec2(0.5), vec2(0.9), vec2(0.1));
+
+    return bar;
+}
+
+float parquet_wood(vec2 uv, vec2 seed)
+{
+    //ring distorions
     vec2 noise_uv = uv * vec2(10.0, 1.5);
     float ring_noise = noise_perlin_layered(noise_uv, seed, 1.0, 1.5, 4.0);
     ring_noise = pow(ring_noise, 2.0);
     vec2 ring_uv = uv_warp_rotational(uv, 1.0, ring_noise, .06) * 20.0;
 
+    //rings / aging lines
     vec2 primary_uv = ring_uv;
     float primary_id = floor(primary_uv.x);
     float primary_gradient = noise_white(primary_id);
@@ -395,13 +423,14 @@ float wood(vec2 uv, vec2 seed)
     secondary = value_remap(secondary, 0.0, 1.0, 0.75, 1.0);
     float rings = primary * secondary;
 
-
+    //fibers
     vec2 dot_uv = uv * vec2(10.0, 2.0);
     float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0);
     dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.8, 1.0);
 
-    vec2 variance_uv = uv * vec2(10.0, 1.0) * 4.0;
+    //color variance
+    vec2 variance_uv = uv * vec2(10.0, 1.0) * 5.0;
     float variance = noise_perlin_layered(variance_uv, seed, 2.0, 4.0, 3.0);
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
@@ -412,42 +441,33 @@ float wood(vec2 uv, vec2 seed)
 
 
 
+vec2 provide_uv()
+{
+    vec2 uv = gl_FragCoord.xy / iResolution.y;
+    uv = uv * 2.0 - 1.0;
+    
+    vec2 mouse = -iMouse.xy / iResolution.y;
+    uv *= mouse.y;
 
-
-
-
-
+    return uv;
+}
 
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / iResolution.y;
-    vec2 mouse = -iMouse.xy / iResolution.y;
-
-    uv += mouse;
-
-    float iTime2 = sin(iTime) * .5 + .5;
+    vec2 uv = provide_uv();
 
 
-
-    vec2 parquet_uv = uv;
+    vec2 bar_uv;
     vec2 bar_id;
-    float bar_aspect_ratio;
-    parquet_uv = uv_tilling(uv, vec2(2.0, 20.0), bar_id, bar_aspect_ratio);
-    float parquet_offset = noise_white(bar_id.y * 6.0);
-    parquet_uv = uv_tilling_offset(parquet_uv, bar_id, 1.0, parquet_offset);
+    float bar_height;
 
-    vec2 wood_uv = uv_rotate(uv, vec2(0.0), 90.0);
-    wood_uv *= 3.0;
-
-    float wood = wood(wood_uv, bar_id);
-    float bar = shape_rectangle(parquet_uv,
-            vec2(0.5),
-            vec2(0.995, 0.95),
-            vec2(0.01, 0.1)
-        );
+    bar_uv = parquet_tilling(uv, bar_id, vec2(1.0, 20.0));
+    bar_height = parquet_bar(bar_uv, bar_id);
 
 
+    vec3 color = vec3(0.0);
+    color = vec3(bar_uv, 0.0);
+    color = vec3(bar_height);
 
-    vec3 color = vec3(wood * bar);
 	gl_FragColor = vec4(color, 1.0);
 }
