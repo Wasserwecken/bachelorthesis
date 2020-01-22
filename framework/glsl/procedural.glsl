@@ -442,8 +442,11 @@ float wood(vec2 uv)
 
 void main() {
     vec2 uv = gl_FragCoord.xy / iResolution.y;
-    float iTime2 = sin(iTime) * .5 + .5;
+    vec2 mouse = -iMouse.xy / iResolution.y;
 
+    uv += mouse;
+
+    float iTime2 = sin(iTime) * .5 + .5;
 
 
     vec2 parquet_uv = uv;
@@ -455,7 +458,7 @@ void main() {
 
     vec2 wood_uv = uv_rotate(uv, vec2(0.0), 90.0);
     wood_uv += random_vector(bar_id);
-    wood_uv *= 4.0;
+    wood_uv *= 3.0;
 
     float wood = wood(wood_uv);
     float bar = shape_rectangle(parquet_uv,
