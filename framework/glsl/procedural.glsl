@@ -112,33 +112,35 @@ float easing_circular_inout(float x)
 //////////////////////////////
 // Random / Noises
 //////////////////////////////
-vec2 random_vector(vec2 p)
+vec2 noise_white_vec2(vec2 p)
 {
 	p = vec2( dot(p,vec2(127.1,311.7)),
 			  dot(p,vec2(269.5,183.3)) );
 	return -1. + 2.*fract(sin(p+3.)*53758.5453123);
 }
 
-float random_value(float point)
+float noise_white(float point)
 {
     return fract(sin(point) * 43758.5453123);
 }
 
-float random_value(vec2 point)
+float noise_white(vec2 point)
 {
     return fract(sin(dot(point, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-float noise_value(vec2 point, float scale)
+float noise_value(vec2 point, vec2 seed, float scale)
 {
+    point += noise_white_vec2(seed) * 2.0 - 1.0;
     point *= scale;
+    
     vec2 corner = floor(point);
     vec2 interpol = easing_smoother_step(fract(point));
     
-    float A = random_value(corner + vec2(0.0, 0.0));
-    float B = random_value(corner + vec2(1.0, 0.0));
-    float C = random_value(corner + vec2(0.0, 1.0));
-    float D = random_value(corner + vec2(1.0, 1.0));
+    float A = noise_white(corner + vec2(0.0, 0.0));
+    float B = noise_white(corner + vec2(1.0, 0.0));
+    float C = noise_white(corner + vec2(0.0, 1.0));
+    float D = noise_white(corner + vec2(1.0, 1.0));
 
     return mix(
         mix(A, B, interpol.x),
@@ -147,15 +149,16 @@ float noise_value(vec2 point, float scale)
     );
 }
 
-float noise_perlin(vec2 point, float scale)
+float noise_perlin(vec2 point, vec2 seed, float scale)
 {
+    point += noise_white_vec2(seed) * 2.0 - 1.0;
     point *= scale;
 
     vec2 corner = floor(point);
-    vec2 A = random_vector(corner + vec2(0.0, 0.0));
-    vec2 B = random_vector(corner + vec2(1.0, 0.0));
-    vec2 C = random_vector(corner + vec2(0.0, 1.0));
-    vec2 D = random_vector(corner + vec2(1.0, 1.0));
+    vec2 A = noise_white_vec2(corner + vec2(0.0, 0.0));
+    vec2 B = noise_white_vec2(corner + vec2(1.0, 0.0));
+    vec2 C = noise_white_vec2(corner + vec2(0.0, 1.0));
+    vec2 D = noise_white_vec2(corner + vec2(1.0, 1.0));
 
     point = fract(point);
     vec2 interpol = easing_smoother_step(point);
@@ -175,9 +178,9 @@ float noise_perlin(vec2 point, float scale)
     ) * 0.5 + 0.5;
 }
 
-float noise_perlin_layered(vec2 uv, float scale, float diff, float layers)
+float noise_perlin_layered(vec2 uv, vec2 seed, float scale, float diff, float layers)
 {
-    float noise = noise_perlin(uv, scale);
+    float noise = noise_perlin(uv, seed, scale);
     float weight = 1.0;
     float max_value = 1.0;
 
@@ -187,21 +190,13 @@ float noise_perlin_layered(vec2 uv, float scale, float diff, float layers)
         weight /= diff;
         max_value += weight;
 
-        noise += noise_perlin(uv, scale) * weight;
+        noise += noise_perlin(uv, ++seed, scale) * weight;
     }
 
     return value_remap(noise, 0.0, max_value, 0.0, 1.0);
 }
 
-vec2 noise_perlin_vector(vec2 point, float scale)
-{
-    return vec2(
-        noise_perlin(point, scale),
-        noise_perlin(-point, scale)
-    );
-}
-
-float noise_voronoi(vec2 point, float scale)
+float noise_voronoi(vec2 point, vec2 seed, float scale)
 {
     point = point * scale;
 
@@ -217,7 +212,7 @@ float noise_voronoi(vec2 point, float scale)
         for(float y = -1.0; y < 2.0; y++)
         {
             neighbour = vec2(x, y);
-            center = abs(random_vector(tile_id + neighbour));
+            center = abs(noise_white_vec2(tile_id + seed + neighbour));
             dist = min(dist, length(center - tile_pos + neighbour));
         }
     }
@@ -225,15 +220,7 @@ float noise_voronoi(vec2 point, float scale)
     return dist * SQRT205;
 }
 
-vec2 noise_voronoi_vector(vec2 point, float scale)
-{
-    return vec2(
-        noise_voronoi(point, scale),
-        noise_voronoi(-point, scale)
-    );
-}
-
-float noise_voronoi_manhattan(vec2 point, float scale)
+float noise_voronoi_manhattan(vec2 point, vec2 seed, float scale)
 {
     point *= scale;
 
@@ -249,7 +236,7 @@ float noise_voronoi_manhattan(vec2 point, float scale)
         for(float y = -1.0; y < 2.0; y++)
         {
             neighbour = vec2(x, y);
-            center = abs(random_vector(tile_id + neighbour));
+            center = abs(noise_white_vec2(tile_id + seed + neighbour));
             dist = min(dist, value_manhatten_length(center - tile_pos + neighbour));
         }
     }
@@ -257,15 +244,7 @@ float noise_voronoi_manhattan(vec2 point, float scale)
     return dist * 0.5;
 }
 
-vec2 noise_voronoi_manhattan_vector(vec2 point, float scale)
-{
-    return vec2(
-        noise_voronoi_manhattan(point, scale),
-        noise_voronoi_manhattan(-point, scale)
-    );
-}
-
-float noise_simplex(vec2 point, float scale)
+float noise_simplex(vec2 point, vec2 seed, float scale)
 {
     point *= scale;
 
@@ -393,24 +372,24 @@ vec2 uv_warp_rotational(vec2 uv, float offset, float distortion, float strength)
 
 
 
-float wood(vec2 uv)
+float wood(vec2 uv, vec2 seed)
 {
     vec2 noise_uv = uv * vec2(10.0, 1.5);
-    float ring_noise = noise_perlin_layered(noise_uv, 1.0, 1.5, 4.0);
+    float ring_noise = noise_perlin_layered(noise_uv, seed, 1.0, 1.5, 4.0);
     ring_noise = pow(ring_noise, 2.0);
     vec2 ring_uv = uv_warp_rotational(uv, 1.0, ring_noise, .06) * 20.0;
 
     vec2 primary_uv = ring_uv;
     float primary_id = floor(primary_uv.x);
-    float primary_gradient = random_value(primary_id);
+    float primary_gradient = noise_white(primary_id);
     float primary_lines = fract(primary_uv.x);
     float primary = primary_gradient * primary_lines;
     primary = value_remap(primary, 0.0, 1.0, 0.5, 1.0);
 
-    float secondary_line_count = 2.0 + ceil(random_value(primary_id) * 3.0);
+    float secondary_line_count = 2.0 + ceil(noise_white(primary_id) * 3.0);
     vec2 secondary_uv = primary_uv * secondary_line_count;
     float secondary_id = floor(secondary_uv.x);
-    float secondary_gradient = random_value(secondary_id);
+    float secondary_gradient = noise_white(secondary_id);
     float secondary_lines = fract(secondary_uv.x);
     float secondary = secondary_gradient * secondary_lines;
     secondary = value_remap(secondary, 0.0, 1.0, 0.75, 1.0);
@@ -418,12 +397,12 @@ float wood(vec2 uv)
 
 
     vec2 dot_uv = uv * vec2(10.0, 2.0);
-    float dots = noise_perlin_layered(dot_uv, 75.0, 2.0, 2.0);
+    float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0);
     dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.8, 1.0);
 
     vec2 variance_uv = uv * vec2(10.0, 1.0) * 4.0;
-    float variance = noise_perlin_layered(variance_uv, 2.0, 4.0, 3.0);
+    float variance = noise_perlin_layered(variance_uv, seed, 2.0, 4.0, 3.0);
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
 
@@ -449,18 +428,18 @@ void main() {
     float iTime2 = sin(iTime) * .5 + .5;
 
 
+
     vec2 parquet_uv = uv;
     vec2 bar_id;
     float bar_aspect_ratio;
     parquet_uv = uv_tilling(uv, vec2(2.0, 20.0), bar_id, bar_aspect_ratio);
-    float parquet_offset = random_value(bar_id.y * 6.0);
+    float parquet_offset = noise_white(bar_id.y * 6.0);
     parquet_uv = uv_tilling_offset(parquet_uv, bar_id, 1.0, parquet_offset);
 
     vec2 wood_uv = uv_rotate(uv, vec2(0.0), 90.0);
-    wood_uv += random_vector(bar_id);
     wood_uv *= 3.0;
 
-    float wood = wood(wood_uv);
+    float wood = wood(wood_uv, bar_id);
     float bar = shape_rectangle(parquet_uv,
             vec2(0.5),
             vec2(0.995, 0.95),
