@@ -144,16 +144,15 @@ float noise_white(vec2 point)
 
 float noise_value(vec2 point, vec2 seed, float scale)
 {
-    point += noise_white_vec2(seed) * 2.0 - 1.0;
     point *= scale;
     
     vec2 corner = floor(point);
     vec2 interpol = easing_smoother_step(fract(point));
     
-    float A = noise_white(corner + vec2(0.0, 0.0));
-    float B = noise_white(corner + vec2(1.0, 0.0));
-    float C = noise_white(corner + vec2(0.0, 1.0));
-    float D = noise_white(corner + vec2(1.0, 1.0));
+    float A = noise_white(corner + vec2(0.0, 0.0) + seed);
+    float B = noise_white(corner + vec2(1.0, 0.0) + seed);
+    float C = noise_white(corner + vec2(0.0, 1.0) + seed);
+    float D = noise_white(corner + vec2(1.0, 1.0) + seed);
 
     return mix(
         mix(A, B, interpol.x),
@@ -164,14 +163,13 @@ float noise_value(vec2 point, vec2 seed, float scale)
 
 float noise_perlin(vec2 point, vec2 seed, float scale)
 {
-    point += noise_white_vec2(seed) * 2.0 - 1.0;
     point *= scale;
 
     vec2 corner = floor(point);
-    vec2 A = noise_white_vec2(corner + vec2(0.0, 0.0));
-    vec2 B = noise_white_vec2(corner + vec2(1.0, 0.0));
-    vec2 C = noise_white_vec2(corner + vec2(0.0, 1.0));
-    vec2 D = noise_white_vec2(corner + vec2(1.0, 1.0));
+    vec2 A = noise_white_vec2(corner + vec2(0.0, 0.0) + seed);
+    vec2 B = noise_white_vec2(corner + vec2(1.0, 0.0) + seed);
+    vec2 C = noise_white_vec2(corner + vec2(0.0, 1.0) + seed);
+    vec2 D = noise_white_vec2(corner + vec2(1.0, 1.0) + seed);
 
     point = fract(point);
     vec2 interpol = easing_smoother_step(point);
@@ -191,7 +189,7 @@ float noise_perlin(vec2 point, vec2 seed, float scale)
     ) * 0.5 + 0.5;
 }
 
-float noise_perlin_layered(vec2 uv, vec2 seed, float scale, float diff, float layers)
+float noise_perlin_layered(vec2 uv, vec2 seed, float scale, float layers, float diff_scale, float diff_weight)
 {
     float noise = noise_perlin(uv, seed, scale);
     float weight = 1.0;
@@ -199,8 +197,8 @@ float noise_perlin_layered(vec2 uv, vec2 seed, float scale, float diff, float la
 
     for(float l = 1.0; l < layers; l++)
     {
-        scale *= diff;
-        weight /= diff;
+        scale *= diff_scale;
+        weight /= diff_weight;
         max_value += weight;
 
         noise += noise_perlin(uv, ++seed, scale) * weight;
@@ -360,13 +358,16 @@ vec2 uv_tilling_offset(vec2 uv, out vec2 tile_id, float offset_step, float offse
     return fract(uv);
 }
 
-vec2 uv_warp_directional(vec2 uv, vec2 distortion, float strength)
+vec2 uv_distort_warp(vec2 uv, float distortion, float strength)
 {
-    distortion = (distortion * 2.0 - 1.0) * strength;
-    return uv - distortion;
+    float x = dFdx(distortion);
+    float y = dFdy(distortion);
+    vec2 direction = vec2(x,y) * 10.0;
+
+    return uv + direction * distortion * strength;
 }
 
-vec2 uv_warp_rotational(vec2 uv, float offset, float distortion, float strength)
+vec2 uv_distort_twirl(vec2 uv, float offset, float distortion, float strength)
 {
     distortion = ((distortion * 360.0) - 180.0) * strength;
     return uv_rotate(uv, uv + vec2(offset), distortion);
@@ -402,9 +403,9 @@ float parquet_wood(vec2 uv, vec2 seed)
 {
     //ring distorions
     vec2 noise_uv = uv * vec2(10.0, 1.5);
-    float ring_noise = noise_perlin_layered(noise_uv, seed, 1.0, 1.5, 4.0);
+    float ring_noise = noise_perlin_layered(noise_uv, seed, 1.0, 4.0, 1.5, 1.5);
     ring_noise = pow(ring_noise, 2.0);
-    vec2 ring_uv = uv_warp_rotational(uv, 1.0, ring_noise, .06) * 20.0;
+    vec2 ring_uv = uv_distort_twirl(uv, 1.0, ring_noise, .06) * 20.0;
 
     //rings / aging lines
     vec2 primary_uv = ring_uv;
@@ -425,13 +426,13 @@ float parquet_wood(vec2 uv, vec2 seed)
 
     //fibers
     vec2 dot_uv = uv * vec2(10.0, 2.0);
-    float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0);
-    dots = easing_smoother_step(dots);
+    float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0, 2.0);
+    //dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.8, 1.0);
 
     //color variance
     vec2 variance_uv = uv * vec2(10.0, 1.0) * 5.0;
-    float variance = noise_perlin_layered(variance_uv, seed, 2.0, 4.0, 3.0);
+    float variance = noise_perlin_layered(variance_uv, seed, 2.0, 3.0, 4.0, 4.0);
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
 
@@ -446,7 +447,7 @@ vec2 provide_uv()
     vec2 uv = gl_FragCoord.xy / iResolution.y;
     uv = uv * 2.0 - 1.0;
     
-    vec2 mouse = -iMouse.xy / iResolution.y;
+    vec2 mouse = iMouse.xy / iResolution.y;
     uv *= mouse.y;
 
     return uv;
@@ -460,14 +461,17 @@ void main() {
     vec2 bar_uv;
     vec2 bar_id;
     float bar_height;
+    float wood_surface;
 
-    bar_uv = parquet_tilling(uv, bar_id, vec2(1.0, 20.0));
+
+    bar_uv = parquet_tilling(uv, bar_id, vec2(20.0, 20.0));
     bar_height = parquet_bar(bar_uv, bar_id);
+    wood_surface = parquet_wood(uv, vec2(1.0));
+
 
 
     vec3 color = vec3(0.0);
-    color = vec3(bar_uv, 0.0);
-    color = vec3(bar_height);
+    color = vec3(wood_surface);
 
 	gl_FragColor = vec4(color, 1.0);
 }
