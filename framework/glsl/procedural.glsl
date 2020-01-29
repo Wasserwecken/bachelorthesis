@@ -44,7 +44,12 @@ vec2 value_linear_step(vec2 value, vec2 edge, vec2 edge_width)
     );
 }
 
-vec3 value_height_to_normal(float height, float strength)
+
+
+//////////////////////////////
+// Converters
+//////////////////////////////
+vec3 converter_height_to_normal(float height, float strength)
 {
     float x = -dFdx(height);
     float y = -dFdy(height);
@@ -340,22 +345,22 @@ vec2 uv_to_polar(vec2 uv, vec2 origin)
     return vec2(angle, len);
 }
 
-vec2 uv_tilling(vec2 uv, out vec2 tile_id, vec2 tiles)
+vec2 uv_tilling_01(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, float offset)
 {
     uv *= tiles;
-    
     tile_id = floor(uv);
+    uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
+    
     return fract(uv);
 }
 
-vec2 uv_tilling_offset(vec2 uv, out vec2 tile_id, float offset_step, float offset)
+vec2 uv_tilling_0X(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, float offset)
 {
-    uv += tile_id;
-
+    uv *= tiles;
+    tile_id = floor(uv);
     uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
     
-    tile_id = floor(uv);
-    return fract(uv);
+    return mod(uv, tiles);
 }
 
 vec2 uv_distort_warp(vec2 uv, float distortion, float strength)
@@ -409,8 +414,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
     vec2 bar_id;
     vec2 bar_uv;
-    bar_uv = uv_tilling(uv, bar_id, tiles);
-    bar_uv = uv_tilling_offset(bar_uv, bar_id, 1.0, noise_white(bar_id.y));
+    bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, noise_white(bar_id.y));
 
 
 
@@ -492,23 +496,23 @@ vec2 provide_uv()
 
 
 void main() {
+    vec2 uv = provide_uv();
+
     vec3 albedo;
     float metallic;
     float roughness;
     float height;
     vec3 normal;
 
-
-    vec2 uv = provide_uv();
+    
     texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
 
 
-    vec3 color = vec3(0.0);
+    vec3 color = vec3(uv, 0.0);
     color = albedo;
     color = vec3(metallic);
     color = vec3(roughness);
     color = normal;
-    color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
 }
