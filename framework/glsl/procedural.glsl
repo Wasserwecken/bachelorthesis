@@ -46,17 +46,6 @@ vec2 value_linear_step(vec2 value, vec2 edge, vec2 edge_width)
 
 
 
-
-//////////////////////////////
-// Colors
-//////////////////////////////
-
-
-
-
-
-
-
 //////////////////////////////
 // Converters
 //////////////////////////////
@@ -382,6 +371,24 @@ float shape_ngon(vec2 uv, vec2 origin, float radius, float edges, float bend, fl
 }
 
 
+
+
+//////////////////////////////
+// Colors
+//////////////////////////////
+vec3 random_color(float x, vec2 seed)
+{
+    vec3 a = noise_white_vec3(noise_white_vec2(seed++));
+    vec3 b = noise_white_vec3(noise_white_vec2(seed++)) * (1.0 - a);
+    vec3 c = noise_white_vec3(noise_white_vec2(seed++));
+    vec3 d = noise_white_vec3(noise_white_vec2(seed++));
+
+    return a + b * cos(PI2 * (c * x + d));
+}
+
+
+
+
 //////////////////////////////
 // UV
 //////////////////////////////
@@ -585,12 +592,20 @@ void main() {
 
     texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
 
+
     vec3 color = vec3(0.0);
     color = albedo;
     color = vec3(metallic);
     color = vec3(roughness);
-    color = normal;
     color = vec3(height);
+    color = normal;
+
+    uv *= vec2(2.0, 5.0);
+    vec2 id = floor(uv);
+    uv = fract(uv);
+    color = vec3(uv, 0.0);
+    color = random_color(height, id);
+
 
 	gl_FragColor = vec4(color, 1.0);
 }
