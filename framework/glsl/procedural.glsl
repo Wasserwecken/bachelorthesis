@@ -46,6 +46,17 @@ vec2 value_linear_step(vec2 value, vec2 edge, vec2 edge_width)
 
 
 
+
+//////////////////////////////
+// Colors
+//////////////////////////////
+
+
+
+
+
+
+
 //////////////////////////////
 // Converters
 //////////////////////////////
@@ -350,6 +361,7 @@ vec2 uv_tilling_01(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, flo
     uv *= tiles;
     tile_id = floor(uv);
     uv.x -= offset * floor(tile_id.y * (1.0 / offset_step));
+    tile_id = floor(uv);
     
     return fract(uv);
 }
@@ -359,6 +371,7 @@ vec2 uv_tilling_0X(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, flo
     uv *= tiles;
     tile_id = floor(uv);
     uv.x -= offset * floor(tile_id.y * (1.0 / offset_step));
+    tile_id = floor(uv);
     
     return fract(uv) * tiles.yx;
 }
@@ -401,30 +414,11 @@ vec2 uv_distort_twirl(vec2 uv, float offset, float distortion, float strength)
 
 
 
-
-
-
-
-
-
-void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height, out vec3 normal)
+float texture_processed_wood(vec2 uv, vec2 seed)
 {
-    vec2 tiles = vec2(2.0, 20.0);
-
-
-    vec2 bar_id;
-    vec2 bar_uv;
-    bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, noise_white(bar_id.y));
-
-
-
-    float bar = shape_rectangle(bar_uv, vec2(0.5), vec2(0.9), vec2(0.1));
-
-
-
     //ring distorions
     vec2 noise_uv = uv * vec2(1.5, 10.0);
-    float ring_noise = noise_perlin_layered(noise_uv, bar_id, 1.0, 4.0, 1.5, 1.5);
+    float ring_noise = noise_perlin_layered(noise_uv, seed, 1.0, 4.0, 1.5, 1.5);
     ring_noise = pow(ring_noise, 2.0);
     vec2 ring_uv = uv_distort_twirl(uv, 1.0, ring_noise, .06) * 20.0;
 
@@ -447,22 +441,45 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
     //fibers
     vec2 dot_uv = uv * vec2(2.0, 10.0);
-    float dots = noise_perlin_layered(dot_uv, bar_id, 75.0, 2.0, 2.0, 2.0);
+    float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0, 2.0);
     //dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.8, 1.0);
 
     //color variance
-    vec2 variance_uv = uv * vec2(10.0, 1.0) * 5.0;
-    float variance = noise_perlin_layered(variance_uv, bar_id, 2.0, 3.0, 4.0, 4.0);
+    vec2 variance_uv = uv * vec2(1.0, 10.0) * 5.0;
+    float variance = noise_perlin_layered(variance_uv, seed, 2.0, 3.0, 4.0, 4.0);
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
 
-    float wood = rings * dots * variance;
+    return rings * dots * variance;
+}
+
+
+
+void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height, out vec3 normal)
+{
+    vec2 tiles = vec2(1.0, 40.0);
+
+    vec2 bar_id;
+    vec2 bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, .5);
+    vec2 bar_center = tiles.yx / 2.0 + (noise_white_vec2(bar_id) * 2.0 - 1.0) * 0.01;
+    vec2 bar_size = tiles.yx - 0.07;
+    float bar_blur = noise_perlin_layered(bar_uv, bar_id, 2.0, 2.0, 2.0, 2.0) * 0.075;
+    float bar_bend = noise_perlin(uv, bar_id, 4.0);
+
+    bar_uv = uv_rotate(bar_uv, bar_center, 0.025);
+    bar_uv = uv_distort_twirl(bar_uv, 0.1, bar_bend, 0.1); 
+
+    float bar = shape_rectangle(bar_uv, bar_center, bar_size, vec2(bar_blur));
+    bar = easing_circular_out(bar);
 
 
 
 
-    height = wood * bar;
+    float wood = texture_processed_wood(bar_uv * 0.075, bar_id);
+
+
+    height = bar * wood;
 }
 
 
@@ -504,10 +521,8 @@ void main() {
     float height;
     vec3 normal;
 
-    vec2 tile_id;
-    uv = uv_tilling_0X(uv, tile_id, vec2(1.0, 20.0), 1.0, .1);
 
-    //texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
+    texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
 
 
     vec3 color = vec3(0.0);
@@ -515,8 +530,8 @@ void main() {
     color = vec3(metallic);
     color = vec3(roughness);
     color = normal;
-    color = vec3(height);
     color = vec3(uv, 0.0);
+    color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
 }
