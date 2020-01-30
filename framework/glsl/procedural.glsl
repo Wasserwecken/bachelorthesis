@@ -243,10 +243,10 @@ float noise_perlin(vec2 point, vec2 seed, float scale)
     point *= scale;
 
     vec2 corner = floor(point);
-    vec2 A = noise_white_vec2(corner + vec2(0.0, 0.0) + seed);
-    vec2 B = noise_white_vec2(corner + vec2(1.0, 0.0) + seed);
-    vec2 C = noise_white_vec2(corner + vec2(0.0, 1.0) + seed);
-    vec2 D = noise_white_vec2(corner + vec2(1.0, 1.0) + seed);
+    vec2 A = noise_white_vec2(corner + vec2(0.0, 0.0) + seed) * 2.0 - 1.0;
+    vec2 B = noise_white_vec2(corner + vec2(1.0, 0.0) + seed) * 2.0 - 1.0;
+    vec2 C = noise_white_vec2(corner + vec2(0.0, 1.0) + seed) * 2.0 - 1.0;
+    vec2 D = noise_white_vec2(corner + vec2(1.0, 1.0) + seed) * 2.0 - 1.0;
 
     point = fract(point);
     vec2 interpol = easing_smoother_step(point);
@@ -485,7 +485,7 @@ float texture_processed_wood(vec2 uv, vec2 seed)
 
     //rings / aging lines
     vec2 primary_uv = ring_uv;
-    float primary_id = floor(primary_uv.y);
+    float primary_id = floor(primary_uv.y) + seed.y;
     float primary_gradient = noise_white(primary_id);
     float primary_lines = fract(primary_uv.y);
     float primary = primary_gradient * primary_lines;
@@ -493,7 +493,7 @@ float texture_processed_wood(vec2 uv, vec2 seed)
 
     float secondary_line_count = 2.0 + ceil(noise_white(primary_id) * 3.0);
     vec2 secondary_uv = primary_uv * secondary_line_count;
-    float secondary_id = floor(secondary_uv.y);
+    float secondary_id = floor(secondary_uv.y) + seed.y;
     float secondary_gradient = noise_white(secondary_id);
     float secondary_lines = fract(secondary_uv.y);
     float secondary = secondary_gradient * secondary_lines;
@@ -503,7 +503,7 @@ float texture_processed_wood(vec2 uv, vec2 seed)
     //fibers
     vec2 dot_uv = uv * vec2(2.0, 10.0);
     float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0, 2.0);
-    //dots = easing_smoother_step(dots);
+    dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.7, 1.0);
 
     //color variance
@@ -512,7 +512,6 @@ float texture_processed_wood(vec2 uv, vec2 seed)
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
 
-    return primary;
     return rings * dots * variance;
 }
 
@@ -585,7 +584,6 @@ void main() {
 
 
     texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
-
 
     vec3 color = vec3(0.0);
     color = albedo;
