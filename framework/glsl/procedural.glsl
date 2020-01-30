@@ -141,21 +141,82 @@ float easing_circular_inout(float x)
 //////////////////////////////
 // Random / Noises
 //////////////////////////////
+
+//https://www.shadertoy.com/view/4djSRW
+float noise_white(float p)
+{
+    p *= 5461.0;
+    p = fract(p * .1031);
+    p *= p + 33.33;
+    p *= p + p;
+    return fract(p);
+}
+
+float noise_white(vec2 p)
+{
+    p *= 5461.0;
+	vec3 p3  = fract(vec3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+float noise_white(vec3 p)
+{
+    p *= 5461.0;
+	p  = fract(p * .1031);
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.x + p.y) * p.z);
+}
+
+vec2 noise_white_vec2(float p)
+{
+    p *= 5461.0;
+	vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+	p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx+p3.yz)*p3.zy);
+
+}
+
 vec2 noise_white_vec2(vec2 p)
 {
-	p = vec2( dot(p,vec2(127.1,311.7)),
-			  dot(p,vec2(269.5,183.3)) );
-	return -1. + 2.*fract(sin(p+3.)*53758.5453123);
+    p *= 5461.0;
+	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx+33.33);
+    return fract((p3.xx+p3.yz)*p3.zy);
+
 }
 
-float noise_white(float point)
+vec2 noise_white_vec2(vec3 p3)
 {
-    return fract(sin(point) * 43758.5453123);
+    p3 *= 5461.0;
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx+33.33);
+    return fract((p3.xx+p3.yz)*p3.zy);
 }
 
-float noise_white(vec2 point)
+vec3 noise_white_vec3(float p)
 {
-    return fract(sin(dot(point, vec2(12.9898, 78.233))) * 43758.5453);
+    p *= 5461.0;
+   vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
+   p3 += dot(p3, p3.yzx+33.33);
+   return fract((p3.xxy+p3.yzz)*p3.zyx); 
+}
+
+vec3 noise_white_vec3(vec2 p)
+{
+    p *= 5461.0;
+	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz+33.33);
+    return fract((p3.xxy+p3.yzz)*p3.zyx);
+}
+
+vec3 noise_white_vec3(vec3 p3)
+{
+    p3 *= 5461.0;
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz+33.33);
+    return fract((p3.xxy + p3.yxx)*p3.zyx);
+
 }
 
 float noise_value(vec2 point, vec2 seed, float scale)
@@ -443,7 +504,7 @@ float texture_processed_wood(vec2 uv, vec2 seed)
     vec2 dot_uv = uv * vec2(2.0, 10.0);
     float dots = noise_perlin_layered(dot_uv, seed, 75.0, 2.0, 2.0, 2.0);
     //dots = easing_smoother_step(dots);
-    dots = value_remap(dots, 0.0, 1.0, 0.8, 1.0);
+    dots = value_remap(dots, 0.0, 1.0, 0.7, 1.0);
 
     //color variance
     vec2 variance_uv = uv * vec2(1.0, 10.0) * 5.0;
@@ -451,6 +512,7 @@ float texture_processed_wood(vec2 uv, vec2 seed)
     variance = easing_smoother_step(variance);
     variance = value_remap(variance, 0.0, 1.0, 0.75, 1.0);
 
+    return primary;
     return rings * dots * variance;
 }
 
@@ -530,7 +592,6 @@ void main() {
     color = vec3(metallic);
     color = vec3(roughness);
     color = normal;
-    color = vec3(uv, 0.0);
     color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
