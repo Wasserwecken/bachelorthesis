@@ -349,7 +349,7 @@ vec2 uv_tilling_01(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, flo
 {
     uv *= tiles;
     tile_id = floor(uv);
-    uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
+    uv.x -= offset * floor(tile_id.y * (1.0 / offset_step));
     
     return fract(uv);
 }
@@ -358,9 +358,9 @@ vec2 uv_tilling_0X(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, flo
 {
     uv *= tiles;
     tile_id = floor(uv);
-    uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
+    uv.x -= offset * floor(tile_id.y * (1.0 / offset_step));
     
-    return mod(uv, tiles);
+    return fract(uv) * tiles.yx;
 }
 
 vec2 uv_distort_warp(vec2 uv, float distortion, float strength)
@@ -504,15 +504,19 @@ void main() {
     float height;
     vec3 normal;
 
-    
-    texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
+    vec2 tile_id;
+    uv = uv_tilling_0X(uv, tile_id, vec2(1.0, 20.0), 1.0, .1);
+
+    //texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
 
 
-    vec3 color = vec3(uv, 0.0);
+    vec3 color = vec3(0.0);
     color = albedo;
     color = vec3(metallic);
     color = vec3(roughness);
     color = normal;
+    color = vec3(height);
+    color = vec3(uv, 0.0);
 
 	gl_FragColor = vec4(color, 1.0);
 }
