@@ -8,37 +8,60 @@
 //////////////////////////////
 // Colors
 //////////////////////////////
-vec3 random_color_gradient(float x, vec2 seed)
-{
-    vec3 a = noise_white_vec3(noise_white_vec2(seed++));
-    vec3 b = noise_white_vec3(noise_white_vec2(seed++)) * (1.0 - a);
-    vec3 c = noise_white_vec3(noise_white_vec2(seed++));
-    vec3 d = noise_white_vec3(noise_white_vec2(seed++));
 
-    return a + b * cos(4.0 * PI2 * (c * x + d));
+// https://stackoverflow.com/questions/22895237/hexadecimal-to-rgb-values-in-webgl-shader
+vec3 color_hex_to_rgb(int hex_code)
+{
+    return vec3(
+        mod(float(hex_code / 256 / 256), 256.0),
+        mod(float(hex_code / 256), 256.0),
+        mod(float(hex_code), 256.0)
+    ) / 255.0;
 }
 
-vec3 random_color_gradient_2(float x, vec2 seed, float scale)
+//https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
+vec3 color_rgb_to_hsv(vec3 rgb)
 {
-    float l = 3.0;
-    float s = 2.0;
-    float w = 2.0;
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(rgb.bg, K.wz), vec4(rgb.gb, K.xy), step(rgb.b, rgb.g));
+    vec4 q = mix(vec4(p.xyw, rgb.r), vec4(rgb.r, p.yzx), step(p.x, rgb.r));
 
-    vec3 interpol = vec3(
-        noise_perlin_vec1_layered(x, noise_white(seed++), scale, l, s, w),
-        noise_perlin_vec1_layered(x, noise_white(seed++), scale, l, s, w),
-        noise_perlin_vec1_layered(x, noise_white(seed++), scale, l, s, w)
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+//https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
+vec3 color_hsv_to_rgb(vec3 hsl)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(hsl.xxx + K.xyz) * 6.0 - K.www);
+    return hsl.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsl.y);
+}
+
+//https://www.iquilezles.org/www/articles/palettes/palettes.htm
+vec3 color_gradient_generated_cos(float t, float s, vec3 a, vec3 b, vec3 c, vec3 d)
+{
+    return a + b * cos(PI2 * (c + d * s * t));
+}
+
+vec3 color_gradient_generated_perlin(
+        float t,
+        vec3 color,
+        vec3 seed,
+        float scale,
+        float dist,
+        float layers,
+        float layers_scale,
+        float layers_weight)
+{
+    vec3 interpolation = vec3(
+        noise_perlin_layered(t, noise_white(seed.x), scale, layers, layers_scale, layers_weight),
+        noise_perlin_layered(t, noise_white(seed.y), scale, layers, layers_scale, layers_weight),
+        noise_perlin_layered(t, noise_white(seed.z), scale, layers, layers_scale, layers_weight)
     );
-    interpol = easing_smoother_step(interpol);
-    interpol = easing_smoother_step(interpol);
-    interpol = easing_smoother_step(interpol);
-    interpol = easing_smoother_step(interpol);
-
-    vec3 a = noise_white_vec3(seed++);
-    vec3 b = noise_white_vec3(seed);
-
-    //return vec3(interpol.x);
-    return mix(a, b, interpol);
+    interpolation = easing_power_inout(interpolation, vec3(dist)) * 2.0 - 1.0;
+    return (color * interpolation) + color;
 }
 
 

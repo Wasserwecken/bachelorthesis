@@ -12,36 +12,95 @@ float easing_smoother_step(float x)
 
 vec2 easing_smoother_step(vec2 x)
 {
-    return x * x * x * (6.0 * x * x - 15.0 * x + 10.0);
+    return vec2(
+        easing_smoother_step(x.x),
+        easing_smoother_step(x.y)
+    );
 }
 
 vec3 easing_smoother_step(vec3 x)
 {
-    return x * x * x * (6.0 * x * x - 15.0 * x + 10.0);
+    return vec3(
+        easing_smoother_step(x.x),
+        easing_smoother_step(x.y),
+        easing_smoother_step(x.z)
+    );
 }
+
 
 float easing_power_in(float x, float power)
 {
     return pow(x, power);
 }
 
+vec2 easing_power_in(vec2 x, vec2 power)
+{
+    return vec2(
+        easing_power_in(x.x, power.x),
+        easing_power_in(x.y, power.y)
+    );
+}
+
+vec3 easing_power_in(vec3 x, vec3 power)
+{
+    return vec3(
+        easing_power_in(x.x, power.x),
+        easing_power_in(x.y, power.y),
+        easing_power_in(x.z, power.z)
+    );
+}
+
+
 float easing_power_out(float x, float power)
 {
     return 1.0 - pow(1.0 - x, power);
 }
 
+vec2 easing_power_out(vec2 x, vec2 power)
+{
+    return vec2(
+        easing_power_out(x.x, power.x),
+        easing_power_out(x.y, power.y)
+    );
+}
+
+vec3 easing_power_out(vec3 x, vec3 power)
+{
+    return vec3(
+        easing_power_out(x.x, power.x),
+        easing_power_out(x.y, power.y),
+        easing_power_out(x.z, power.z)
+    );
+}
+
+
 float easing_power_inout(float x, float power)
 {
     x *= 2.0;
-
     float is_in = step(x, 1.0);
     float ease_in = easing_power_in(x, power);
     float ease_out = easing_power_out(x - 1.0, power);
 
-    float ease = is_in * ease_in + (1.0 - is_in) * (ease_out + 1.0);
-
-    return ease * .5;
+    return (is_in * ease_in + (1.0 - is_in) * (ease_out + 1.0)) * .5;
 }
+
+vec2 easing_power_inout(vec2 x, vec2 power)
+{
+    return vec2(
+        easing_power_inout(x.x, power.x),
+        easing_power_inout(x.y, power.y)
+    );
+}
+
+vec3 easing_power_inout(vec3 x, vec3 power)
+{
+    return vec3(
+        easing_power_inout(x.x, power.x),
+        easing_power_inout(x.y, power.y),
+        easing_power_inout(x.z, power.z)
+    );
+}
+
 
 float easing_circular_in(float x)
 {

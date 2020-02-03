@@ -131,7 +131,7 @@ void main() {
     vec2 id = floor(uv);
     uv = fract(uv);
     color = vec3(uv, 0.0);
-    color = vec3(noise_perlin_vec1_layered(uv.x, 0.0, 5.0, 3.0, 4.0, 4.0));
+    color = vec3(noise_perlin_layered(uv.x, 0.0, 5.0, 3.0, 4.0, 4.0));
     color = random_color_gradient(uv.x + iTime * 0.0, id);
     color = random_color_gradient_2(uv.x + iTime * 0.0, id, 2.0);
 

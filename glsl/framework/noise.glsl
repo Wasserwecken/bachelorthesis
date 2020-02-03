@@ -87,6 +87,7 @@ vec3 noise_white_vec3(vec3 p3)
 
 }
 
+
 float noise_value(vec2 point, vec2 seed, float scale)
 {
     point *= scale;
@@ -106,8 +107,10 @@ float noise_value(vec2 point, vec2 seed, float scale)
     );
 }
 
-float noise_perlin_vec1(float point, float seed, float scale)
+
+float noise_perlin(float point, float seed, float scale)
 {
+    point += noise_white(seed) * 2.0 - 1.0;
     point *= scale;
 
     float corner = floor(point);
@@ -124,9 +127,9 @@ float noise_perlin_vec1(float point, float seed, float scale)
     ) * 0.5 + 0.5;
 }
 
-float noise_perlin_vec1_layered(float point, float seed, float scale, float layers, float diff_scale, float diff_weight)
+float noise_perlin_layered(float point, float seed, float scale, float layers, float diff_scale, float diff_weight)
 {
-    float noise = noise_perlin_vec1(point, seed, scale);
+    float noise = noise_perlin(point, seed, scale);
     float weight = 1.0;
     float max_value = 1.0;
 
@@ -136,14 +139,16 @@ float noise_perlin_vec1_layered(float point, float seed, float scale, float laye
         weight /= diff_weight;
         max_value += weight;
 
-        noise += noise_perlin_vec1(point, ++seed, scale) * weight;
+        noise += noise_perlin(point, ++seed, scale) * weight;
     }
 
     return value_remap(noise, 0.0, max_value, 0.0, 1.0);
 }
 
+
 float noise_perlin(vec2 point, vec2 seed, float scale)
 {
+    point += noise_white_vec2(seed) * 2.0 - 1.0;
     point *= scale;
 
     vec2 corner = floor(point);
@@ -187,6 +192,7 @@ float noise_perlin_layered(vec2 uv, vec2 seed, float scale, float layers, float 
 
     return value_remap(noise, 0.0, max_value, 0.0, 1.0);
 }
+
 
 float noise_voronoi(vec2 point, vec2 seed, float scale)
 {
@@ -234,13 +240,6 @@ float noise_voronoi_manhattan(vec2 point, vec2 seed, float scale)
     }
 
     return dist * 0.5;
-}
-
-float noise_simplex(vec2 point, vec2 seed, float scale)
-{
-    point *= scale;
-
-    return 0.0;
 }
 
 #endif
