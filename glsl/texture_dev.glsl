@@ -56,7 +56,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     vec2 tiles = vec2(1.0, 40.0);
 
     vec2 bar_id;
-    vec2 bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, .5);
+    vec2 bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, .3);
     vec2 bar_center = tiles.yx / 2.0 + (noise_white_vec2(bar_id) * 2.0 - 1.0) * 0.01;
     vec2 bar_size = tiles.yx - 0.07;
     float bar_blur = noise_perlin_layered(bar_uv, bar_id, 2.0, 2.0, 2.0, 2.0) * 0.075;
@@ -74,7 +74,19 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float wood = texture_processed_wood(bar_uv * 0.075, bar_id);
 
 
+    albedo = color_hex_to_rgb(0xcc9966);
+    albedo = color_hex_to_rgb(0x7C5D37);
+    albedo = color_gradient_generated_perlin(
+            wood,
+            albedo,
+            vec3(0.0),
+            1.0,
+            2.0,
+            3.0, 4.0, 2.0);
+    albedo *= bar;
+
     height = bar * wood;
+    normal = converter_height_to_normal(bar * wood, 1.0);
 }
 
 
@@ -98,6 +110,13 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 vec2 provide_uv()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.y;
+
+    return uv;
+}
+
+vec2 provide_uv_interactive()
+{
+    vec2 uv = gl_FragCoord.xy / iResolution.y;
     uv = uv * 2.0 - 1.0;
     
     vec2 mouse = iMouse.xy / iResolution.y;
@@ -117,23 +136,15 @@ void main() {
     vec3 normal;
 
 
-    texture_old_parquet(uv, albedo, metallic, roughness, height, normal);
+    texture_old_parquet(uv * .5, albedo, metallic, roughness, height, normal);
 
 
     vec3 color = vec3(0.0);
-    color = albedo;
     color = vec3(metallic);
     color = vec3(roughness);
-    color = vec3(height);
+    color = albedo;
     color = normal;
-
-    uv *= vec2(2.0, 20.0);
-    vec2 id = floor(uv);
-    uv = fract(uv);
-    color = vec3(uv, 0.0);
-    color = vec3(noise_perlin_layered(uv.x, 0.0, 5.0, 3.0, 4.0, 4.0));
-    color = random_color_gradient(uv.x + iTime * 0.0, id);
-    color = random_color_gradient_2(uv.x + iTime * 0.0, id, 2.0);
+    color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
 }
