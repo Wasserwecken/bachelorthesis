@@ -45,6 +45,7 @@ vec3 easing_tests()
 vec3 gradient_tests()
 {
     vec2 uv = provide_uv();
+    //uv = provide_uv_interactive();
     vec3 color = vec3(1.0);
 
     //float line = step(0.45, uv.y) * step(uv.y, 0.55);
@@ -56,7 +57,7 @@ vec3 gradient_tests()
     color = color_gradient_generated_perlin(
             uv.x,
             input_color,
-            vec3(uv.y),
+            uv.y,
             5.0,
             5.0,
             4.0, 2.0, 2.0);

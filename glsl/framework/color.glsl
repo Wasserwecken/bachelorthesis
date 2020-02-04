@@ -19,6 +19,7 @@ vec3 color_hex_to_rgb(int hex_code)
     ) / 255.0;
 }
 
+
 //https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
 vec3 color_rgb_to_hsv(vec3 rgb)
 {
@@ -39,16 +40,18 @@ vec3 color_hsv_to_rgb(vec3 hsl)
     return hsl.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsl.y);
 }
 
+
 //https://www.iquilezles.org/www/articles/palettes/palettes.htm
 vec3 color_gradient_generated_cos(float t, float s, vec3 a, vec3 b, vec3 c, vec3 d)
 {
     return a + b * cos(PI2 * (c + d * s * t));
 }
 
+
 vec3 color_gradient_generated_perlin(
         float t,
         vec3 color,
-        vec3 seed,
+        float seed,
         float scale,
         float dist,
         float layers,
@@ -56,11 +59,30 @@ vec3 color_gradient_generated_perlin(
         float layers_weight)
 {
     vec3 interpolation = vec3(
-        noise_perlin_layered(t, noise_white(seed.x), scale, layers, layers_scale, layers_weight),
-        noise_perlin_layered(t, noise_white(seed.y), scale, layers, layers_scale, layers_weight),
-        noise_perlin_layered(t, noise_white(seed.z), scale, layers, layers_scale, layers_weight)
+        noise_perlin_layered(t, noise_white(seed), scale, layers, layers_scale, layers_weight),
+        noise_perlin_layered(t, noise_white(seed), scale, layers, layers_scale, layers_weight),
+        noise_perlin_layered(t, noise_white(seed), scale, layers, layers_scale, layers_weight)
     );
     interpolation = easing_power_inout(interpolation, vec3(dist)) * 2.0 - 1.0;
+    return (color * interpolation) + color;
+}
+
+vec3 color_gradient_generated_perlin(
+        float t,
+        vec3 color,
+        vec3 seed,
+        vec3 scale,
+        vec3 dist,
+        vec3 layers,
+        vec3 layers_scale,
+        vec3 layers_weight)
+{
+    vec3 interpolation = vec3(
+        noise_perlin_layered(t, noise_white(seed.x), scale.x, layers.x, layers_scale.x, layers_weight.x),
+        noise_perlin_layered(t, noise_white(seed.y), scale.y, layers.y, layers_scale.y, layers_weight.y),
+        noise_perlin_layered(t, noise_white(seed.z), scale.z, layers.z, layers_scale.z, layers_weight.z)
+    );
+    interpolation = easing_power_inout(interpolation, dist) * 2.0 - 1.0;
     return (color * interpolation) + color;
 }
 
