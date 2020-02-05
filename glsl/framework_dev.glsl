@@ -68,7 +68,8 @@ vec3 gradient_tests()
 
 void main() {
 
-    vec3 color = gradient_tests();
+    vec3 color = vec3(.5);
+
 
 	gl_FragColor = vec4(color, 1.0);
 }
