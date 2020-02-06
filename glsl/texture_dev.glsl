@@ -83,14 +83,14 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float gum_blur = 0.1;
     vec2 gum_origin = noise_white_vec2(gum_seed++) * (1.0 - 2.0 * gum_radius) + gum_radius;
     float gum = has_gum * shape_circle(gum_uv, gum_origin, gum_radius, gum_blur);
-
+    gum = easing_power_out(gum, 4.0);
 
 
     //zigarett burn
 
     //fibers and pores
     vec2 dot_uv = uv * vec2(2.0, 10.0);
-    float dots = noise_perlin_layered(dot_uv, bar_id, 75.0, 2.0, 2.0, 2.0);
+    float dots = noise_perlin_layered(dot_uv, bar_id, 300.0, 2.0, 2.0, 2.0);
     dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.7, 1.0);
 
@@ -104,7 +104,8 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
 
 
-    vec3 albedo_bar = color_hex_to_rgb(0xcc9966);
+    vec3 base_wood_color = color_hex_to_rgb(0xcc9966);
+    vec3 albedo_bar = base_wood_color;
     float color_bar_variance = value_remap(noise_white(bar_id), 0.0, 1.0, 0.95, 1.0);
     albedo_bar = color_gradient_generated_perlin(
             wood,
@@ -115,20 +116,16 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
             3.0, 4.0, 2.0);
     albedo = albedo_bar * color_bar_variance;
 
-    vec3 albedo_stem = color_deviation(albedo_bar * 0.6, noise_white(stem_seed), 0.2);
-    albedo = mix(albedo, albedo_stem, easing_smoother_step(stem));
+    vec3 albedo_stem = color_deviation(albedo_bar * 0.2, noise_white(stem_seed), 0.2);
+    albedo = mix(albedo, albedo_stem, easing_power_in(stem, 4.0) * 0.5);
 
-    vec3 albedo_gum = color_deviation(albedo_bar * 0.4, noise_white(gum_seed), 0.7);
-    albedo = mix(albedo, albedo_gum, easing_smoother_step(gum));
+    vec3 albedo_gum = color_deviation(base_wood_color * 0.3, noise_white(gum_seed), 0.7);
+    albedo = mix(albedo, albedo_gum, gum);
 
 
     albedo *= bar;
 
-    height = bar * wood;
-    height += gum + stem;
 
-    //height = secondary_lines;
-    normal = converter_height_to_normal(bar * wood, 1.0);
 }
 
 
