@@ -31,9 +31,9 @@ vec3 easing_tests()
     vec2 uv = provide_uv();
     vec3 color = vec3(0.0);
 
-    float r = easing_power_inout(uv.x, 10.0);
+    float r = easing_power_inout(uv.x, 0.25);
     float g = easing_smoother_step(uv.x);
-    float b = easing_smoother_step(g);
+    float b = easing_power_inout(uv.x, 2.0);
 
     color.r = step(uv.y, r);
     color.g = step(uv.y, g);
@@ -68,7 +68,7 @@ vec3 gradient_tests()
 
 void main() {
 
-    vec3 color = vec3(.5);
+    vec3 color = easing_tests();
 
 
 	gl_FragColor = vec4(color, 1.0);

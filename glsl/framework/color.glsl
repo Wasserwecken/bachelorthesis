@@ -48,6 +48,29 @@ vec3 color_gradient_generated_cos(float t, float s, vec3 a, vec3 b, vec3 c, vec3
 }
 
 
+vec3 color_deviation(vec3 color, float seed, float strenght)
+{
+    vec3 deviation = vec3(noise_white(seed));
+    deviation = deviation * 2.0 - 1.0;
+    deviation *= strenght;
+
+    return (color * deviation) + color;
+}
+
+vec3 color_deviation(vec3 color, vec3 seed, vec3 strenght)
+{
+    vec3 deviation = vec3(
+        noise_white(seed.x),
+        noise_white(seed.y),
+        noise_white(seed.z)
+    );
+    deviation = deviation * 2.0 - 1.0;
+    deviation *= strenght;
+
+    return (color * deviation) + color;
+}
+
+
 vec3 color_gradient_generated_perlin(
         float t,
         vec3 color,
@@ -59,8 +82,6 @@ vec3 color_gradient_generated_perlin(
         float layers_weight)
 {
     vec3 interpolation = vec3(
-        noise_perlin_layered(t, noise_white(seed), scale, layers, layers_scale, layers_weight),
-        noise_perlin_layered(t, noise_white(seed), scale, layers, layers_scale, layers_weight),
         noise_perlin_layered(t, noise_white(seed), scale, layers, layers_scale, layers_weight)
     );
     interpolation = easing_power_inout(interpolation, vec3(dist)) * 2.0 - 1.0;
