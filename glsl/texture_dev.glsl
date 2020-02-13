@@ -13,6 +13,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 {
     vec2 tiles = vec2(1.0, 40.0);
 
+
     // UV tilling
     vec2 bar_id;
     vec2 bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, .3);
@@ -21,11 +22,13 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float bar_blur = noise_perlin_layered(bar_uv, bar_id, 2.0, 2.0, 2.0, 2.0) * 0.075;
     float bar_bend = noise_perlin(uv, bar_id, 4.0);
 
+
     // bar shape
     bar_uv = uv_rotate(bar_uv, bar_center, 0.025);
     bar_uv = uv_distort_twirl(bar_uv, 0.1, bar_bend, 0.1); 
     float bar = shape_rectangle(bar_uv, bar_center, bar_size, vec2(bar_blur));
     bar = easing_circular_out(bar);
+
 
     //stem
     vec2 stem_uv;
@@ -42,12 +45,14 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float stem = has_stem * shape_circle(stem_uv, stem_origin, stem_radius, stem_blur);
     stem = easing_power_in(stem, 4.0);
 
+
     //ring distorions
     vec2 noise_uv = bar_uv * vec2(1.5, 10.0) * 0.075;
     float ring_noise = noise_perlin_layered(noise_uv, bar_id, 1.0, 4.0, 1.5, 1.5);
     ring_noise = pow(ring_noise, 2.0);
     vec2 ring_uv = uv_distort_twirl(uv, 1.0, ring_noise, .06) * 20.0;
     ring_uv = uv_distort_twirl(ring_uv, 1.0, stem * .5 + .5, 1.0);
+
 
     //rings / aging lines
     vec2 primary_uv = ring_uv;
@@ -56,6 +61,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float primary_lines = fract(primary_uv.y);
     float primary = primary_gradient * primary_lines;
     primary = value_remap(primary, 0.0, 1.0, 0.5, 1.0);
+
 
     //float secondary_line_count = 2.0 + ceil(noise_white(primary_id) * 3.0);
     float secondary_line_count = 10.0 + ceil(noise_white(primary_id) * 10.0);
@@ -66,8 +72,8 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float secondary = secondary_gradient * secondary_lines;
     secondary = value_remap(secondary, 0.0, 1.0, 0.75, 1.0);
 
-    float rings_lines = primary_lines * secondary_lines;
     float rings = primary * secondary;
+
 
     //gum
     vec2 gum_id;
@@ -76,17 +82,21 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float gum_distortion = noise_perlin(gum_uv, gum_id, 2.0);
     gum_uv = uv_distort_twirl(gum_uv, 1.0, gum_distortion, .1);
 
-    vec2 gum_seed = gum_id;
+    vec2 gum_seed = gum_id + 10.0;
     float has_gum = step(0.97, noise_white(gum_seed++));
-    float gum_radius_variance = 1.0;// easing_smoother_step(noise_perlin(gum_uv, gum_seed++, 10.0));
-    float gum_radius = 0.1 + noise_white(gum_seed++) * 0.2 * gum_radius_variance;
+    float gum_radius_variance = noise_white(gum_seed++);
+    float gum_radius = 0.1 + gum_radius_variance * 0.2;
     float gum_blur = 0.1;
-    vec2 gum_origin = noise_white_vec2(gum_seed++) * (1.0 - 2.0 * gum_radius) + gum_radius;
+    float gum_wear = easing_power_in(easing_zic(secondary_lines), 2.0);// * noise_white(gum_seed++);
+    vec2 gum_origin = noise_white_vec2(gum_seed++) * (1.0 - 2.0 * (gum_radius + gum_blur)) + (gum_radius + gum_blur);
     float gum = has_gum * shape_circle(gum_uv, gum_origin, gum_radius, gum_blur);
+    gum = clamp(gum - gum_wear, 0.0, 1.0);
     gum = easing_power_out(gum, 4.0);
 
 
-    //zigarett burn
+    //zigaret burn
+
+
 
     //fibers and pores
     vec2 dot_uv = uv * vec2(2.0, 10.0);
@@ -125,6 +135,8 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
     albedo *= bar;
 
+
+    //albedo = vec3(gum);
 
 }
 

@@ -108,11 +108,47 @@ float easing_circular_in(float x)
     return 1.0 - sqrt(1.0 - x * x);
 }
 
+vec2 easing_circular_in(vec2 x)
+{
+    return vec2(
+        easing_circular_in(x.x),
+        easing_circular_in(x.y)
+    );
+}
+
+vec3 easing_circular_in(vec3 x)
+{
+    return vec3(
+        easing_circular_in(x.x),
+        easing_circular_in(x.y),
+        easing_circular_in(x.z)
+    );
+}
+
+
 float easing_circular_out(float x)
 {
     x = max(x, 0.0);
     return sqrt(1.0 - --x * x);
 }
+
+vec2 easing_circular_out(vec2 x)
+{
+    return vec2(
+        easing_circular_out(x.x),
+        easing_circular_out(x.y)
+    );
+}
+
+vec3 easing_circular_out(vec3 x)
+{
+    return vec3(
+        easing_circular_out(x.x),
+        easing_circular_out(x.y),
+        easing_circular_out(x.z)
+    );
+}
+
 
 float easing_circular_inout(float x)
 {
@@ -125,6 +161,34 @@ float easing_circular_inout(float x)
     float ease = is_in * ease_in + (1.0 - is_in) * (ease_out + 1.0);
 
     return ease * .5;
+}
+
+vec2 easing_circular_inout(vec2 x)
+{
+    return vec2(
+        easing_circular_inout(x.x),
+        easing_circular_inout(x.y)
+    );
+}
+
+vec3 easing_circular_inout(vec3 x)
+{
+    return vec3(
+        easing_circular_inout(x.x),
+        easing_circular_inout(x.y),
+        easing_circular_inout(x.z)
+    );
+}
+
+
+float easing_zic(float x)
+{
+    return abs(x - 0.5);
+}
+
+float easing_zac(float x)
+{
+    return 1.0 - abs(x - 0.5);
 }
 
 
