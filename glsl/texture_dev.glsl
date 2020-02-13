@@ -83,11 +83,11 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     gum_uv = uv_distort_twirl(gum_uv, 1.0, gum_distortion, .1);
 
     vec2 gum_seed = gum_id + 10.0;
-    float has_gum = step(0.97, noise_white(gum_seed++));
+    float has_gum = step(0.96, noise_white(gum_seed++));
     float gum_radius_variance = noise_white(gum_seed++);
     float gum_radius = 0.1 + gum_radius_variance * 0.2;
     float gum_blur = 0.1;
-    float gum_wear = easing_power_in(easing_zic(secondary_lines), 2.0);// * noise_white(gum_seed++);
+    float gum_wear = easing_power_out(easing_zic(secondary_lines), noise_white(gum_seed++) * 3.0);
     vec2 gum_origin = noise_white_vec2(gum_seed++) * (1.0 - 2.0 * (gum_radius + gum_blur)) + (gum_radius + gum_blur);
     float gum = has_gum * shape_circle(gum_uv, gum_origin, gum_radius, gum_blur);
     gum = clamp(gum - gum_wear, 0.0, 1.0);
@@ -95,7 +95,22 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
 
     //zigaret burn
+    vec2 zig_id;
+    vec2 zig_uv = uv;
+    zig_uv = uv_tilling_01(zig_uv, zig_id, vec2(100.0));
 
+    vec2 zig_seed = zig_id;
+    float has_zig = step(0.6, noise_white(zig_seed++));
+    float zig_radius = (0.1 + noise_white(zig_seed++) * 0.15) * 0.2;
+    float zig_blur = zig_radius * 2.0;
+    vec2 zig_origin = noise_white_vec2(zig_seed++) * (1.0 - 2.0 * (zig_radius + zig_blur)) + (zig_radius + zig_blur);;
+    float zig = has_zig * shape_circle(zig_uv, zig_origin, zig_radius, zig_blur);
+    zig = easing_power_in(zig, 1.5) * 0.7;
+
+
+
+
+    //damages
 
 
     //fibers and pores
@@ -129,14 +144,18 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     vec3 albedo_stem = color_deviation(albedo_bar * 0.2, noise_white(stem_seed), 0.2);
     albedo = mix(albedo, albedo_stem, easing_power_in(stem, 4.0) * 0.5);
 
-    vec3 albedo_gum = color_deviation(base_wood_color * 0.3, noise_white(gum_seed), 0.7);
+    vec3 albedo_zig = color_hex_to_rgb(0x070000);
+    albedo = mix(albedo, albedo_zig, zig);
+
+    vec3 base_albedo_gum = color_hex_to_rgb(0x3A2F2E);
+    vec3 albedo_gum = color_deviation(base_albedo_gum, noise_white(gum_seed), 0.2);
     albedo = mix(albedo, albedo_gum, gum);
 
 
     albedo *= bar;
 
 
-    //albedo = vec3(gum);
+    //albedo = vec3(zig);
 
 }
 
