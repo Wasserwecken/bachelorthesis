@@ -17,26 +17,15 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     // UV tilling
     vec2 bar_id;
     vec2 bar_uv = uv_tilling_0X(uv, bar_id, tiles, 1.0, .3);
-    vec2 bar_center = tiles.yx / 2.0 + (noise_white_vec2(bar_id) * 2.0 - 1.0) * 0.01;
-    vec2 bar_size = tiles.yx - 0.07;
-    float bar_blur = noise_perlin_layered(bar_uv, bar_id, 2.0, 2.0, 2.0, 2.0) * 0.075;
-    float bar_bend = noise_perlin(uv, bar_id, 4.0);
-
-
-    // bar shape
-    bar_uv = uv_rotate(bar_uv, bar_center, 0.025);
-    bar_uv = uv_distort_twirl(bar_uv, 0.1, bar_bend, 0.1); 
-    float bar = shape_rectangle(bar_uv, bar_center, bar_size, vec2(bar_blur));
-    bar = easing_circular_out(bar);
 
 
     //stem
     vec2 stem_uv;
     vec2 stem_id;
-    stem_uv = bar_uv + noise_white_vec2(bar_id) * 2.0 - 1.0;
+    stem_uv = bar_uv + noise_white_vec2(bar_id++) * 2.0 - 1.0;
     stem_uv = uv_tilling_01(stem_uv, stem_id, vec2(0.5));
 
-    vec2 stem_seed = stem_id + bar_id;
+    vec2 stem_seed = stem_id + bar_id++;
     float has_stem = step(0.6, noise_white(stem_seed++));
     float stem_radius_variance = value_remap(noise_perlin(stem_uv, stem_seed++, 5.0), 0.0, 1.0, 0.6, 1.0);
     float stem_radius = noise_white(stem_seed++) * 0.2 * stem_radius_variance;
@@ -48,7 +37,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
     //ring distorions
     vec2 noise_uv = bar_uv * vec2(1.5, 10.0) * 0.075;
-    float ring_noise = noise_perlin_layered(noise_uv, bar_id, 1.0, 4.0, 1.5, 1.5);
+    float ring_noise = noise_perlin_layered(noise_uv, bar_id++, 1.0, 4.0, 1.5, 1.5);
     ring_noise = pow(ring_noise, 2.0);
     vec2 ring_uv = uv_distort_twirl(uv, 1.0, ring_noise, .06) * 20.0;
     ring_uv = uv_distort_twirl(ring_uv, 1.0, stem * .5 + .5, 1.0);
@@ -62,17 +51,35 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     float primary = primary_gradient * primary_lines;
     primary = value_remap(primary, 0.0, 1.0, 0.5, 1.0);
 
-
-    //float secondary_line_count = 2.0 + ceil(noise_white(primary_id) * 3.0);
     float secondary_line_count = 10.0 + ceil(noise_white(primary_id) * 10.0);
     vec2 secondary_uv = primary_uv * secondary_line_count;
     float secondary_id = floor(secondary_uv.y) + bar_id.y;
-    float secondary_gradient = noise_white(secondary_id);
+    float secondary_gradient = noise_white(secondary_id++);
     float secondary_lines = fract(secondary_uv.y);
     float secondary = secondary_gradient * secondary_lines;
     secondary = value_remap(secondary, 0.0, 1.0, 0.75, 1.0);
 
     float rings = primary * secondary;
+
+
+    // bar shape
+    vec2 bar_center = tiles.yx / 2.0 + (noise_white_vec2(bar_id++) * 2.0 - 1.0) * 0.01;
+    vec2 bar_size = tiles.yx - 0.07;
+    float bar_tilt = noise_perlin(bar_uv * vec2(1.0, 2.0), vec2(bar_id++), 0.1);
+    float bar_blur = noise_perlin_layered(bar_uv, bar_id++, 2.0, 2.0, 2.0, 2.0) * 0.075;
+    float bar_bend = noise_perlin(uv, bar_id++, 4.0);
+    bar_uv = uv_rotate(bar_uv, bar_center, 0.025);
+    bar_uv = uv_distort_twirl(bar_uv, 0.1, bar_bend, 0.1);
+
+    float has_damage = step(0.5, noise_white(bar_id++));
+    float damaged_line = step(0.5, noise_white(secondary_id++));
+    float damage_level = noise_white(secondary_id++);
+    float damage = has_damage * damaged_line * damage_level;
+
+    bar_size.x -= damage * 2.5;
+    float bar = shape_rectangle(bar_uv, bar_center, bar_size, vec2(bar_blur));
+    bar = easing_circular_out(bar);
+    float bar_tilted = bar * value_remap(bar_tilt, 0.0, 1.0, 0.6, 1.0);
 
 
     //gum
@@ -108,16 +115,18 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     zig = easing_power_in(zig, 1.5) * 0.7;
 
 
-
-
-    //damages
-
-
     //fibers and pores
     vec2 dot_uv = uv * vec2(2.0, 10.0);
     float dots = noise_perlin_layered(dot_uv, bar_id, 300.0, 2.0, 2.0, 2.0);
     dots = easing_smoother_step(dots);
     dots = value_remap(dots, 0.0, 1.0, 0.7, 1.0);
+
+
+    //dirt
+    float dirt = noise_perlin_layered(uv, vec2(0.0), 20.0, 4.0, 2.0, 2.0);
+    float dirt2 = noise_perlin(uv, vec2(0.0), 4.0);
+    dirt *= dirt2;
+
 
     //color variance
     vec2 variance_uv = uv * vec2(1.0, 10.0) * 5.0;
@@ -129,6 +138,22 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
 
 
+    //height compositing
+    height = bar_tilted;
+    float ring_height = secondary_lines * fract(secondary_uv.x * 0.2);
+    float ring_depth = noise_white(bar_id);
+    ring_height *= ring_depth;
+    height = bar - ring_height * 0.075;
+    height = max(height, bar * gum + 0.1);
+    height = value_remap(height, 0.0, 1.1, 0.0, 1.0);
+
+    //roughness compositing
+    roughness = 1.0 - noise_white(bar_id++) * 0.1;
+    roughness -= easing_smoother_step(dirt);
+    roughness = max(roughness, gum);
+    roughness *= bar;
+
+    //color compositing
     vec3 base_wood_color = color_hex_to_rgb(0xcc9966);
     vec3 albedo_bar = base_wood_color;
     float color_bar_variance = value_remap(noise_white(bar_id), 0.0, 1.0, 0.95, 1.0);
@@ -146,16 +171,14 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
 
     vec3 albedo_zig = color_hex_to_rgb(0x070000);
     albedo = mix(albedo, albedo_zig, zig);
+    
+    vec3 albedo_dirt = color_hex_to_rgb(0x101010);
+    albedo = mix(albedo, albedo_dirt, dirt * (1.0 - easing_power_in(ring_height, 2.0)));
 
     vec3 base_albedo_gum = color_hex_to_rgb(0x3A2F2E);
     vec3 albedo_gum = color_deviation(base_albedo_gum, noise_white(gum_seed), 0.2);
     albedo = mix(albedo, albedo_gum, gum);
-
-
     albedo *= bar;
-
-
-    //albedo = vec3(zig);
 
 }
 
@@ -206,15 +229,15 @@ void main() {
     vec3 normal;
 
 
-    texture_old_parquet(uv * .5, albedo, metallic, roughness, height, normal);
+    texture_old_parquet(uv * .5 + 0.9, albedo, metallic, roughness, height, normal);
 
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
-    color = vec3(roughness);
     color = normal;
-    color = vec3(height);
     color = albedo;
+    color = vec3(height);
+    color = vec3(roughness);
 
 	gl_FragColor = vec4(color, 1.0);
 }
