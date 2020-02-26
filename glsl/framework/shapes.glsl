@@ -8,11 +8,6 @@
 //////////////////////////////
 // Shapes
 //////////////////////////////
-float shape_line(vec2 uv, vec2 origin, float width, float blur)
-{
-    float point = abs(uv - origin).x;
-    return value_linear_step(width, point, blur);
-}
 
 float shape_circle(vec2 uv, vec2 origin, float radius, float blur)
 {

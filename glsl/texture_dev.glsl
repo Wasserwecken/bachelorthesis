@@ -11,18 +11,42 @@
 
 
 
-void pattern(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height, out vec3 normal)
+float pattern(vec2 uv)
 {
+    vec2 line_id;
+    uv = uv_tilling_01(uv, line_id, vec2(10.0));
 
-    //uv = fract(uv * 10.0);
-    height = shape_line(uv, vec2(0.5), 0.3, 0.1);
+    float dir = step(mod(line_id.x, 2.0), .5) * 2.0 - 1.0;
+    uv.y = fract(uv.y - (uv.x * dir));
 
+    float line = shape_rectangle(uv, vec2(0.5), vec2(2.0, 0.45), vec2(0.0, 0.45));
+    line = easing_circular_out(line);
 
+    return line;
+}
 
+float pattern_web(vec2 uv)
+{    
+    uv = fract(uv * 10.0);
+    
+    vec2 size = vec2(2.0, 0.35);
+    float horizontal1 = shape_rectangle(uv, vec2(0.5, 0.25), size, vec2(0.0));
+    float horizontal2 = shape_rectangle(uv, vec2(0.5, 0.75), size, vec2(0.0));
+    float vertical1 = shape_rectangle(uv, vec2(0.25, 0.5), size.yx, vec2(0.0));
+    float vertical2 = shape_rectangle(uv, vec2(0.75, 0.5), size.yx, vec2(0.0));
 
+    uv *= PI2;
+    horizontal1 *= sin(uv.x) * .25 + .5;
+    horizontal2 *= sin(uv.x + PI) * .25 + .5;
+    vertical1 *= sin(uv.y + PI) * .25 + .5;
+    vertical2 *= sin(uv.y) * .25 + .5;
 
-    uv = easing_sinus_inout(uv * 2.0);
-    height = min(uv.y, uv.x);
+    float height = horizontal1;
+    height = max(height, horizontal2);
+    height = max(height, vertical1);
+    height = max(height, vertical2);
+
+    return height;
 }
 
 
@@ -59,8 +83,7 @@ void main() {
     vec3 normal;
 
 
-    //texture_old_parquet(uv * .5 + 0.9, albedo, metallic, roughness, height, normal);
-    pattern(uv, albedo, metallic, roughness, height, normal);
+    height = pattern(uv);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
