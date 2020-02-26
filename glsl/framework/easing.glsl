@@ -1,3 +1,5 @@
+#include "constants.glsl"
+
 #ifndef EASING
 #define EASING
 
@@ -177,6 +179,75 @@ vec3 easing_circular_inout(vec3 x)
         easing_circular_inout(x.x),
         easing_circular_inout(x.y),
         easing_circular_inout(x.z)
+    );
+}
+
+
+float easing_sinus_in(float x)
+{
+    return sin(x * PI05);
+}
+
+vec2 easing_sinus_in(vec2 x)
+{
+    return vec2(
+        easing_sinus_in(x.x),
+        easing_sinus_in(x.y)
+    );
+}
+
+vec3 easing_sinus_in(vec3 x)
+{
+    return vec3(
+        easing_sinus_in(x.x),
+        easing_sinus_in(x.y),
+        easing_sinus_in(x.z)
+    );
+}
+
+
+float easing_sinus_out(float x)
+{
+    return sin(x * PI05 - PI) + 1.0;
+}
+
+vec2 easing_sinus_out(vec2 x)
+{
+    return vec2(
+        easing_sinus_out(x.x),
+        easing_sinus_out(x.y)
+    );
+}
+
+vec3 easing_sinus_out(vec3 x)
+{
+    return vec3(
+        easing_sinus_out(x.x),
+        easing_sinus_out(x.y),
+        easing_sinus_out(x.z)
+    );
+}
+
+
+float easing_sinus_inout(float x)
+{
+    return sin(x * PI - PI05) * 0.5 + 0.5;
+}
+
+vec2 easing_sinus_inout(vec2 x)
+{
+    return vec2(
+        easing_sinus_inout(x.x),
+        easing_sinus_inout(x.y)
+    );
+}
+
+vec3 easing_sinus_inout(vec3 x)
+{
+    return vec3(
+        easing_sinus_inout(x.x),
+        easing_sinus_inout(x.y),
+        easing_sinus_inout(x.z)
     );
 }
 

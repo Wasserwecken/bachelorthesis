@@ -13,8 +13,16 @@
 
 void pattern(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height, out vec3 normal)
 {
-    vec2 foo = fract(uv * 20.0);
-    height = foo.x * foo.y;
+
+    //uv = fract(uv * 10.0);
+    height = shape_line(uv, vec2(0.5), 0.3, 0.1);
+
+
+
+
+
+    uv = easing_sinus_inout(uv * 2.0);
+    height = min(uv.y, uv.x);
 }
 
 
@@ -42,7 +50,7 @@ vec2 provide_uv_interactive()
 
 
 void main() {
-    vec2 uv = provide_uv_interactive();
+    vec2 uv = provide_uv();
 
     vec3 albedo;
     float metallic;
