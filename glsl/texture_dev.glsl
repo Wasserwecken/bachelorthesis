@@ -90,15 +90,15 @@ void main() {
     float height;
     vec3 normal;
 
-
+    //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
     height = pattern_wool(uv);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
     color = normal;
-    color = albedo;
     color = vec3(roughness);
     color = vec3(height);
+    color = albedo;
 
 	gl_FragColor = vec4(color, 1.0);
 }
