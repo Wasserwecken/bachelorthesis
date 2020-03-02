@@ -13,13 +13,21 @@
 
 float pattern(vec2 uv)
 {
+    return 0.5;
+}
+
+float pattern_wool(vec2 uv)
+{
     vec2 line_id;
     uv = uv_tilling_01(uv, line_id, vec2(10.0));
 
     float dir = step(mod(line_id.x, 2.0), .5) * 2.0 - 1.0;
-    uv.y = fract(uv.y - (uv.x * dir));
+    uv.y = fract(uv.y + (uv.x * dir));
 
-    float line = shape_rectangle(uv, vec2(0.5), vec2(2.0, 0.45), vec2(0.0, 0.45));
+    float line = shape_rectangle(uv, vec2(0.5), vec2(2.0, 0.5), vec2(0.0, 0.5));
+    float foo = shape_rectangle(uv, vec2(0.5), vec2(0.9, 1.0), vec2(0.1, 0.0));
+    line *= foo;
+    
     line = easing_circular_out(line);
 
     return line;
@@ -83,7 +91,7 @@ void main() {
     vec3 normal;
 
 
-    height = pattern(uv);
+    height = pattern_wool(uv);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
