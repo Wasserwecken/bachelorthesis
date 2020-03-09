@@ -42,7 +42,7 @@ vec3 pattern1(vec2 uv)
     float is_contrast_smooth = step(7.0, line) * step(line, 7.0);
     float is_contrast_stepped = step(4.0, line) * step(line, 4.0);
 
-    result = is_contrast_smooth * (vec3(uv.x))
+    result = is_contrast_smooth * (vec3(1.0 - uv.x))
             + (1.0 - is_contrast_smooth) * result;
     result = is_contrast_stepped * (vec3(floor(uv.x * steps) / (steps - 1.0)))
             + (1.0 - is_contrast_stepped) * result;
