@@ -6,10 +6,12 @@
 #include "/framework/uv.glsl"
 #include "/framework/color.glsl"
 
+#include "/textures/colortestpattern.glsl"
+
 
 vec2 provide_uv()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.y;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
 
     return uv;
 }
@@ -26,49 +28,15 @@ vec2 provide_uv_interactive()
 }
 
 
-vec3 easing_tests()
-{
-    vec2 uv = provide_uv();
-    vec3 color = vec3(0.0);
-
-    float r = easing_power_inout(uv.x, 0.25);
-    float g = easing_smoother_step(uv.x);
-    float b = easing_power_inout(uv.x, 2.0);
-
-    color.r = step(uv.y, r);
-    color.g = step(uv.y, g);
-    color.b = step(uv.y, b);
-
-    return color;
-}
-
-vec3 gradient_tests()
-{
-    vec2 uv = provide_uv();
-    //uv = provide_uv_interactive();
-    vec3 color = vec3(1.0);
-
-    //float line = step(0.45, uv.y) * step(uv.y, 0.55);
-    //color = vec3(1.0) * line;
-
-    uv.y = floor(uv.y * 20.0);
-
-    vec3 input_color = color_hex_to_rgb(0xcc9966);
-    color = color_gradient_generated_perlin(
-            uv.x,
-            input_color,
-            uv.y,
-            5.0,
-            5.0,
-            4.0, 2.0, 2.0);
-
-    return color;
-}
-
 
 void main() {
 
-    vec3 color = easing_tests();
+    vec2 uv = provide_uv();
+    vec3 color = vec3(0.0);
+
+    color = pattern1(uv);
+    uv = value_posterize(uv, vec2(40.0));
+    color = color_deviate(color, vec3(uv, 0.0), vec3(sin(iTime*0.5)));
 
 
 	gl_FragColor = vec4(color, 1.0);

@@ -34,6 +34,28 @@ vec2 value_linear_step(vec2 value, vec2 edge, vec2 edge_width)
     );
 }
 
+float value_posterize(float value, float steps)
+{
+    return floor(value * steps) / steps;
+}
+
+vec2 value_posterize(vec2 value, vec2 steps)
+{
+    return vec2(
+        value_posterize(value.x, steps.x),
+        value_posterize(value.y, steps.y)
+    );
+}
+
+vec3 value_posterize(vec3 value, vec3 steps)
+{
+    return vec3(
+        value_posterize(value.x, steps.x),
+        value_posterize(value.y, steps.y),
+        value_posterize(value.z, steps.z)
+    );
+}
+
 
 
 //////////////////////////////

@@ -1,11 +1,3 @@
-vec2 provide_uv()
-{
-    vec2 uv = gl_FragCoord.xy / iResolution.y;
-
-    return uv;
-}
-
-
 vec3 pattern1(vec2 uv)
 {
     vec3 result = vec3(0.0);
@@ -48,14 +40,4 @@ vec3 pattern1(vec2 uv)
             + (1.0 - is_contrast_stepped) * result;
 
     return result;
-}
-
-
-void main() {
-    vec2 uv = provide_uv();
-
-    vec3 color = vec3(0.0);
-    color = pattern1(uv);
-
-	gl_FragColor = vec4(color, 1.0);
 }

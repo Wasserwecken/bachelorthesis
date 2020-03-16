@@ -167,7 +167,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
             3.0, 4.0, 2.0);
     albedo = albedo_bar * color_bar_variance;
 
-    vec3 albedo_stem = color_deviation(albedo_bar * 0.2, noise_white(stem_seed), 0.2);
+    vec3 albedo_stem = color_deviate(albedo_bar * 0.2, vec3(noise_white(stem_seed)), vec3(0.2));
     albedo = mix(albedo, albedo_stem, easing_power_in(stem, 4.0) * 0.5);
 
     vec3 albedo_zig = color_hex_to_rgb(0x070000);
@@ -177,7 +177,7 @@ void texture_old_parquet(vec2 uv, out vec3 albedo, out float metallic, out float
     albedo = mix(albedo, albedo_dirt, dirt * (1.0 - easing_power_in(ring_height, 2.0)));
 
     vec3 base_albedo_gum = color_hex_to_rgb(0x3A2F2E);
-    vec3 albedo_gum = color_deviation(base_albedo_gum, noise_white(gum_seed), 0.2);
+    vec3 albedo_gum = color_deviate(base_albedo_gum, vec3(noise_white(stem_seed)), vec3(0.2));
     albedo = mix(albedo, albedo_gum, gum);
     albedo *= bar;
 

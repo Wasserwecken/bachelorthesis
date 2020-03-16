@@ -33,11 +33,11 @@ vec3 color_rgb_to_hsv(vec3 rgb)
 }
 
 //https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
-vec3 color_hsv_to_rgb(vec3 hsl)
+vec3 color_hsv_to_rgb(vec3 hsv)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(hsl.xxx + K.xyz) * 6.0 - K.www);
-    return hsl.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsl.y);
+    vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
+    return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
 }
 
 
@@ -48,16 +48,20 @@ vec3 color_gradient_generated_cos(float t, float s, vec3 a, vec3 b, vec3 c, vec3
 }
 
 
-vec3 color_deviation(vec3 color, float seed, float strenght)
+vec3 color_contrast_gamma(vec3 color, float contrast)
 {
-    vec3 deviation = vec3(noise_white(seed));
-    deviation = deviation * 2.0 - 1.0;
-    deviation *= strenght;
-
-    return (color * deviation) + color;
+    float mid = pow(0.5, 2.2);
+    return (color - mid) * contrast + mid;
 }
 
-vec3 color_deviation(vec3 color, vec3 seed, vec3 strenght)
+vec3 color_contrast_linear(vec3 color, float contrast)
+{
+    float mid = 0.5;
+    return (color - mid) * contrast + mid;
+}
+
+
+vec3 color_deviate(vec3 color, vec3 seed, vec3 strenght)
 {
     vec3 deviation = vec3(
         noise_white(seed.x),
@@ -69,7 +73,6 @@ vec3 color_deviation(vec3 color, vec3 seed, vec3 strenght)
 
     return (color * deviation) + color;
 }
-
 
 vec3 color_gradient_generated_perlin(
         float t,
