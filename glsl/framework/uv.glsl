@@ -67,19 +67,10 @@ vec2 uv_tilling_0X(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, flo
     return fract(uv) * tiles.yx;
 }
 
-vec2 uv_distort_warp(vec2 uv, float distortion, float strength)
-{
-    float x = dFdx(distortion);
-    float y = dFdy(distortion);
-    vec2 direction = vec2(x,y) * 10.0;
-
-    return uv + direction * distortion * strength;
-}
-
-vec2 uv_distort_twirl(vec2 uv, float offset, float distortion, float strength)
+vec2 uv_distort_twirl(vec2 uv, vec2 offset, float distortion, float strength)
 {
     distortion = ((distortion * 360.0) - 180.0) * strength;
-    return uv_rotate(uv, uv + vec2(offset), distortion);
+    return uv_rotate(uv, uv + offset, distortion);
 }
 
 
