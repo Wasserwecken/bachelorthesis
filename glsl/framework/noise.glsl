@@ -6,6 +6,11 @@
 #define NOISE
 
 
+const float NOISE_SCALE = 12.0;
+const float LAYERED_SCALE = 0.25;
+const float WHITE_NOISE_SCALE = 5461.0;
+
+
 //////////////////////////////
 // Random / Noises
 //////////////////////////////
@@ -13,7 +18,7 @@
 //https://www.shadertoy.com/view/4djSRW
 float noise_white(float p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
     p = fract(p * .1031);
     p *= p + 33.33;
     p *= p + p;
@@ -22,7 +27,7 @@ float noise_white(float p)
 
 float noise_white(vec2 p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
 	vec3 p3  = fract(vec3(p.xyx) * .1031);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.x + p3.y) * p3.z);
@@ -30,7 +35,7 @@ float noise_white(vec2 p)
 
 float noise_white(vec3 p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
 	p  = fract(p * .1031);
     p += dot(p, p.yzx + 33.33);
     return fract((p.x + p.y) * p.z);
@@ -38,7 +43,7 @@ float noise_white(vec3 p)
 
 vec2 noise_white_vec2(float p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
 	vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
 	p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.xx+p3.yz)*p3.zy);
@@ -47,24 +52,24 @@ vec2 noise_white_vec2(float p)
 
 vec2 noise_white_vec2(vec2 p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
 	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
     p3 += dot(p3, p3.yzx+33.33);
     return fract((p3.xx+p3.yz)*p3.zy);
 
 }
 
-vec2 noise_white_vec2(vec3 p3)
+vec2 noise_white_vec2(vec3 p)
 {
-    p3 *= 5461.0;
-	p3 = fract(p3 * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yzx+33.33);
-    return fract((p3.xx+p3.yz)*p3.zy);
+    p *= WHITE_NOISE_SCALE;
+	p = fract(p * vec3(.1031, .1030, .0973));
+    p += dot(p, p.yzx+33.33);
+    return fract((p.xx+p.yz)*p.zy);
 }
 
 vec3 noise_white_vec3(float p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
    vec3 p3 = fract(vec3(p) * vec3(.1031, .1030, .0973));
    p3 += dot(p3, p3.yzx+33.33);
    return fract((p3.xxy+p3.yzz)*p3.zyx); 
@@ -72,28 +77,40 @@ vec3 noise_white_vec3(float p)
 
 vec3 noise_white_vec3(vec2 p)
 {
-    p *= 5461.0;
+    p *= WHITE_NOISE_SCALE;
 	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
     p3 += dot(p3, p3.yxz+33.33);
     return fract((p3.xxy+p3.yzz)*p3.zyx);
 }
 
-vec3 noise_white_vec3(vec3 p3)
+vec3 noise_white_vec3(vec3 p)
 {
-    p3 *= 5461.0;
-	p3 = fract(p3 * vec3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yxz+33.33);
-    return fract((p3.xxy + p3.yxx)*p3.zyx);
-
+    p *= WHITE_NOISE_SCALE;
+	p = fract(p * vec3(.1031, .1030, .0973));
+    p += dot(p, p.yxz+33.33);
+    return fract((p.xxy + p.yxx)*p.zyx);
 }
 
 
-float noise_value(vec2 point, vec2 seed, float scale)
+float noise_value(float point, float seed, float smoothness)
 {
-    point *= scale;
+    point *= NOISE_SCALE;
+
+    float corner = floor(point);
+    float interpolation = easing_power_inout(fract(point), smoothness);
+
+    float A = noise_white(corner + 0.0 + seed);
+    float B = noise_white(corner + 1.0 + seed);
+
+    return mix(A, B, interpolation);
+}
+
+float noise_value(vec2 point, vec2 seed, float smoothness)
+{
+    point *= NOISE_SCALE;
     
     vec2 corner = floor(point);
-    vec2 interpol = easing_smoother_step(fract(point));
+    vec2 interpolation = easing_power_inout(fract(point), vec2(smoothness));
     
     float A = noise_white(corner + vec2(0.0, 0.0) + seed);
     float B = noise_white(corner + vec2(1.0, 0.0) + seed);
@@ -101,55 +118,78 @@ float noise_value(vec2 point, vec2 seed, float scale)
     float D = noise_white(corner + vec2(1.0, 1.0) + seed);
 
     return mix(
-        mix(A, B, interpol.x),
-        mix(C, D, interpol.x),
-        interpol.y
+        mix(A, B, interpolation.x),
+        mix(C, D, interpolation.x),
+        interpolation.y
     );
 }
 
-
-float noise_perlin(float point, float seed, float scale)
+float noise_value_layered(float point, float seed, float smoothness, int layers, float gain, float scale)
 {
-    point += noise_white(seed) * 2.0 - 1.0;
-    point *= scale;
+    point *= LAYERED_SCALE;
+
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    for(int layer = 0; layer < layers; layer++)
+    {
+        result += noise_value(point * frequency, seed++, smoothness) * amplitude;
+        height_sum += amplitude;
+        
+        frequency *= scale;
+        amplitude *= gain;
+    }
+
+    return result / height_sum;
+}
+
+float noise_value_layered(vec2 point, vec2 seed, float smoothness, int layers, float gain, float scale)
+{  
+    point *= LAYERED_SCALE;
+
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    for(int layer = 0; layer < layers; layer++)
+    {
+        result += noise_value(point * frequency, seed++, smoothness) * amplitude;
+        height_sum += amplitude;
+        
+        frequency *= scale;
+        amplitude *= gain;
+    }
+
+    return result / height_sum;
+}
+
+
+float noise_perlin(float point, float seed)
+{
+    point *= NOISE_SCALE;
 
     float corner = floor(point);
     float A = noise_white(corner + 0.0 + seed) * 2.0 - 1.0;
     float B = noise_white(corner + 1.0 + seed) * 2.0 - 1.0;
 
     point = fract(point);
-    float interpol = easing_smoother_step(point);
+    float interpolation = easing_smoother_step(point);
 
     return mix(
         dot(A, point - 0.0),
         dot(B, point - 1.0),
-        interpol
+        interpolation
     ) * 0.5 + 0.5;
 }
 
-float noise_perlin_layered(float point, float seed, float scale, float layers, float diff_scale, float diff_weight)
+float noise_perlin(vec2 point, vec2 seed)
 {
-    float noise = noise_perlin(point, seed, scale);
-    float weight = 1.0;
-    float max_value = 1.0;
-
-    for(float l = 1.0; l < layers; l++)
-    {
-        scale *= diff_scale;
-        weight /= diff_weight;
-        max_value += weight;
-
-        noise += noise_perlin(point, ++seed, scale) * weight;
-    }
-
-    return value_remap(noise, 0.0, max_value, 0.0, 1.0);
-}
-
-
-float noise_perlin(vec2 point, vec2 seed, float scale)
-{
-    point += noise_white_vec2(seed) * 2.0 - 1.0;
-    point *= scale;
+    point *= NOISE_SCALE;
 
     vec2 corner = floor(point);
     vec2 A = noise_white_vec2(corner + vec2(0.0, 0.0) + seed) * 2.0 - 1.0;
@@ -158,45 +198,72 @@ float noise_perlin(vec2 point, vec2 seed, float scale)
     vec2 D = noise_white_vec2(corner + vec2(1.0, 1.0) + seed) * 2.0 - 1.0;
 
     point = fract(point);
-    vec2 interpol = easing_smoother_step(point);
+    vec2 interpolation = easing_smoother_step(point);
 
     return mix(
             mix(
                 dot(A, point - vec2(0.0, 0.0)),
                 dot(B, point - vec2(1.0, 0.0)),
-                interpol.x
+                interpolation.x
             ),
             mix(
                 dot(C, point - vec2(0.0, 1.0)),
                 dot(D, point - vec2(1.0, 1.0)),
-                interpol.x
+                interpolation.x
             ),
-            interpol.y
+            interpolation.y
     ) * 0.5 + 0.5;
 }
 
-float noise_perlin_layered(vec2 uv, vec2 seed, float scale, float layers, float diff_scale, float diff_weight)
+
+float noise_perlin_layered(float point, float seed, int layers, float gain, float scale)
 {
-    float noise = noise_perlin(uv, seed, scale);
-    float weight = 1.0;
-    float max_value = 1.0;
+    point *= LAYERED_SCALE;
 
-    for(float l = 1.0; l < layers; l++)
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    for(int layer = 0; layer < layers; layer++)
     {
-        scale *= diff_scale;
-        weight /= diff_weight;
-        max_value += weight;
-
-        noise += noise_perlin(uv, ++seed, scale) * weight;
+        result += noise_perlin(point * frequency, seed++) * amplitude;
+        height_sum += amplitude;
+        
+        frequency *= scale;
+        amplitude *= gain;
     }
 
-    return value_remap(noise, 0.0, max_value, 0.0, 1.0);
+    return result / height_sum;
+}
+
+float noise_perlin_layered(vec2 point, vec2 seed, int layers, float gain, float scale)
+{
+    point *= LAYERED_SCALE;
+
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    for(int layer = 0; layer < layers; layer++)
+    {
+        result += noise_perlin(point * frequency, seed++) * amplitude;
+        height_sum += amplitude;
+        
+        frequency *= scale;
+        amplitude *= gain;
+    }
+
+    return result / height_sum;
 }
 
 
-float noise_voronoi(vec2 point, vec2 seed, float scale)
+float noise_voronoi(vec2 point, vec2 seed)
 {
-    point = point * scale;
+    point *= NOISE_SCALE;
 
     vec2 tile_id = floor(point);
     vec2 tile_pos = fract(point);
@@ -205,12 +272,12 @@ float noise_voronoi(vec2 point, vec2 seed, float scale)
     vec2 center;
     float dist = 10.0;
 
-    for(float x = -1.0; x < 2.0; x++)
+    for(float x = -1.0; x < 1.5; x++)
     {
-        for(float y = -1.0; y < 2.0; y++)
+        for(float y = -1.0; y < 1.5; y++)
         {
             neighbour = vec2(x, y);
-            center = abs(noise_white_vec2(tile_id + seed + neighbour));
+            center = noise_white_vec2(tile_id + seed + neighbour);
             dist = min(dist, length(center - tile_pos + neighbour));
         }
     }
@@ -218,9 +285,9 @@ float noise_voronoi(vec2 point, vec2 seed, float scale)
     return dist * SQRT205;
 }
 
-float noise_voronoi_manhattan(vec2 point, vec2 seed, float scale)
+float noise_voronoi_manhattan(vec2 point, vec2 seed)
 {
-    point *= scale;
+    point *= NOISE_SCALE;
 
     vec2 tile_id = floor(point);
     vec2 tile_pos = fract(point);
@@ -234,7 +301,7 @@ float noise_voronoi_manhattan(vec2 point, vec2 seed, float scale)
         for(float y = -1.0; y < 2.0; y++)
         {
             neighbour = vec2(x, y);
-            center = abs(noise_white_vec2(tile_id + seed + neighbour));
+            center = noise_white_vec2(tile_id + seed + neighbour);
             dist = min(dist, value_manhatten_length(center - tile_pos + neighbour));
         }
     }

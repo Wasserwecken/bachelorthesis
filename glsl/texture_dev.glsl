@@ -29,6 +29,23 @@ vec2 provide_uv_interactive()
 }
 
 
+
+
+
+
+
+void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height)
+{
+    vec2 stone_id;
+    vec2 stone_uv;
+    stone_uv = uv_tilling_01(uv, stone_id, vec2(5.0));
+
+    float stone = shape_rectangle(stone_uv, vec2(0.5), vec2(0.85), vec2(0.05));
+
+    albedo = vec3(1.0) * stone;
+}
+
+
 void main() {
     vec2 uv = provide_uv_interactive();
 
@@ -39,7 +56,7 @@ void main() {
     vec3 normal;
 
     //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
-    //height = pattern_wool(uv);
+    paving_stone(uv, albedo, roughness, metallic, height);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);

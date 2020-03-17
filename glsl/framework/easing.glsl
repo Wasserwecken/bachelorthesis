@@ -9,7 +9,7 @@
 //////////////////////////////
 float easing_smoother_step(float x)
 {
-    return x * x * x * (6.0 * x * x - 15.0 * x + 10.0);
+    return x*x*x * (6.0 * x*x - 15.0 * x + 10.0);
 }
 
 vec2 easing_smoother_step(vec2 x)

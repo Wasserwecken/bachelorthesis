@@ -11,7 +11,7 @@
 
 vec2 provide_uv()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec2 uv = gl_FragCoord.xy / iResolution.y;
 
     return uv;
 }
@@ -27,17 +27,60 @@ vec2 provide_uv_interactive()
     return uv;
 }
 
+float noise_creases(float noise)
+{
+    noise = abs(noise * 2.0 -1.0);
+    noise = 1.0 - noise;
+    noise *= noise * noise * noise * noise * noise;
+
+    return noise;
+}
+
+
+
+
+
+
+
+float noise_voronoi_edge(vec2 point, vec2 seed)
+{
+    point *= NOISE_SCALE;
+
+    vec2 tile_id = floor(point);
+    vec2 tile_pos = fract(point);
+
+    vec2 neighbour;
+    vec2 center;
+    float dist = 10.0;
+
+    for(float x = -1.0; x < 2.0; x++)
+    {
+        for(float y = -1.0; y < 2.0; y++)
+        {
+            neighbour = vec2(x, y);
+            center = noise_white_vec2(tile_id + seed + neighbour);
+            dist = min(dist, value_manhatten_length(center - tile_pos + neighbour));
+        }
+    }
+
+    return dist * 0.5;
+}
+
+
+
+
 
 
 void main() {
 
-    vec2 uv = provide_uv();
-    vec3 color = vec3(0.0);
+    vec2 uv = provide_uv_interactive();
+    vec3 color = vec3(1.0);
 
-    color = pattern1(uv);
-    uv = value_posterize(uv, vec2(40.0));
-    color = color_deviate(color, vec3(uv, 0.0), vec3(sin(iTime*0.5)));
 
+    float foo = noise_voronoi_edge(uv * 2.0, vec2(0.0));
+
+
+    color *= foo;
 
 	gl_FragColor = vec4(color, 1.0);
 }
