@@ -70,9 +70,9 @@ void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughn
     float dirt = noise_perlin_layered(uv * 20.0, vec2(0.0), 3, 0.5, 2.0);
     dirt *= 1.0 - stone_mask;
 
-    
+    height = value_remap(0.0, 1.0, 0.0, 0.2, dirt) + value_remap(0.0, 1.0, 0.2, 1.0, stone);
 
-    albedo = vec3(1.0) * dirt;
+    albedo = vec3(1.0) * height;
 }
 
 

@@ -208,7 +208,7 @@ vec3 easing_sinus_in(vec3 x)
 
 float easing_sinus_out(float x)
 {
-    return sin(x * PI05 - PI) + 1.0;
+    return sin(x * PI05 - PI05) + 1.0;
 }
 
 vec2 easing_sinus_out(vec2 x)
