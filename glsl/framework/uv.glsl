@@ -39,13 +39,23 @@ vec2 uv_to_polar(vec2 uv, vec2 origin)
     return vec2(angle, len);
 }
 
-vec2 uv_tilling_01(vec2 uv, out vec2 tile_id, vec2 tiles)
+vec2 uv_tilling(vec2 uv, out vec2 tile_id, vec2 tiles)
 {
     uv *= tiles;
     tile_id = floor(uv);
 
     return fract(uv);
 }
+
+vec2 uv_tilling_tile_offset(vec2 uv, out vec2 tile_id, float offset, float offset_step)
+{
+    uv += tile_id;
+    uv.x += offset * floor(tile_id.y * (1.0 / offset_step));
+    tile_id = floor(uv);
+
+    return fract(uv);
+}
+
 
 vec2 uv_tilling_01(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, float offset)
 {

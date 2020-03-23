@@ -24,6 +24,16 @@ float shape_rectangle(vec2 uv, vec2 origin, vec2 size, vec2 blur)
     return min(isRectangle.x, isRectangle.y);
 }
 
+float shape_rectangle_rounded(vec2 uv, vec2 origin, vec2 size, float blur, float radius)
+{
+    size *= 0.5;
+    radius *= min(size.x, size.y);
+    uv = abs(uv - origin);
+
+    float l = length(max(uv - size + radius, 0.0)) - radius;
+    return value_linear_step(0.0, l, blur);
+}
+
 float shape_spiral(vec2 uv, vec2 origin, float start)
 {
     uv -= origin;

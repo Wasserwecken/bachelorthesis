@@ -261,8 +261,9 @@ float noise_perlin_layered(vec2 point, vec2 seed, int layers, float gain, float 
 }
 
 
-float noise_voronoi(vec2 point, vec2 seed)
+float noise_voronoi(vec2 point, out vec2 cell_id, vec2 seed)
 {
+
     point *= NOISE_SCALE;
 
     vec2 tile_id = floor(point);
@@ -270,7 +271,7 @@ float noise_voronoi(vec2 point, vec2 seed)
 
     vec2 neighbour;
     vec2 center;
-    float dist = 10.0;
+    float closest = 10.0;
 
     for(float x = -1.0; x < 1.5; x++)
     {
@@ -278,11 +279,17 @@ float noise_voronoi(vec2 point, vec2 seed)
         {
             neighbour = vec2(x, y);
             center = noise_white_vec2(tile_id + seed + neighbour);
-            dist = min(dist, length(center - tile_pos + neighbour));
+
+            float dist = length(center - tile_pos + neighbour);
+            if (closest > dist)
+            {
+                closest = dist;
+                cell_id = tile_id + neighbour;
+            }
         }
     }
 
-    return dist * SQRT205;
+    return closest * SQRT205;
 }
 
 float noise_voronoi_manhattan(vec2 point, vec2 seed)

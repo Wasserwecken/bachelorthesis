@@ -35,16 +35,21 @@ vec2 provide_uv_interactive()
 
 void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height)
 {
+
     vec2 tile_id;
     vec2 tile_uv;
-    tile_uv = uv_tilling_01(uv, tile_id, vec2(10.0));
+    tile_uv = uv_tilling(uv, tile_id, vec2(10.0));
+
+    float stone_offset = noise_white(tile_id.y++);
+    tile_uv = uv_tilling_tile_offset(tile_uv, tile_id, stone_offset, 1.0);
 
     vec2 stone_size = vec2(0.75);
-    vec2 stone_blur = vec2(0.1);
+    float stone_blur = 0.1;
+    float stone_corner = 0.2;
     vec2 stone_center = vec2(0.5);
-    stone_center += 0.07 * (noise_white_vec2(tile_id) * 2.0 - 1.0);
+    stone_center += 0.05 * (noise_white_vec2(tile_id) * 2.0 - 1.0);
 
-    float stone_uv_rot = 12.0 * (noise_white(tile_id) * 2.0 - 1.0);
+    float stone_uv_rot = 10.0 * (noise_white(tile_id) * 2.0 - 1.0);
     float stone_uv_twirl = noise_perlin_layered(
             tile_uv,
             tile_id,
@@ -53,26 +58,30 @@ void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughn
     vec2 stone_uv = uv_distort_twirl(tile_uv, vec2(1.0), stone_uv_twirl, 0.05);
     stone_uv = uv_rotate(stone_uv, stone_center, stone_uv_rot);
 
-    float stone = shape_rectangle(
+    float stone = shape_rectangle_rounded(
             stone_uv,
             stone_center,
             stone_size,
-            stone_blur
+            stone_blur,
+            stone_corner
         );
-    float stone_mask = step(0.01, stone);
+    float stone_mask = step(0.001, stone);
     stone = easing_circular_out(stone);
 
-    float stone_surface = stone_mask;
-    stone_surface *= 0.5 * noise_perlin_layered(tile_uv, tile_id, 2, 0.5, 2.0);
-    stone -= stone_surface;
 
 
+
+
+
+    //float stone_surface = stone_mask;
+    //stone_surface *= 0.5 * noise_perlin_layered(tile_uv, tile_id, 2, 0.5, 2.0);
+    //stone -= stone_surface;
+    //
     float dirt = noise_perlin_layered(uv * 20.0, vec2(0.0), 3, 0.5, 2.0);
-    dirt *= 1.0 - stone_mask;
+    //dirt *= 1.0 - stone_mask;
 
-    height = value_remap(0.0, 1.0, 0.0, 0.2, dirt) + value_remap(0.0, 1.0, 0.2, 1.0, stone);
 
-    albedo = vec3(1.0) * height;
+    height = dirt;
 }
 
 
@@ -92,8 +101,8 @@ void main() {
     color = vec3(metallic);
     color = normal;
     color = vec3(roughness);
-    color = vec3(height);
     color = albedo;
+    color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
 }
