@@ -8,10 +8,10 @@
 //////////////////////////////
 // Shapes
 //////////////////////////////
-float shape_gradient(vec2 uv, vec2 direction)
+float shape_gradient(vec2 uv, vec2 origin, vec2 direction)
 {
     direction = -direction;
-    uv = vec2(0.5) - uv;
+    uv = origin - uv;
 
     float stretch = dot(direction, direction);
     float gradient = dot(uv, direction);
