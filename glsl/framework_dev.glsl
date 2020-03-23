@@ -45,8 +45,11 @@ void main() {
     vec3 color = vec3(1.0);
 
     vec2 id;
-    float noise;
-    color *= noise_voronoi_edge(uv, id, vec2(0.0)) * 6.0 - 0.2;
+    float noise = noise_voronoi_edge(uv + iTime * 0.05, id, vec2(0.0));
+
+    color *= noise;
+
+    
 
 
     

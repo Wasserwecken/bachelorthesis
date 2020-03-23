@@ -31,8 +31,6 @@ vec2 provide_uv_interactive()
 
 
 
-
-
 void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height)
 {
 
@@ -72,16 +70,21 @@ void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughn
 
 
 
-
     //float stone_surface = stone_mask;
     //stone_surface *= 0.5 * noise_perlin_layered(tile_uv, tile_id, 2, 0.5, 2.0);
     //stone -= stone_surface;
     //
-    float dirt = noise_perlin_layered(uv * 20.0, vec2(0.0), 3, 0.5, 2.0);
-    //dirt *= 1.0 - stone_mask;
+    //dirt *= 1.0 - stone_mask;+
 
 
-    height = dirt;
+
+    float gravel = .5;
+
+
+
+
+
+    height = gravel;
 }
 
 

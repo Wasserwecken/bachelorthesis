@@ -269,68 +269,73 @@ float noise_voronoi(vec2 point, out vec2 cell_id, vec2 seed)
     vec2 tile_id = floor(point);
     vec2 tile_pos = fract(point);
 
-    vec2 neighbour;
-    vec2 center;
-    float closest = 10.0;
-
+    float min_dot = 10.0;
     for(float x = -1.0; x < 1.5; x++)
     {
         for(float y = -1.0; y < 1.5; y++)
         {
-            neighbour = vec2(x, y);
-            center = noise_white_vec2(tile_id + seed + neighbour);
-
-            float dist = length(center - tile_pos + neighbour);
-            if (closest > dist)
+            vec2 offset = vec2(x, y);
+            vec2 center = offset + noise_white_vec2(tile_id + seed + offset) - tile_pos;
+            float center_dot = dot(center, center);
+            
+            if (min_dot > center_dot)
             {
-                closest = dist;
-                cell_id = tile_id + neighbour;
+                min_dot = center_dot;
+                cell_id = tile_id + offset;
             }
         }
     }
 
-    return closest * SQRT205;
+    return sqrt(min_dot) * SQRT205;
 }
 
+
+//https://www.iquilezles.org/www/articles/voronoilines/voronoilines.htm
+//https://www.ronja-tutorials.com/2018/09/29/voronoi-noise.html
 float noise_voronoi_edge(vec2 point, out vec2 cell_id, vec2 seed)
 {
-    vec2 x = point * NOISE_SCALE;
+    point *= NOISE_SCALE;
 
-    vec2 p = vec2(floor( x ));
-    vec2  f = fract( x );
+    vec2 tile_id = floor(point);
+    vec2 tile_pos = fract(point);
 
-    vec2 mb;
-    vec2 mr;
+    vec2 nearest_offset;
+    vec2 nearest_center;
 
-    float res = 8.0;
+    float min_dot = 10.0;
     for( int j=-1; j<=1; j++ )
     for( int i=-1; i<=1; i++ )
     {
-        vec2 b = vec2(i, j);
-        vec2  r = vec2(b) + noise_white_vec2(p+b) - f;
-        float d = dot(r,r);
+        vec2 offset = vec2(i, j);
+        vec2 random_position = noise_white_vec2(tile_id + offset + seed);
+        vec2 center = offset + random_position - tile_pos;
 
-        if( d < res )
+        float current_dot = dot(center, center);
+        if(min_dot > current_dot)
         {
-            res = d;
-            mr = r;
-            mb = b;
-            cell_id = p + b;
+            min_dot = current_dot;
+            cell_id = tile_id + offset;
+
+            nearest_center = center;
+            nearest_offset = offset;
         }
     }
 
-    res = 8.0;
+    min_dot = 10.0;
     for( int j=-2; j<=2; j++ )
     for( int i=-2; i<=2; i++ )
     {
-        vec2 b = mb + vec2(i, j);
-        vec2  r = vec2(b) + noise_white_vec2(p+b) - f;
-        float d = dot(0.5*(mr+r), normalize(r-mr));
+        vec2 offset = nearest_offset + vec2(i, j);
+        vec2 random_position = noise_white_vec2(tile_id + offset + seed);
+        vec2 center = offset + random_position - tile_pos;
 
-        res = min( res, d );
+        vec2 edge = (nearest_center + center) * 0.5;
+        float current_dot = dot(edge, normalize(center - nearest_center));
+
+        min_dot = min(min_dot, current_dot);
     }
 
-    return res;
+    return min_dot;
 }
 
 float noise_voronoi_manhattan(vec2 point, vec2 seed)
