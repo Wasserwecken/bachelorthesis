@@ -31,23 +31,23 @@ vec2 provide_uv_interactive()
 
 
 
-void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughness, out float height)
+void paving_stone(vec2 uv, vec2 seed, out vec3 albedo, out float metallic, out float roughness, out float height)
 {
 
     vec2 tile_id;
     vec2 tile_uv;
     tile_uv = uv_tilling(uv, tile_id, vec2(10.0));
 
-    float stone_offset = noise_white(tile_id.y++);
+    float stone_offset = noise_white(tile_id.y++ + seed++);
     tile_uv = uv_tilling_tile_offset(tile_uv, tile_id, stone_offset, 1.0);
 
     vec2 stone_size = vec2(0.75);
     float stone_blur = 0.1;
     float stone_corner = 0.2;
     vec2 stone_center = vec2(0.5);
-    stone_center += 0.05 * (noise_white_vec2(tile_id) * 2.0 - 1.0);
+    stone_center += 0.05 * (noise_white_vec2(tile_id + seed++) * 2.0 - 1.0);
 
-    float stone_uv_rot = 10.0 * (noise_white(tile_id) * 2.0 - 1.0);
+    float stone_uv_rot = 10.0 * (noise_white(tile_id + seed++) * 2.0 - 1.0);
     float stone_uv_twirl = noise_perlin_layered(
             tile_uv,
             tile_id,
@@ -80,16 +80,19 @@ void paving_stone(vec2 uv, out vec3 albedo, out float metallic, out float roughn
 
     float gravel = .5;
 
+    vec2 gravel_id;
+    float top = noise_voronoi_edge(uv, gravel_id, seed++);
 
 
 
 
-    height = gravel;
+    height = top;
 }
 
 
 void main() {
     vec2 uv = provide_uv();
+    vec2 time_seed = vec2(floor(iTime * 0.5));
 
     vec3 albedo;
     float metallic;
@@ -98,7 +101,7 @@ void main() {
     vec3 normal;
 
     //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
-    paving_stone(uv, albedo, roughness, metallic, height);
+    paving_stone(uv, time_seed, albedo, roughness, metallic, height);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
