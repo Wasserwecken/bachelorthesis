@@ -37,18 +37,6 @@ float noise_creases(float noise)
 }
 
 
-float shape_gradient(vec2 uv, vec2 direction)
-{
-    direction = -direction;
-    uv = vec2(0.5) - uv;
-
-    float stretch = dot(direction, direction);
-    float gradient = dot(uv, direction);
-
-    return gradient / stretch + 0.5;
-}
-
-
 
 void main() {
 
@@ -58,13 +46,10 @@ void main() {
 
     vec3 color = vec3(1.0);
 
+    color = test_pattern(uv);
 
 
 
-    float foo = shape_gradient(uv, vec2(0.5, 0.0));
-
-
-    color *= foo;
 
     
 

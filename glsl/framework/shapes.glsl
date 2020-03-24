@@ -8,7 +8,7 @@
 //////////////////////////////
 // Shapes
 //////////////////////////////
-float shape_gradient(vec2 uv, vec2 origin, vec2 direction)
+float shape_gradient_direction(vec2 uv, vec2 origin, vec2 direction)
 {
     direction = -direction;
     uv = origin - uv;
@@ -17,6 +17,14 @@ float shape_gradient(vec2 uv, vec2 origin, vec2 direction)
     float gradient = dot(uv, direction);
 
     return gradient / stretch + 0.5;
+}
+
+float shape_gradient_points(vec2 uv, vec2 from, vec2 to)
+{
+    vec2 origin = (from + to) * 0.5;
+    vec2 direction = (to - origin) * 2.0;
+
+    return shape_gradient_direction(uv, origin, direction);
 }
 
 float shape_circle(vec2 uv, vec2 origin, float radius, float blur)

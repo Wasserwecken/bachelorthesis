@@ -1,4 +1,4 @@
-vec3 pattern1(vec2 uv)
+vec3 test_pattern(vec2 uv)
 {
     vec3 result = vec3(0.0);
 
