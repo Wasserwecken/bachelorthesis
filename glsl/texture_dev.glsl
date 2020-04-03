@@ -37,7 +37,7 @@ void gravel(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float 
 
 
     vec2 gravel_uv = uv;
-    float gravel_distortion = noise_value_layered(gravel_uv * 30.0, seed++, 1.0, 3, 0.5, 2.0);
+    float gravel_distortion = noise_value(gravel_uv * 30.0, seed++, 1.0, 3, 0.5, 2.0);
     gravel_uv = uv_distort_twirl(gravel_uv, vec2(0.01), gravel_distortion, 0.1);
 
 
@@ -75,7 +75,7 @@ void gravel(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float 
     gravel = mix(gravel, top, top_exists);
     gravel_id = mix(gravel_id, top_id, top_exists);
     
-    //float gravel_level = 7.0 * noise_perlin_layered(uv * 0.1, seed++, 3, 0.5, 2.0);
+    //float gravel_level = 7.0 * noise_perlin(uv * 0.1, seed++, 3, 0.5, 2.0);
     //gravel = (gravel + gravel_level) * 0.125;
     height = gravel;
 
@@ -89,13 +89,18 @@ void gravel(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float 
 
 
 
-
-
-void stone_surface(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float height)
+void stone_granit(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float height)
 {
+    uv *= 1.0;
 
+    vec2 grain_id;
+    float grain = noise_voronoi(uv, grain_id, seed);
+    grain = random(grain_id);
+    grain = easing_power()
+    grain = value_posterize(grain, 6.0);
+
+    height = grain;
 }
-
 
 
 void paving_stone(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float height)
@@ -115,7 +120,7 @@ void paving_stone(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out 
     stone_center += 0.05 * (random_vec2(tile_id + seed++) * 2.0 - 1.0);
 
     float stone_uv_rot = 10.0 * (random(tile_id + seed++) * 2.0 - 1.0);
-    float stone_uv_twirl = noise_perlin_layered(
+    float stone_uv_twirl = noise_perlin(
             tile_uv,
             tile_id,
             3, 0.5, 2.0
@@ -150,15 +155,15 @@ void main() {
     vec3 normal;
 
     //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
-    paving_stone(uv, time_seed, albedo, roughness, height);
-    gravel(uv, time_seed, albedo, roughness, height);
-    stone_surface(uv, time_seed, albedo, roughness, height);
+    //paving_stone(uv, time_seed, albedo, roughness, height);
+    //gravel(uv, time_seed, albedo, roughness, height);
+    stone_granit(uv, time_seed, albedo, roughness, height);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
     color = normal;
-    color = albedo;
     color = vec3(roughness);
+    color = albedo;
     color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
