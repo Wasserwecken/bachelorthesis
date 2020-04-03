@@ -38,18 +38,23 @@ float noise_creases(float noise)
 
 
 
+
+
+
 void main() {
 
     vec2 uv = provide_uv();
     vec2 time_seed = vec2(floor(iTime * 0.5));
 
-
     vec3 color = vec3(1.0);
-
-    color = test_pattern(uv);
-
+    //color = test_pattern(uv);
 
 
+
+
+    uv *= 2.0;
+    float noiseA = noise_perlin_layered(uv.x, time_seed.x, 3, 0.5, 2.0);
+    color *= noiseA;
 
     
 

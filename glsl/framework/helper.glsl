@@ -1,3 +1,5 @@
+#include "constants.glsl"
+
 #ifndef HELPER
 #define HELPER
 
@@ -92,6 +94,13 @@ vec3 converter_height_to_normal(float height, float strength)
     normal = normal * 0.5 + 0.5;
 
     return normal;
+}
+
+
+
+float ldot(vec2 a, vec2 b)
+{
+    return (1.0 - (acos(dot(a, b)) / PI)) * 2.0 - 1.0;
 }
 
 #endif
