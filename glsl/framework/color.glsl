@@ -58,7 +58,7 @@ vec3 color_gradient_generated_perlin(
         float layers_weight)
 {
     vec3 interpolation = vec3(
-        noise_perlin_layered(t * scale, random(seed), int(layers), layers_scale, layers_weight)
+        noise_perlin(t * scale, random(seed), int(layers), layers_scale, layers_weight)
     );
     interpolation = easing_power_inout(interpolation, vec3(dist)) * 2.0 - 1.0;
     return (color * interpolation) + color;
@@ -75,9 +75,9 @@ vec3 color_gradient_generated_perlin(
         vec3 layers_weight)
 {
     vec3 interpolation = vec3(
-        noise_perlin_layered(t * scale.x, random(seed.x), int(layers.x), layers_scale.x, layers_weight.x),
-        noise_perlin_layered(t * scale.y, random(seed.y), int(layers.y), layers_scale.y, layers_weight.y),
-        noise_perlin_layered(t * scale.z, random(seed.z), int(layers.z), layers_scale.z, layers_weight.z)
+        noise_perlin(t * scale.x, random(seed.x), int(layers.x), layers_scale.x, layers_weight.x),
+        noise_perlin(t * scale.y, random(seed.y), int(layers.y), layers_scale.y, layers_weight.y),
+        noise_perlin(t * scale.z, random(seed.z), int(layers.z), layers_scale.z, layers_weight.z)
     );
     interpolation = easing_power_inout(interpolation, dist) * 2.0 - 1.0;
     return (color * interpolation) + color;
