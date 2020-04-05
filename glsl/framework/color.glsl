@@ -10,7 +10,7 @@
 //////////////////////////////
 
 // https://stackoverflow.com/questions/22895237/hexadecimal-to-rgb-values-in-webgl-shader
-vec3 color_hex_to_rgb(int hex_code)
+vec3 color_hex(int hex_code)
 {
     return vec3(
         mod(float(hex_code / 256 / 256), 256.0),
@@ -19,9 +19,21 @@ vec3 color_hex_to_rgb(int hex_code)
     ) / 255.0;
 }
 
+vec3 color_256(int r, int g, int b)
+{
+    return vec3(float(r), float(g), float(b)) / vec3(256.0);
+}
 
 //https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
-vec3 color_rgb_to_hsv(vec3 rgb)
+vec3 color_hsv(vec3 hsv)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
+    return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
+}
+
+//https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
+vec3 color_to_hsv(vec3 rgb)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
     vec4 p = mix(vec4(rgb.bg, K.wz), vec4(rgb.gb, K.xy), step(rgb.b, rgb.g));
@@ -32,17 +44,9 @@ vec3 color_rgb_to_hsv(vec3 rgb)
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
-//https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
-vec3 color_hsv_to_rgb(vec3 hsv)
-{
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
-    return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
-}
-
 
 //https://www.iquilezles.org/www/articles/palettes/palettes.htm
-vec3 color_gradient_generated_cos(float t, float s, vec3 a, vec3 b, vec3 c, vec3 d)
+vec3 gradient_cosine(float t, float s, vec3 a, vec3 b, vec3 c, vec3 d)
 {
     return a + b * cos(PI2 * (c + d * s * t));
 }
@@ -86,13 +90,13 @@ vec3 color_gradient_generated_perlin(
 
 vec3 color_hsv_shift(vec3 color, float hue, float saturation, float value)
 {
-    vec3 hsv = color_rgb_to_hsv(color);
+    vec3 hsv = color_to_hsv(color);
 
     hsv.x = fract(hsv.x + hue);
     hsv.y = clamp(hsv.y + saturation, 0.0, 1.0);
     hsv.z = clamp(hsv.z + value, 0.0, 1.0);
     
-    return color_hsv_to_rgb(hsv);
+    return color_hsv(hsv);
 }
 
 
@@ -101,13 +105,6 @@ vec3 color_contrast_gamma(vec3 color, float contrast)
     float mid = pow(0.5, 2.2);
     return (color - mid) * contrast + mid;
 }
-
-vec3 color_contrast_linear(vec3 color, float contrast)
-{
-    float mid = 0.5;
-    return (color - mid) * contrast + mid;
-}
-
 
 vec3 color_deviate(vec3 color, vec3 seed, vec3 strenght)
 {

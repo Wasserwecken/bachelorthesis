@@ -39,8 +39,6 @@ float noise_creases(float noise)
 
 
 
-
-
 void main() {
 
     vec2 uv = provide_uv();
@@ -51,9 +49,10 @@ void main() {
 
 
     vec3 id;
-    float n = noise_voronoi(vec3(uv, iTime * 0.02), id, vec3(1.0));
-    color *= random(id);
-    color = vec3(n);
+    uv = uv_distort_spherize(uv, vec2(.5), 100.0);
+
+    float n = shape_rectangle(uv, vec2(.5), vec2(.7), vec2(.01));
+    color *= n;
 
     
 	gl_FragColor = vec4(color, 1.0);

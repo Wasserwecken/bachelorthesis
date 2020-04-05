@@ -77,12 +77,21 @@ vec2 uv_tilling_0X(vec2 uv, out vec2 tile_id, vec2 tiles, float offset_step, flo
     return fract(uv) * tiles.yx;
 }
 
-vec2 uv_distort_twirl(vec2 uv, vec2 offset, float distortion, float strength)
+vec2 uv_distort_twirl(vec2 uv, float distortion, vec2 offset, float strength)
 {
-    distortion = ((distortion * 360.0) - 180.0) * strength;
+    distortion = ((distortion * 360.0) - 180.0);
+    distortion *= strength * length(offset);
     return uv_rotate(uv, uv + offset, distortion);
 }
 
+vec2 uv_distort_spherize(vec2 uv, vec2 center, float strength)
+{
+    vec2 delta = uv - center;
+    float distortion = dot(delta, delta);
+    distortion *= distortion;
+    
+    return uv + (delta * distortion * strength);
+}
 
 
 #endif

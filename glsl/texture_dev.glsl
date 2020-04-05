@@ -38,7 +38,7 @@ void gravel(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float 
 
     vec2 gravel_uv = uv;
     float gravel_distortion = noise_value(gravel_uv * 30.0, seed++, 1.0, 3, 0.5, 2.0);
-    gravel_uv = uv_distort_twirl(gravel_uv, vec2(0.01), gravel_distortion, 0.1);
+    gravel_uv = uv_distort_twirl(gravel_uv, gravel_distortion, vec2(0.01), 0.1);
 
 
     vec2 top_id;
@@ -89,17 +89,56 @@ void gravel(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float 
 
 
 
-void stone_granit(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out float height)
+void stone_granit(vec2 uv, vec2 seed,
+    out vec3 albedo,
+    out float roughness,
+    out float height,
+    vec3 color_tint)
 {
-    uv *= 1.0;
+    vec2 grain_uv = uv * 7.0;
 
+    // BASE
+    vec2 distortion_id;
+    vec2 dist_uv = grain_uv * 0.5;
+    noise_voronoi(dist_uv, distortion_id, seed++);
+    grain_uv = uv_distort_twirl(grain_uv, random(distortion_id), vec2(.2), 1.0);
+
+    float quarz_share = 3.0;
     vec2 grain_id;
-    float grain = noise_voronoi(uv, grain_id, seed);
+    float grain = noise_voronoi(grain_uv, grain_id, seed++);
     grain = random(grain_id);
-    grain = easing_power()
-    grain = value_posterize(grain, 6.0);
+    grain = easing_power_out(grain, quarz_share);
+    grain = value_posterize(grain, 12.0);
+    grain = easing_power_out(grain, 2.0);
 
-    height = grain;
+
+    // COLOR
+    float colored_grains = grain * 2.0 - 1.0;
+    colored_grains = 1.0 - abs(colored_grains);
+
+    float color_var_strength = .4;
+    float color_var_power = 3.0;
+    float color_var_uv_size = 2.0;
+    float color_variation = noise_perlin(uv * color_var_uv_size, seed++, 2, 2.0, 10.0);
+    color_variation = easing_power_inout(color_variation, color_var_power);
+    color_variation = (color_variation * 2.0 - 1.0) * color_var_strength;
+    colored_grains = clamp(colored_grains + color_variation, 0.0, 1.0);
+
+    albedo = vec3(0.85 * grain);
+    albedo = mix(albedo, color_tint * 0.5, colored_grains);
+
+
+    // ROUGHNESS
+    roughness = value_remap(random(grain_id), 0.0, 1.0, 0.8, 1.0);
+
+
+    // HEIGHT
+    float humps = noise_perlin(grain_uv * 0.7, seed++);
+    humps = easing_power_inout(humps, 3.0);
+    
+    height = 0.5;
+    height += random(grain_id) * 0.2 - 0.1;
+    height += humps * 0.8 - 0.4;
 }
 
 
@@ -125,7 +164,7 @@ void paving_stone(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out 
             tile_id,
             3, 0.5, 2.0
         );
-    vec2 stone_uv = uv_distort_twirl(tile_uv, vec2(1.0), stone_uv_twirl, 0.05);
+    vec2 stone_uv = uv_distort_twirl(tile_uv, stone_uv_twirl, vec2(1.0), 0.05);
     stone_uv = uv_rotate(stone_uv, stone_center, stone_uv_rot);
 
     float stone = shape_rectangle_rounded(
@@ -145,8 +184,9 @@ void paving_stone(vec2 uv, vec2 seed, out vec3 albedo, out float roughness, out 
 
 
 void main() {
-    vec2 uv = provide_uv();
-    vec2 time_seed = vec2(floor(iTime * 0.25));
+    vec2 uv = provide_uv_interactive();
+    float time_seed = floor(iTime * 0.25);
+    time_seed = 1.0;
 
     vec3 albedo;
     float metallic;
@@ -157,13 +197,13 @@ void main() {
     //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
     //paving_stone(uv, time_seed, albedo, roughness, height);
     //gravel(uv, time_seed, albedo, roughness, height);
-    stone_granit(uv, time_seed, albedo, roughness, height);
+    stone_granit(uv, vec2(time_seed), albedo, roughness, height, vec3(.6, .5, .5));
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
     color = normal;
-    color = vec3(roughness);
     color = albedo;
+    color = vec3(roughness);
     color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
