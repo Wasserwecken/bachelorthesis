@@ -8,7 +8,7 @@
 
 
 const float NOISE_SCALE = 12.0;
-const float LAYERED_SCALE = 0.25;
+const float LAYERED_SCALE = 0.5;
 
 
 //------------------------------------------------------
@@ -31,6 +31,7 @@ float noise_value(float point, float seed, float smoothness)
 
 float noise_value(vec2 point, vec2 seed, float smoothness)
 {
+    point += random_vec2(seed++) * 2.0 - 1.0;
     point *= NOISE_SCALE;
     
     vec2 corner = floor(point);

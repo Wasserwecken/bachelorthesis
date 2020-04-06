@@ -39,20 +39,26 @@ float noise_creases(float noise)
 
 
 
+
 void main() {
 
-    vec2 uv = provide_uv();
-    float time_seed = 1.0 + floor(iTime * 0.25);
+    vec2 uv = provide_uv_interactive();
+    float time_seed = 1.0;
+    //time_seed += floor(iTime * 0.25);
 
     vec3 color = vec3(1.0);
     //color = test_pattern(uv);
 
 
-    vec3 id;
-    uv = uv_distort_spherize(uv, vec2(.5), 100.0);
+    float n = noise_value(uv * vec2(3.0, 1.0), vec2(time_seed), 1.5, 5, 0.7, 2.0);
+    n = easing_power_inout(n, 2.0);
+    n = easing_power_in(n, 2.0);
 
-    float n = shape_rectangle(uv, vec2(.5), vec2(.7), vec2(.01));
-    color *= n;
+    
+
+    color = vec3(n);
+
+
 
     
 	gl_FragColor = vec4(color, 1.0);

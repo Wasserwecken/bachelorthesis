@@ -46,26 +46,26 @@ vec3 color_to_hsv(vec3 rgb)
 
 
 //https://www.iquilezles.org/www/articles/palettes/palettes.htm
-vec3 gradient_cosine(float t, float s, vec3 a, vec3 b, vec3 c, vec3 d)
+vec3 gradient(float t, float s, vec3 a, vec3 b, vec3 c, vec3 d)
 {
     return a + b * cos(PI2 * (c + d * s * t));
 }
 
-vec3 color_gradient_generated_perlin(
-        float t,
-        vec3 color,
-        float seed,
-        float scale,
-        float dist,
-        float layers,
-        float layers_scale,
-        float layers_weight)
+vec3 gradient(float point, float seed, vec3 color, float intensity, int layers, float gain, float scale)
 {
-    vec3 interpolation = vec3(
-        noise_perlin(t * scale, random(seed), int(layers), layers_scale, layers_weight)
-    );
-    interpolation = easing_power_inout(interpolation, vec3(dist)) * 2.0 - 1.0;
-    return (color * interpolation) + color;
+    vec3 variation = noise_perlin_vec3(point, seed, layers, gain, scale);
+    variation = easing_power_inout(variation, vec3(intensity));
+    variation = variation * 2.0 - 1.0;
+    
+    return (color * variation) + color;
+}
+
+vec3 gradient(float point, float seed, vec3 colorA, vec3 colorB, float intensity)
+{
+    float variation = noise_perlin(point, seed++, 5, 0.5, 2.0);
+    variation = easing_power_inout(variation, intensity);
+
+    return mix(colorA, colorB, variation);
 }
 
 vec3 color_gradient_generated_perlin(

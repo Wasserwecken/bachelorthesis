@@ -22,6 +22,11 @@ float value_remap(float value, float in_lower, float in_upper, float out_lower, 
     return value;
 }
 
+float value_remap_01(float value, float out_lower, float out_upper)
+{
+    return value * (out_upper - out_lower) + out_lower;
+}
+
 vec2 value_remap(vec2 value, vec2 in_lower, vec2 in_upper, vec2 out_lower, vec2 out_upper)
 {
     return vec2(
@@ -40,6 +45,7 @@ vec3 value_remap(vec3 value, vec3 in_lower, vec3 in_upper, vec3 out_lower, vec3 
 
     );
 }
+
 
 
 float value_linear_step(float value, float edge, float edge_width)

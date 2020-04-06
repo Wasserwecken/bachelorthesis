@@ -30,10 +30,13 @@ vec2 provide_uv_interactive()
 }
 
 
-
-
-
-
+void simple_marmor(vec2 uv, vec2 seed,
+    out vec3 albedo,
+    out float roughness,
+    out float height)
+{
+    albedo = vec3(0.5);
+}
 
 
 
@@ -53,20 +56,14 @@ void main() {
     //paving_stone(uv, vec2(time_seed), albedo, roughness, height);
     //gravel(uv, vec2(time_seed), albedo, roughness, height);
     //stone_granit(uv, vec2(time_seed), albedo, roughness, height, vec3(.6, .5, .5));
-    simple_granit(uv, vec2(time_seed),
-            albedo,
-            roughness,
-            height,
-            translucency,
-            vec3(.6, .5, .5), 7.0
-        );
+    simple_marmor(uv, vec2(time_seed), albedo, roughness, height);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
     color = normal;
-    color = vec3(roughness);
-    color = vec3(height);
     color = vec3(translucency);
+    color = vec3(height);
+    color = vec3(roughness);
     color = albedo;
 
 	gl_FragColor = vec4(color, 1.0);
