@@ -27,14 +27,7 @@ vec2 provide_uv_interactive()
     return uv;
 }
 
-float noise_creases(float noise)
-{
-    noise = abs(noise * 2.0 -1.0);
-    noise = 1.0 - noise;
-    noise *= noise * noise * noise * noise * noise;
 
-    return noise;
-}
 
 
 

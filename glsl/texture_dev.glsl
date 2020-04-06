@@ -35,6 +35,10 @@ void simple_marmor(vec2 uv, vec2 seed,
     out float roughness,
     out float height)
 {
+
+    height = noise_perlin(uv, seed++, 5, 0.5, 2.0);
+    height = noise_creases(height, 10.0);
+
     albedo = vec3(0.5);
 }
 
@@ -62,9 +66,9 @@ void main() {
     color = vec3(metallic);
     color = normal;
     color = vec3(translucency);
-    color = vec3(height);
     color = vec3(roughness);
     color = albedo;
+    color = vec3(height);
 
 	gl_FragColor = vec4(color, 1.0);
 }
