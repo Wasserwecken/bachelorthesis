@@ -34,19 +34,8 @@ void simple_marmor(vec2 uv, vec2 seed,
     out vec3 albedo,
     out float roughness,
     out float height)
-{
-    vec2 offset = vec2(1.0) * iTime * 0.02;
-    vec2 shift = noise_value_vec2(uv + offset, seed++, 2.0, 5, 0.5, 2.0) * 2.0 - 1.0;
-    uv += shift * 0.2;
-    shift = noise_value_vec2((uv - offset) * vec2(0.2, 1.0), seed++, 0.1, 5, 0.5, 2.0) * 2.0 - 1.0;
-    uv += shift * 0.4;
-    
+{    
 
-    vec3 c = noise_value_vec3(uv * 0.5, seed++, 1.0);
-
-
-    albedo = vec3(uv, 0.0);
-    albedo = c;
 }
 
 
@@ -66,8 +55,7 @@ void main() {
     //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
     //paving_stone(uv, vec2(time_seed), albedo, roughness, height);
     //gravel(uv, vec2(time_seed), albedo, roughness, height);
-    //stone_granit(uv, vec2(time_seed), albedo, roughness, height, vec3(.6, .5, .5));
-    simple_marmor(uv, vec2(time_seed), albedo, roughness, height);
+
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);

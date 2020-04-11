@@ -31,8 +31,6 @@ vec2 provide_uv_interactive()
 
 
 
-
-
 void main() {
 
     vec2 uv = provide_uv_interactive();
@@ -42,17 +40,11 @@ void main() {
     vec3 color = vec3(1.0);
     //color = test_pattern(uv);
 
+    float n = noise_perlin(uv, vec2(time_seed++), 1, 0.5, 2.0);
 
-    float n = noise_value(uv * vec2(3.0, 1.0), vec2(time_seed), 1.5, 5, 0.7, 2.0);
-    n = easing_power_inout(n, 2.0);
-    n = easing_power_in(n, 2.0);
 
-    
 
     color = vec3(n);
-
-
-
     
 	gl_FragColor = vec4(color, 1.0);
 }

@@ -8,7 +8,7 @@
 
 
 const float NOISE_SCALE = 12.0;
-const float LAYERED_SCALE = 0.5;
+const float LAYERED_SCALE = 1.0;
 
 
 
@@ -18,12 +18,34 @@ const float LAYERED_SCALE = 0.5;
 //      TOOLS
 //------------------------------------------------------
 //------------------------------------------------------
-float noise_creases(float noise, float strength)
+float noise_vallies(float noise)
 {
-    noise = abs(noise * 2.0 -1.0);
-    noise = 1.0 - noise;
+    return abs(noise * 2.0 -1.0);
+}
 
-    return pow(noise, strength);
+vec2 noise_vallies(vec2 noise)
+{
+    return abs(noise * 2.0 -1.0);
+}
+
+vec3 noise_vallies(vec3 noise)
+{
+    return abs(noise * 2.0 -1.0);
+}
+
+float noise_creases(float noise)
+{
+    return 1.0 - noise_vallies(noise);
+}
+
+vec2 noise_creases(vec2 noise)
+{
+    return 1.0 - noise_vallies(noise);
+}
+
+vec3 noise_creases(vec3 noise)
+{
+    return 1.0 - noise_vallies(noise);
 }
 
 
@@ -511,6 +533,7 @@ float noise_perlin(vec3 point, vec3 seed, int layers, float gain, float scale)
 //      DIMENSION EXTENSIONS
 //------------------------------------------------------
 //------------------------------------------------------
+
 // 2D value
 vec2 noise_value_vec2(float point, float seed, float smoothness)
 {
