@@ -29,37 +29,26 @@ vec2 provide_uv_interactive()
 
 
 void main() {
-    vec2 uv = provide_uv();
+    vec2 uv = provide_uv_interactive();
     float time_seed = 1.0;
     //time_seed += floor(iTime * 0.25);
+
+    vec2 time_seed2 = vec2(time_seed);
+    vec3 time_seed3 = vec3(time_seed);
 
     vec2 id;
     vec3 color = vec3(1.0);
     //color = test_pattern(uv);
 
 
-    float x = uv.x;
-    float e = x;
+    float e;
+    vec2 c;
 
-    e = easing_smooth(x, 5);
-    e = easing_power_in(x, 3.0);
-    e = easing_power_out(x, 3.0);
-    e = easing_power_inout(x, 3.0);
-    e = easing_circular_in(x);
-    e = easing_circular_out(x);
-    e = easing_circular_inout(x);
-    e = easing_sinus_in(x);
-    e = easing_sinus_out(x);
-    e = easing_sinus_inout(x);
-    e = easing_expo_in(x);
-    e = easing_expo_out(x);
-    e = easing_expo_inout(x);
+    e = noise_voronoi(uv.x, id.x, c.x, time_seed2.x, vec2(0.5).x);
 
-    e = value_linear_step(e, uv.y, 0.005);
 
-    //e = noise_perlin(uv, vec2(time_seed));
-    //e = noise_value(uv, vec2(time_seed), 2.0);
-    //e = noise_voronoi(uv, id, vec2(time_seed));
+    //e = shape_circle(uv, b.xy, 0.02, 0.);
+
 
     color = vec3(e);
     
