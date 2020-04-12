@@ -3,6 +3,7 @@
 #include "/framework/easing.glsl"
 #include "/framework/shapes.glsl"
 #include "/framework/noise.glsl"
+#include "/framework/noise.extensions.glsl"
 #include "/framework/uv.glsl"
 #include "/framework/color.glsl"
 
@@ -45,15 +46,8 @@ void main() {
     vec2 c;
 
     vec2 a, b;
-    e = noise_voronoi(uv.x, a.x, b.x, time_seed2.x, vec2(1.0).x, 2, 0.5, 2.0);
 
 
-
-    //e = shape_circle(uv, b.xy, 0.02, 0.);
-
-
-    color = vec3(1.0 / abs(a * 0.5), 0.0);
-    color = vec3(e);
     
 	gl_FragColor = vec4(color, 1.0);
 }

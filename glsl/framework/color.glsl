@@ -1,6 +1,7 @@
 #include "constants.glsl"
 #include "easing.glsl"
 #include "noise.glsl"
+#include "noise.extensions.glsl"
 
 #ifndef COLOR
 #define COLOR
