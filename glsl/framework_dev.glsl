@@ -44,12 +44,15 @@ void main() {
     float e;
     vec2 c;
 
-    e = noise_voronoi(uv.x, id.x, c.x, time_seed2.x, vec2(0.5).x);
+    vec2 a, b;
+    e = noise_voronoi(uv.x, a.x, b.x, time_seed2.x, vec2(1.0).x, 2, 0.5, 2.0);
+
 
 
     //e = shape_circle(uv, b.xy, 0.02, 0.);
 
 
+    color = vec3(1.0 / abs(a * 0.5), 0.0);
     color = vec3(e);
     
 	gl_FragColor = vec4(color, 1.0);

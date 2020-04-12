@@ -57,6 +57,7 @@ vec3 noise_creases(vec3 noise)
 //------------------------------------------------------
 float noise_value(float point, float seed, float smoothness)
 {
+    point += random(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     float corner = floor(point);
@@ -70,7 +71,7 @@ float noise_value(float point, float seed, float smoothness)
 
 float noise_value(vec2 point, vec2 seed, float smoothness)
 {
-    point += random_vec2(seed++) * 2.0 - 1.0;
+    point += random_vec2(seed++) - 1.0;
     point *= NOISE_SCALE;
     
     vec2 corner = floor(point);
@@ -90,6 +91,7 @@ float noise_value(vec2 point, vec2 seed, float smoothness)
 
 float noise_value(vec3 point, vec3 seed, float smoothness)
 {
+    point += random_vec3(seed++) - 1.0;
     point *= NOISE_SCALE;
     
     vec3 corner = floor(point);
@@ -126,6 +128,7 @@ float noise_value(vec3 point, vec3 seed, float smoothness)
 //------------------------------------------------------
 float noise_perlin(float point, float seed)
 {
+    point += random(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     float corner = floor(point);
@@ -146,6 +149,7 @@ float noise_perlin(float point, float seed)
 
 float noise_perlin(vec2 point, vec2 seed)
 {
+    point += random_vec2(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     vec2 corner = floor(point);
@@ -176,6 +180,7 @@ float noise_perlin(vec2 point, vec2 seed)
 
 float noise_perlin(vec3 point, vec3 seed)
 {
+    point += random_vec3(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     vec3 corner = floor(point);
@@ -234,6 +239,7 @@ float noise_voronoi(
         float seed,
         float strength)
 {
+    point += random(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     float tile_id = floor(point);
@@ -266,7 +272,7 @@ float noise_voronoi(
         vec2 seed,
         vec2 strength)
 {
-
+    point += random_vec2(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     vec2 tile_id = floor(point);
@@ -303,7 +309,7 @@ float noise_voronoi(
         vec3 seed,
         vec3 strength)
 {
-
+    point += random_vec3(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     vec3 tile_id = floor(point);
@@ -423,7 +429,13 @@ float noise_voronoi_manhattan(vec2 point, vec2 seed)
 //      FBM EXTENSIONS
 //------------------------------------------------------
 //------------------------------------------------------
-float noise_value(float point, float seed, float smoothness, int layers, float gain, float scale)
+float noise_value(
+        float point,
+        float seed,
+        float smoothness,
+        int layers,
+        float gain,
+        float scale)
 {
     point *= LAYERED_SCALE;
 
@@ -445,7 +457,13 @@ float noise_value(float point, float seed, float smoothness, int layers, float g
     return result / height_sum;
 }
 
-float noise_value(vec2 point, vec2 seed, float smoothness, int layers, float gain, float scale)
+float noise_value(
+        vec2 point,
+        vec2 seed,
+        float smoothness,
+        int layers,
+        float gain,
+        float scale)
 {  
     point *= LAYERED_SCALE;
 
@@ -467,7 +485,13 @@ float noise_value(vec2 point, vec2 seed, float smoothness, int layers, float gai
     return result / height_sum;
 }
 
-float noise_value(vec3 point, vec3 seed, float smoothness, int layers, float gain, float scale)
+float noise_value(
+        vec3 point,
+        vec3 seed,
+        float smoothness,
+        int layers,
+        float gain,
+        float scale)
 {  
     point *= LAYERED_SCALE;
 
@@ -489,7 +513,12 @@ float noise_value(vec3 point, vec3 seed, float smoothness, int layers, float gai
     return result / height_sum;
 }
 
-float noise_perlin(float point, float seed, int layers, float gain, float scale)
+float noise_perlin(
+        float point,
+        float seed,
+        int layers,
+        float gain,
+        float scale)
 {
     point *= LAYERED_SCALE;
 
@@ -511,7 +540,12 @@ float noise_perlin(float point, float seed, int layers, float gain, float scale)
     return result / height_sum;
 }
 
-float noise_perlin(vec2 point, vec2 seed, int layers, float gain, float scale)
+float noise_perlin(
+        vec2 point,
+        vec2 seed,
+        int layers,
+        float gain,
+        float scale)
 {
     point *= LAYERED_SCALE;
 
@@ -533,7 +567,12 @@ float noise_perlin(vec2 point, vec2 seed, int layers, float gain, float scale)
     return result / height_sum;
 }
 
-float noise_perlin(vec3 point, vec3 seed, int layers, float gain, float scale)
+float noise_perlin(
+        vec3 point,
+        vec3 seed,
+        int layers,
+        float gain,
+        float scale)
 {
     point *= LAYERED_SCALE;
 
@@ -550,6 +589,129 @@ float noise_perlin(vec3 point, vec3 seed, int layers, float gain, float scale)
         
         frequency *= scale;
         amplitude *= gain;
+    }
+
+    return result / height_sum;
+}
+
+float noise_voronoi(
+        float point,
+        out float cell_id,
+        out float center_id,
+        float seed,
+        float strength,
+        int layers,
+        float gain,
+        float scale)
+{
+    point *= LAYERED_SCALE;
+
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    float id;
+    float center;
+
+    for(int layer = 0; layer < layers; layer++)
+    {
+        result += noise_voronoi(
+                point * frequency,
+                id, center,
+                seed++, strength
+            ) * amplitude;
+        
+        height_sum += amplitude;
+        frequency *= scale;
+        amplitude *= gain;
+
+        float digit = pow(10.0, -float(layer));
+        cell_id += digit * id;
+        center_id += digit * center;
+    }
+
+    return result / height_sum;
+}
+
+float noise_voronoi(
+        vec2 point,
+        out vec2 cell_id,
+        out vec2 center_id,
+        vec2 seed,
+        vec2 strength,
+        int layers,
+        float gain,
+        float scale)
+{
+    point *= LAYERED_SCALE;
+
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    vec2 id;
+    vec2 center;
+
+    for(int layer = 0; layer < layers; layer++)
+    {
+        result += noise_voronoi(
+                point * frequency,
+                id, center,
+                seed++, strength
+            ) * amplitude;
+        
+        height_sum += amplitude;
+        frequency *= scale;
+        amplitude *= gain;
+
+        float digit = pow(10.0, -float(layer));
+        cell_id += digit * id;
+        center_id += digit * center;
+    }
+
+    return result / height_sum;
+}
+
+float noise_voronoi(
+        vec3 point,
+        out vec3 cell_id,
+        out vec3 center_id,
+        vec3 seed,
+        vec3 strength,
+        int layers,
+        float gain,
+        float scale)
+{
+    point *= LAYERED_SCALE;
+
+    float result = 0.0;
+    float height_sum = 0.0;
+    
+    float frequency = 1.0;
+    float amplitude = 1.0;
+
+    vec3 id;
+    vec3 center;
+
+    for(int layer = 0; layer < layers; layer++)
+    {
+        result += noise_voronoi(
+                point * frequency,
+                id, center,
+                seed++, strength
+            ) * amplitude;
+        
+        height_sum += amplitude;
+        frequency *= scale;
+        amplitude *= gain;
+
+        float digit = pow(10.0, -float(layer));
+        cell_id += digit * id;
+        center_id += digit * center;
     }
 
     return result / height_sum;
