@@ -31,9 +31,7 @@ vec2 provide_uv_interactive()
 
 
 void simple_marmor(vec2 uv, vec2 seed,
-    out vec3 albedo,
-    out float roughness,
-    out float height)
+    out vec3 albedo)
 {    
 
 }
@@ -41,7 +39,7 @@ void simple_marmor(vec2 uv, vec2 seed,
 
 
 void main() {
-    vec2 uv = provide_uv_interactive();
+    vec2 uv = provide_uv();
     float time_seed = floor(iTime * 0.25);
     time_seed = 1.0;
 
@@ -55,7 +53,7 @@ void main() {
     //texture_old_parquet(uv, albedo, roughness, metallic, height, normal);
     //paving_stone(uv, vec2(time_seed), albedo, roughness, height);
     //gravel(uv, vec2(time_seed), albedo, roughness, height);
-
+    simple_marmor(uv, vec2(time_seed), albedo);
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);
