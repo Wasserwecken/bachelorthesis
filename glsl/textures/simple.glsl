@@ -18,8 +18,9 @@ void simple_granit(vec2 uv, vec2 seed,
 {
     // GRAIN
     vec2 grain_id;
+    vec2 grain_center;
     vec2 grain_uv = uv * 7.0;
-    noise_voronoi(grain_uv, grain_id, seed++);
+    noise_voronoi(grain_uv, grain_id, grain_center, seed++, vec2(1.0));
     float grain = random(grain_id);
     grain = value_posterize(grain, 12.0);
     grain = easing_power_out(grain, quartz_strength);
@@ -41,15 +42,16 @@ void complex_granit(vec2 uv, vec2 seed,
 {
 
     // GRAIN
-    float grain_scale = 25.0;
     vec2 dist_id;
+    vec2 dist_center;
     vec2 grain_id;
-    vec2 grain_uv = uv * grain_scale;
+    vec2 grain_center;
+    vec2 grain_uv = uv * 7.0;
 
-    noise_voronoi(uv * grain_scale, dist_id, seed++);
+    noise_voronoi(grain_uv, dist_id, dist_center, seed++, vec2(1.0));
     grain_uv = uv_distort_twirl(grain_uv, random(dist_id), vec2(0.5), 0.5);
 
-    noise_voronoi(grain_uv, grain_id, seed++);
+    noise_voronoi(grain_uv, grain_id, grain_center, seed++, vec2(1.0));
     float grain = random(grain_id);
     grain = value_posterize(grain, 12.0);
     grain = easing_power_out(grain, quartz_strength);
@@ -66,7 +68,7 @@ void complex_granit(vec2 uv, vec2 seed,
     // COLOR TURBULENCE
     int turb_iterations = 4;
     float turb_strength = 0.1;
-    vec2 turb_uv = uv * 0.25;
+    vec2 turb_uv = uv * 0.04;
 
     vec2 turb_noise = noise_perlin_vec2(turb_uv * 0.5, seed++);
     turb_uv += turb_noise * turb_strength;
