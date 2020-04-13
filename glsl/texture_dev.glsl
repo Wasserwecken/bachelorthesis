@@ -30,11 +30,7 @@ vec2 provide_uv_interactive()
 }
 
 
-void simple_marmor(vec2 uv, vec2 seed,
-    out vec3 albedo)
-{    
-    albedo = vec3(0.5);
-}
+
 
 
 
@@ -54,7 +50,9 @@ void main() {
     //simple_granit(uv, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1));
     //complex_granit(uv * 10.0, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1), 1.0);
 
-    simple_marmor(uv, time_seed2, albedo);
+    simple_marmor(uv, time_seed2, albedo, vec3(0.0), vec3(1.0), 20.0, 5.0);
+
+
 
     vec3 color = vec3(0.0);
     color = vec3(metallic);

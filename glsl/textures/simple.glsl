@@ -94,6 +94,28 @@ void complex_granit(vec2 uv, vec2 seed,
 }
 
 
+void simple_marmor(vec2 uv, vec2 seed,
+    out vec3 albedo,
+    vec3 crack_color,
+    vec3 fill_color,
+    float crack_intensity,
+    float crack_occlusion)
+{    
+    uv *= 0.5;
+
+    vec2 id;
+    vec2 center;
+    float cracks = noise_value(uv, seed++, 1.5, 6, 0.4, 2.5);
+    cracks = noise_creases(cracks);
+    cracks = easing_power_in(cracks, crack_intensity);
+
+    float occlusion = noise_perlin(uv * 1.5, seed++);
+    occlusion = easing_power_inout(occlusion, crack_occlusion);
+    cracks *= occlusion;
+
+    albedo = mix(fill_color, crack_color, cracks);
+}
+
 void simple_limestone(vec2 uv, vec2 seed)
 {
 
