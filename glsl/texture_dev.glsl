@@ -7,6 +7,7 @@
 #include "/framework/color.glsl"
 
 #include "/textures/simple.glsl"
+#include "/textures/compound.glsl"
 
 
 
@@ -29,7 +30,21 @@ vec2 provide_uv_interactive()
     return uv;
 }
 
+void simple_gravel(
+        vec2 uv,
+        vec2 seed,
+        out vec3 albedo,
+        out float roughness,
+        out float height)
+{
+    vec2 id;
+    uv = uv_tilling(uv, id, vec2(20.0));
 
+    simple_pebble(uv, random_vec2(seed + id), albedo, height,
+            color_hex(0x809085),
+            7.0
+        );
+}
 
 
 
@@ -47,10 +62,15 @@ void main() {
     float translucency;
     vec3 normal;
 
-    //simple_granit(uv, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1));
     //complex_granit(uv * 10.0, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1), 1.0);
+    //simple_granit(uv * 10.0, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1));
 
-    simple_marmor(uv, time_seed2, albedo, vec3(0.0), vec3(1.0), 20.0, 5.0);
+    //simple_marmor(uv, time_seed2, albedo, vec3(0.0), vec3(1.0), 20.0, 5.0);
+    //simple_pebble(uv, time_seed2, albedo, height, color_hex(0x809085));
+
+    simple_gravel(uv, time_seed2, albedo, roughness, height);
+
+    //compound_paving_stone(uv, time_seed2, albedo, roughness, height);
 
 
 

@@ -46,7 +46,9 @@ void main() {
     vec2 c;
 
     vec2 a, b;
-
+    uv += 1.0;
+    float foo = noise_value(uv, time_seed2, 1.0, 5, 0.5, 2.0);
+    color *= foo;
 
     
 	gl_FragColor = vec4(color, 1.0);

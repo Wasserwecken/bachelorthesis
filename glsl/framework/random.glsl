@@ -4,7 +4,7 @@
 #define RANDOM
 
 
-const float WHITE_NOISE_SCALE = 5461.0;
+const float WHITE_NOISE_SCALE = 5461.5461;
 
 
 //https://www.shadertoy.com/view/4djSRW

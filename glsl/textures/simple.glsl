@@ -40,6 +40,7 @@ void complex_granit(vec2 uv, vec2 seed,
     vec3 color_tint,
     float turbulence_visibility)
 {
+    uv * 0.5;
 
     // GRAIN
     vec2 dist_id;
@@ -101,47 +102,45 @@ void simple_marmor(vec2 uv, vec2 seed,
     float crack_intensity,
     float crack_occlusion)
 {    
-    uv *= 0.5;
-
-    vec2 id;
-    vec2 center;
-    float cracks = noise_value(uv, seed++, 1.5, 6, 0.4, 2.5);
+    vec2 crack_uv = uv * 0.5;
+    float cracks = noise_value(crack_uv, seed++, 1.5, 6, 0.4, 2.5);
     cracks = noise_creases(cracks);
     cracks = easing_power_in(cracks, crack_intensity);
 
-    float occlusion = noise_perlin(uv * 1.5, seed++);
+    vec2 occlusion_uv = crack_uv * 1.5;
+    float occlusion = noise_perlin(occlusion_uv, seed++);
     occlusion = easing_power_inout(occlusion, crack_occlusion);
     cracks *= occlusion;
 
     albedo = mix(fill_color, crack_color, cracks);
 }
 
-void simple_limestone(vec2 uv, vec2 seed)
+void simple_pebble(
+        vec2 uv,
+        vec2 seed,
+        out vec3 albedo,
+        out float height,
+        vec3 color_base,
+        float color_turbulence)
 {
+    vec2 distortion_uv = uv * 0.25;
+    float distortion = noise_value(distortion_uv, seed++, 1.5, 3, 0.7, 1.8);
+    uv += (distortion - 1.0) * 0.2;
 
+    float size = value_remap_01(random(seed++), 0.05, 0.1);
+    height = shape_circle(uv, vec2(0.5), size, size * 2.0);
+    height = easing_circular_out(height);
+
+    vec2 color_uv = (1.0 - uv.yx) * 2.0;
+    float turbulence_strength = color_turbulence;
+    float color_distribution = noise_value(color_uv, seed++, 1.5, 5, 0.5, 3.0);
+    float d1 = easing_power_out(color_distribution, turbulence_strength);
+    float d2 = easing_power_in(color_distribution, turbulence_strength);
+
+    albedo = mix(vec3(1.0), color_base, d1);
+    albedo -= d2 * 0.4;
+    albedo *= step(0.01, height);
 }
-
-void simple_marmor(vec2 uv, vec2 seed)
-{
-    
-}
-
-void simple_sandstone(vec2 uv, vec2 seed)
-{
-    
-}
-
-void simple_slate(vec2 uv, vec2 seed)
-{
-    
-}
-
-void simple_gneis(vec2 uv, vec2 seed)
-{
-    
-}
-
-
 
 
 
