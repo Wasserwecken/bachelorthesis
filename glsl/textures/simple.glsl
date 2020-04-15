@@ -10,7 +10,9 @@
 #define SIMPLE
 
 
-void simple_granit(vec2 uv, vec2 seed,
+void simple_granit(
+    vec2 uv,
+    vec2 seed,
     out vec3 albedo,
     float quartz_strength,
     vec3 color_base,
@@ -33,7 +35,9 @@ void simple_granit(vec2 uv, vec2 seed,
     albedo = mix(albedo, color_tint * 0.5, colored_grains);
 }
 
-void complex_granit(vec2 uv, vec2 seed,
+void complex_granit(
+    vec2 uv,
+    vec2 seed,
     out vec3 albedo,
     float quartz_strength,
     vec3 color_base,
@@ -95,7 +99,9 @@ void complex_granit(vec2 uv, vec2 seed,
 }
 
 
-void simple_marmor(vec2 uv, vec2 seed,
+void simple_marmor(
+    vec2 uv,
+    vec2 seed,
     out vec3 albedo,
     vec3 crack_color,
     vec3 fill_color,
@@ -115,22 +121,13 @@ void simple_marmor(vec2 uv, vec2 seed,
     albedo = mix(fill_color, crack_color, cracks);
 }
 
-void simple_pebble(
+void simple_limestone(
         vec2 uv,
         vec2 seed,
         out vec3 albedo,
-        out float height,
         vec3 color_base,
         float color_turbulence)
 {
-    vec2 distortion_uv = uv * 0.25;
-    float distortion = noise_value(distortion_uv, seed++, 1.5, 3, 0.7, 1.8);
-    uv += (distortion - 1.0) * 0.2;
-
-    float size = value_remap_01(random(seed++), 0.05, 0.1);
-    height = shape_circle(uv, vec2(0.5), size, size * 2.0);
-    height = easing_circular_out(height);
-
     vec2 color_uv = (1.0 - uv.yx) * 2.0;
     float turbulence_strength = color_turbulence;
     float color_distribution = noise_value(color_uv, seed++, 1.5, 5, 0.5, 3.0);
@@ -139,6 +136,29 @@ void simple_pebble(
 
     albedo = mix(vec3(1.0), color_base, d1);
     albedo -= d2 * 0.4;
+}
+
+void simple_pebble(
+        vec2 uv,
+        vec2 seed,
+        out vec3 albedo,
+        out float height,
+        vec3 color_base,
+        float color_turbulence)
+{
+
+
+    vec2 distortion_uv = uv * 0.25;
+    float distortion = noise_value(distortion_uv, seed++, 1.5, 3, 0.7, 1.8);
+    uv += (distortion - 1.0) * 0.2;
+
+    float size = value_remap_01(random(seed++), 0.05, 0.15);
+    height = shape_circle(uv, vec2(0.5), size, size * 2.0);
+    height = easing_circular_out(height);
+
+    vec2 color_uv = (1.0 - uv.yx) * 2.0;
+
+    simple_limestone(color_uv, seed++, albedo, color_base, color_turbulence);
     albedo *= step(0.01, height);
 }
 

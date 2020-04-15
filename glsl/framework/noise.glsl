@@ -349,7 +349,13 @@ float noise_voronoi(
 //------------------------------------------------------
 //https://www.iquilezles.org/www/articles/voronoilines/voronoilines.htm
 //https://www.ronja-tutorials.com/2018/09/29/voronoi-noise.html
-float noise_voronoi_edge(vec2 point, out vec2 cell_id, vec2 seed)
+float noise_voronoi(
+        vec2 point,
+        vec2 seed,
+        out vec2 cell_id,
+        out vec2 cell_center,
+        out float dist,
+        vec2 strength)
 {
     point *= NOISE_SCALE;
 

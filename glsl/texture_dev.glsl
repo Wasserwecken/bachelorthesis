@@ -38,12 +38,23 @@ void simple_gravel(
         out float height)
 {
     vec2 id;
-    uv = uv_tilling(uv, id, vec2(20.0));
+    vec2 foo;
+    vec2 gravel_uv = uv * 5.0;
+    noise_voronoi(gravel_uv, id, foo, seed++, vec2(1.0));
 
-    simple_pebble(uv, random_vec2(seed + id), albedo, height,
-            color_hex(0x809085),
-            7.0
+    float pebble_turbulence = value_remap_01(random(id + seed++), 3.0, 7.0);
+    vec3 pebble_color_brightness = vec3(1.0) * random(id + seed++);
+    vec3 pebble_color_1 = color_hex(0x809085);
+    vec3 pebble_color_2 = color_hex(0xFFD0AC);
+    vec3 pebble_color = mix(pebble_color_1, pebble_color_2, random(id + seed++));
+    pebble_color = mix(pebble_color_brightness, pebble_color, random(id + seed++));
+
+    simple_limestone(uv, random_vec2(seed + id), albedo,
+            pebble_color,
+            pebble_turbulence
         );
+
+    //albedo *= height;
 }
 
 
@@ -58,15 +69,15 @@ void main() {
     vec3 albedo;
     float metallic;
     float roughness;
-    float height;
     float translucency;
     vec3 normal;
+    float height;
 
     //complex_granit(uv * 10.0, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1), 1.0);
     //simple_granit(uv * 10.0, time_seed2, albedo, 10.0, vec3(1.0), vec3(0.1));
 
     //simple_marmor(uv, time_seed2, albedo, vec3(0.0), vec3(1.0), 20.0, 5.0);
-    //simple_pebble(uv, time_seed2, albedo, height, color_hex(0x809085));
+    //simple_limestone(uv, time_seed2, albedo, color_hex(0x809085), 7.0);
 
     simple_gravel(uv, time_seed2, albedo, roughness, height);
 

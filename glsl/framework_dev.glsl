@@ -42,13 +42,10 @@ void main() {
     //color = test_pattern(uv);
 
 
-    float e;
-    vec2 c;
-
     vec2 a, b;
-    uv += 1.0;
-    float foo = noise_value(uv, time_seed2, 1.0, 5, 0.5, 2.0);
-    color *= foo;
+    float c;
+    float n = noise_voronoi(uv, time_seed2, a, b, c, vec2(1.0));
+    color = vec3(1.0) * n;
 
     
 	gl_FragColor = vec4(color, 1.0);
