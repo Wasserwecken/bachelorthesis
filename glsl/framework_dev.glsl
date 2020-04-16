@@ -7,7 +7,6 @@
 #include "/framework/noise.dimensions.glsl"
 #include "/framework/uv.glsl"
 
-#include "/tests/noise.glsl"
 
 #include "/textures/colortestpattern.glsl"
 
@@ -44,9 +43,6 @@ void main() {
 
     vec3 color = vec3(1.0);
     //color = test_pattern(uv);
-
-    color = noise_voronoi_tests(uv, iTime);
-
 
 
     
