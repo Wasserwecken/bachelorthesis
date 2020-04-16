@@ -29,6 +29,7 @@ void main() {
     //result = noise_tests_value(uv, time);
     //result = noise_tests_perlin(uv, time);
     //result = noise_tests_voronoi(uv, time);
+    result = noise_tests_voronoi_edge(uv, time);
 
 
 	gl_FragColor = vec4(result, 1.0);

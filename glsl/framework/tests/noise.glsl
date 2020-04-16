@@ -93,4 +93,27 @@ vec3 noise_tests_voronoi(vec2 uv, float time)
     return noise;
 }
 
+vec3 noise_tests_voronoi_edge(vec2 uv, float time)
+{
+    vec3 noise, point, seed, id, center, strength;
+    int depth;
+    float gain, scale, dist;
+
+    point = vec3(uv, time * 0.02);
+    seed = vec3(floor(1.0 + iTime * 0.));
+    strength = vec3(sin(iTime * 0.5) * .5 + .5);
+
+    depth = 3;
+    gain = 0.5;
+    scale = 2.0;
+
+
+    // 1D
+    noise.x = noise_voronoi_edge(point.xy, seed.xy, id.xy, center.xy, dist, strength.xy);
+    noise.x = noise_voronoi_edge(point.xyz, seed.xyz, id.xyz, center.xyz, dist, strength.xyz);
+
+
+    return noise;
+}
+
 #endif

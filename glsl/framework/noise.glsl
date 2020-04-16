@@ -415,6 +415,72 @@ float noise_voronoi_edge(
     return min_edge_dist;
 }
 
+float noise_voronoi_edge(
+        vec3 point,
+        vec3 seed,
+        out vec3 cell_id,
+        out vec3 cell_center,
+        out float distance_center,
+        vec3 strength)
+{
+    point += random_vec3(seed++) - 1.0;
+    point *= NOISE_SCALE;
+
+    vec3 tile_id = floor(point);
+    vec3 tile_pos = fract(point);
+
+    vec3 cell_offset;
+    float min_magnitude = 10.0;
+    for(int x = -1; x <= 1; x++)
+    {
+        for(int y = -1; y <= 1; y++)
+        {
+            for(int z = -1; z <= 1; z++)
+            {
+                vec3 offset = vec3(x, y, z);
+                vec3 random_point = random_vec3(tile_id + offset + seed);
+                vec3 center = offset + 0.5 + (random_point - 0.5) * strength;
+                vec3 diff = center - tile_pos;
+                float diff_magnitude = dot(diff, diff);
+                
+                if (min_magnitude > diff_magnitude)
+                {
+                    min_magnitude = diff_magnitude;
+                    cell_center = center;
+                    cell_offset = offset;
+                }
+            }
+        }
+    }
+
+    float min_edge_dist = 10.0;
+    for(int x = -2; x <= 2; x++)
+    {
+        for(int y = -2; y <= 2; y++)
+        {
+            for(int z = -1; z <= 1; z++)
+            {
+                vec3 offset = cell_offset - vec3(x, y, z);
+                vec3 random_point = random_vec3(tile_id + offset + seed);
+                vec3 other_center = offset + 0.5 + (random_point - 0.5) * strength;
+
+                vec3 edge = (cell_center + other_center) * 0.5;
+                vec3 edge_dir = normalize(other_center - cell_center);
+                vec3 edge_diff = edge - tile_pos;
+                float edge_dist = dot(edge_diff, edge_dir);
+
+                min_edge_dist = min(min_edge_dist, edge_dist);
+            }
+        }
+    }
+
+    cell_id = tile_id + cell_offset;
+    cell_center = (cell_center + tile_id) / NOISE_SCALE;
+    distance_center = pow(min_magnitude, 1.0 / 3.0);
+
+    return min_edge_dist;
+}
+
 //------------------------------------------------------
 //------------------------------------------------------
 //      VORONOI MANHATTAN
