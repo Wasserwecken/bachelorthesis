@@ -299,14 +299,14 @@ float noise_voronoi(
     }
 
     cell_center /= NOISE_SCALE;
-    return sqrt(min_dot) * SQRT205;
+    return sqrt(min_dot);
 }
 
 float noise_voronoi(
         vec3 point,
+        vec3 seed,
         out vec3 cell_id,
         out vec3 cell_center,
-        vec3 seed,
         vec3 strength)
 {
     point += random_vec3(seed++) - 1.0;
@@ -339,8 +339,9 @@ float noise_voronoi(
     }
 
     cell_center /= NOISE_SCALE;
-    return pow(min_dot, 1.0 / 3.0) * SQRT305;
+    return pow(min_dot, 1.0 / 3.0);
 }
+
 
 //------------------------------------------------------
 //------------------------------------------------------
@@ -354,7 +355,7 @@ float noise_voronoi(
         vec2 seed,
         out vec2 cell_id,
         out vec2 cell_center,
-        out float dist,
+        out float distance_center,
         vec2 strength)
 {
     point *= NOISE_SCALE;
@@ -362,43 +363,50 @@ float noise_voronoi(
     vec2 tile_id = floor(point);
     vec2 tile_pos = fract(point);
 
-    vec2 nearest_offset;
-    vec2 nearest_center;
-
-    float min_dot = 10.0;
-    for( int j=-1; j<=1; j++ )
-    for( int i=-1; i<=1; i++ )
+    vec2 cell_offset;
+    float min_magnitude = 10.0;
+    for(int x = -1; x <= 1; x++)
     {
-        vec2 offset = vec2(i, j);
-        vec2 random_position = random_vec2(tile_id + offset + seed);
-        vec2 center = offset + random_position - tile_pos;
-
-        float current_dot = dot(center, center);
-        if(min_dot > current_dot)
+        for(int y = -1; y <= 1; y++)
         {
-            min_dot = current_dot;
-            cell_id = tile_id + offset;
-
-            nearest_center = center;
-            nearest_offset = offset;
+            vec2 offset = vec2(x, y);
+            vec2 random_point = random_vec2(tile_id + offset + seed);
+            vec2 center = offset + 0.5 + (random_point - 0.5) * strength;
+            vec2 diff = center - tile_pos;
+            float diff_magnitude = dot(diff, diff);
+            
+            if (min_magnitude > diff_magnitude)
+            {
+                min_magnitude = diff_magnitude;
+                cell_center = center;
+                cell_offset = offset;
+            }
         }
     }
 
-    min_dot = 10.0;
-    for( int j=-2; j<=2; j++ )
-    for( int i=-2; i<=2; i++ )
+    float min_edge_dist = 10.0;
+    for(int x = -2; x <= 2; x++)
     {
-        vec2 offset = nearest_offset + vec2(i, j);
-        vec2 random_position = random_vec2(tile_id + offset + seed);
-        vec2 center = offset + random_position - tile_pos;
+        for(int y = -2; y <= 2; y++)
+        {
+            vec2 offset = cell_offset - vec2(x, y);
+            vec2 random_point = random_vec2(tile_id + offset + seed);
+            vec2 other_center = offset + 0.5 + (random_point - 0.5) * strength;
 
-        vec2 edge = (nearest_center + center) * 0.5;
-        float current_dot = dot(edge, normalize(center - nearest_center));
+            vec2 edge = (cell_center + other_center) * 0.5;
+            vec2 edge_dir = normalize(other_center - cell_center);
+            vec2 edge_diff = edge - tile_pos;
+            float edge_dist = dot(edge_diff, edge_dir);
 
-        min_dot = min(min_dot, current_dot);
+            min_edge_dist = min(min_edge_dist, edge_dist);
+        }
     }
 
-    return min_dot;
+    cell_id = tile_id + cell_offset;
+    cell_center = (cell_center + tile_id) / NOISE_SCALE;
+    distance_center = sqrt(min_magnitude);
+
+    return min_edge_dist;
 }
 
 //------------------------------------------------------
