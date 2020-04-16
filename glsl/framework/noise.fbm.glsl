@@ -1,18 +1,11 @@
-#include "constants.glsl"
-#include "random.glsl"
-#include "helper.glsl"
-#include "easing.glsl"
 #include "noise.glsl"
+
 
 #ifndef NOISE_FBM
 #define NOISE_FBM
 
 
-//------------------------------------------------------
-//------------------------------------------------------
-//      FBM EXTENSIONS
-//------------------------------------------------------
-//------------------------------------------------------
+
 float noise_value(
         float point,
         float seed,
