@@ -234,9 +234,9 @@ float noise_perlin(vec3 point, vec3 seed)
 //------------------------------------------------------
 float noise_voronoi(
         float point,
+        float seed,
         out float cell_id,
         out float cell_center,
-        float seed,
         float strength)
 {
     point += random(seed++) - 1.0;
@@ -245,31 +245,33 @@ float noise_voronoi(
     float tile_id = floor(point);
     float tile_pos = fract(point);
 
-    float min_diff = 10.0;
-    for(float x = -0.5; x < 2.0; x++)
+    float min_magnitude = 10.0;
+    for(int x = -1; x <= 1; x++)
     {
-        float random_point = random(tile_id + seed + x);
-        float center = x + (random_point - 0.5) * strength;
-        float diff = center - tile_pos;
-        diff = abs(diff);
+        float offset = float(x);
+        float random_point = random(tile_id + offset + seed);
+        float center = offset + 0.5 + (random_point - 0.5) * strength;
+        float diff_magnitude = abs(center - tile_pos);
         
-        if (min_diff > diff)
+        if (min_magnitude > diff_magnitude)
         {
-            min_diff = diff;
-            cell_id = tile_id + x;
-            cell_center = tile_id + center;
+            min_magnitude = diff_magnitude;
+            cell_id = offset;
+            cell_center = center;
         }
     }
 
-    cell_center /= NOISE_SCALE;
-    return min_diff;
+    cell_id += tile_id;
+    cell_center = (cell_center + tile_id) / NOISE_SCALE;
+
+    return min_magnitude;
 }
 
 float noise_voronoi(
         vec2 point,
+        vec2 seed,
         out vec2 cell_id,
         out vec2 cell_center,
-        vec2 seed,
         vec2 strength)
 {
     point += random_vec2(seed++) - 1.0;
@@ -278,28 +280,30 @@ float noise_voronoi(
     vec2 tile_id = floor(point);
     vec2 tile_pos = fract(point);
 
-    float min_dot = 10.0;
-    for(float x = -0.5; x < 2.0; x++)
+    float min_magnitude = 10.0;
+    for(int x = -1; x < 1; x++)
     {
-        for(float y = -0.5; y < 2.0; y++)
+        for(int y = -1; y < 1; y++)
         {
             vec2 offset = vec2(x, y);
-            vec2 random_point = random_vec2(tile_id + seed + offset);
-            vec2 center = offset + (random_point - 0.5) * strength;
+            vec2 random_point = random_vec2(tile_id + offset + seed);
+            vec2 center = offset + 0.5 + (random_point - 0.5) * strength;
             vec2 diff = center - tile_pos;
-            float diff_dot = dot(diff, diff);
+            float diff_magnitude = dot(diff, diff);
             
-            if (min_dot > diff_dot)
+            if (min_magnitude > diff_magnitude)
             {
-                min_dot = diff_dot;
-                cell_id = tile_id + offset;
-                cell_center = tile_id + center;
+                min_magnitude = diff_magnitude;
+                cell_id = offset;
+                cell_center = center;
             }
         }
     }
 
-    cell_center /= NOISE_SCALE;
-    return sqrt(min_dot);
+    cell_id += tile_id;
+    cell_center = (cell_center + tile_id) / NOISE_SCALE;
+
+    return sqrt(min_magnitude);
 }
 
 float noise_voronoi(
@@ -315,31 +319,33 @@ float noise_voronoi(
     vec3 tile_id = floor(point);
     vec3 tile_pos = fract(point);
 
-    float min_dot = 10.0;
-    for(float x = -0.5; x < 2.0; x++)
+    float min_magnitude = 10.0;
+    for(int x = -1; x < 1; x++)
     {
-        for(float y = -0.5; y < 2.0; y++)
+        for(int y = -1; y < 1; y++)
         {
-            for(float z = -0.5; z < 2.0; z++)
+            for(int z = -1; z < 1; z++)
             {
                 vec3 offset = vec3(x, y, z);
-                vec3 random_point = random_vec3(tile_id + seed + offset);
-                vec3 center = offset + (random_point - 0.5) * strength;
+                vec3 random_point = random_vec3(tile_id + offset + seed);
+                vec3 center = offset + 0.5 + (random_point - 0.5) * strength;
                 vec3 diff = center - tile_pos;
-                float diff_dot = dot(diff, diff);
+                float diff_magnitude = dot(diff, diff);
                 
-                if (min_dot > diff_dot)
+                if (min_magnitude > diff_magnitude)
                 {
-                    min_dot = diff_dot;
-                    cell_id = tile_id + offset;
-                    cell_center = tile_id + center;
+                    min_magnitude = diff_magnitude;
+                    cell_id = offset;
+                    cell_center = center;
                 }
             }
         }
     }
 
-    cell_center /= NOISE_SCALE;
-    return pow(min_dot, 1.0 / 3.0);
+    cell_id += tile_id;
+    cell_center = (cell_center + tile_id) / NOISE_SCALE;
+
+    return pow(min_magnitude, 1.0 / 3.0);
 }
 
 
@@ -350,7 +356,7 @@ float noise_voronoi(
 //------------------------------------------------------
 //https://www.iquilezles.org/www/articles/voronoilines/voronoilines.htm
 //https://www.ronja-tutorials.com/2018/09/29/voronoi-noise.html
-float noise_voronoi(
+float noise_voronoi_edge(
         vec2 point,
         vec2 seed,
         out vec2 cell_id,
@@ -358,6 +364,7 @@ float noise_voronoi(
         out float distance_center,
         vec2 strength)
 {
+    point += random_vec2(seed++) - 1.0;
     point *= NOISE_SCALE;
 
     vec2 tile_id = floor(point);

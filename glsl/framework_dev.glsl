@@ -44,7 +44,7 @@ void main() {
 
     vec2 a, b;
     float c;
-    float n = noise_voronoi(uv, time_seed2, a, b, c, vec2(sin(iTime) * 0.5 + 0.5));
+    float n = noise_voronoi_edge(uv, time_seed2, a, b, c, vec2(sin(iTime) * 0.5 + 0.5));
     color = vec3(1.0) * n * 1.5 * step( 0.05, c);
 
     float s = shape_circle(uv, vec2(b), 0.003, 0.0);

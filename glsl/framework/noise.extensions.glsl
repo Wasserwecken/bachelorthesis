@@ -179,9 +179,9 @@ float noise_perlin(
 
 float noise_voronoi(
         float point,
+        float seed,
         out float cell_id,
         out float center_id,
-        float seed,
         float strength,
         int layers,
         float gain,
@@ -201,9 +201,9 @@ float noise_voronoi(
     for(int layer = 0; layer < layers; layer++)
     {
         result += noise_voronoi(
-                point * frequency,
+                point * frequency, seed++,
                 id, center,
-                seed++, strength
+                strength
             ) * amplitude;
         
         height_sum += amplitude;
@@ -220,9 +220,9 @@ float noise_voronoi(
 
 float noise_voronoi(
         vec2 point,
+        vec2 seed,
         out vec2 cell_id,
         out vec2 center_id,
-        vec2 seed,
         vec2 strength,
         int layers,
         float gain,
@@ -242,9 +242,9 @@ float noise_voronoi(
     for(int layer = 0; layer < layers; layer++)
     {
         result += noise_voronoi(
-                point * frequency,
+                point * frequency, seed++,
                 id, center,
-                seed++, strength
+                strength
             ) * amplitude;
         
         height_sum += amplitude;
@@ -261,9 +261,9 @@ float noise_voronoi(
 
 float noise_voronoi(
         vec3 point,
+        vec3 seed,
         out vec3 cell_id,
         out vec3 center_id,
-        vec3 seed,
         vec3 strength,
         int layers,
         float gain,
@@ -283,9 +283,9 @@ float noise_voronoi(
     for(int layer = 0; layer < layers; layer++)
     {
         result += noise_voronoi(
-                point * frequency,
+                point * frequency, seed++,
                 id, center,
-                seed++, strength
+                strength
             ) * amplitude;
         
         height_sum += amplitude;
@@ -417,55 +417,55 @@ vec3 noise_perlin_vec3(vec3 point, vec3 seed)
 
 
 // 2D voronoi
-vec2 noise_voronoi_vec2(float point, out float cell_id, out float center_id, float seed, float strength)
+vec2 noise_voronoi_vec2(float point, float seed, out float cell_id, out float center_id, float strength)
 {
     return vec2(
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength)
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength)
     );
 }
 
-vec2 noise_perlin_vec2(vec2 point, out vec2 cell_id, out vec2 center_id, vec2 seed, vec2 strength)
+vec2 noise_voronoi_vec2(vec2 point, vec2 seed, out vec2 cell_id, out vec2 center_id, vec2 strength)
 {
     return vec2(
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength)
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength)
     );
 }
 
-vec2 noise_perlin_vec2(vec3 point, out vec3 cell_id, out vec3 center_id, vec3 seed, vec3 strength)
+vec2 noise_voronoi_vec2(vec3 point, vec3 seed, out vec3 cell_id, out vec3 center_id, vec3 strength)
 {
     return vec2(
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength)
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength)
     );
 }
 
 // 3D voronoi
-vec3 noise_voronoi_vec3(float point, out float cell_id, out float center_id, float seed, float strength)
+vec3 noise_voronoi_vec3(float point, float seed, out float cell_id, out float center_id, float strength)
 {
     return vec3(
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength)
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength)
     );
 }
 
-vec3 noise_voronoi_vec3(vec2 point, out vec2 cell_id, out vec2 center_id, vec2 seed, vec2 strength)
+vec3 noise_voronoi_vec3(vec2 point, vec2 seed, out vec2 cell_id, out vec2 center_id, vec2 strength)
 {
     return vec3(
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength)
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength)
     );
 }
 
-vec3 noise_voronoi_vec3(vec3 point, out vec3 cell_id, out vec3 center_id, vec3 seed, vec3 strength)
+vec3 noise_voronoi_vec3(vec3 point, vec3 seed, out vec3 cell_id, out vec3 center_id, vec3 strength)
 {
     return vec3(
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength),
-        noise_voronoi(point, cell_id, center_id, seed++, strength)
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength),
+        noise_voronoi(point, seed++, cell_id, center_id, strength)
     );
 }
 
@@ -585,55 +585,55 @@ vec3 noise_perlin_vec3(vec3 point, vec3 seed, int layers, float gain, float scal
 
 
 // 2D voronoi layered
-vec2 noise_voronoi_vec2(float point, out float cell_id, out float center_id, float seed, float strength, int layers, float gain, float scale)
+vec2 noise_voronoi_vec2(float point, float seed, out float cell_id, out float center_id, float strength, int layers, float gain, float scale)
 {
     return vec2(
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale)
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale)
     );
 }
 
-vec2 noise_perlin_vec2(vec2 point, out vec2 cell_id, out vec2 center_id, vec2 seed, vec2 strength, int layers, float gain, float scale)
+vec2 noise_voronoi_vec2(vec2 point, vec2 seed, out vec2 cell_id, out vec2 center_id, vec2 strength, int layers, float gain, float scale)
 {
     return vec2(
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale)
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale)
     );
 }
 
-vec2 noise_perlin_vec2(vec3 point, out vec3 cell_id, out vec3 center_id, vec3 seed, vec3 strength, int layers, float gain, float scale)
+vec2 noise_voronoi_vec2(vec3 point, vec3 seed, out vec3 cell_id, out vec3 center_id, vec3 strength, int layers, float gain, float scale)
 {
     return vec2(
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale)
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale)
     );
 }
 
 // 3D voronoi layered
-vec3 noise_voronoi_vec3(float point, out float cell_id, out float center_id, float seed, float strength, int layers, float gain, float scale)
+vec3 noise_voronoi_vec3(float point, float seed, out float cell_id, out float center_id, float strength, int layers, float gain, float scale)
 {
     return vec3(
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale)
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale)
     );
 }
 
-vec3 noise_voronoi_vec3(vec2 point, out vec2 cell_id, out vec2 center_id, vec2 seed, vec2 strength, int layers, float gain, float scale)
+vec3 noise_voronoi_vec3(vec2 point, vec2 seed, out vec2 cell_id, out vec2 center_id, vec2 strength, int layers, float gain, float scale)
 {
     return vec3(
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale)
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale)
     );
 }
 
-vec3 noise_voronoi_vec3(vec3 point, out vec3 cell_id, out vec3 center_id, vec3 seed, vec3 strength, int layers, float gain, float scale)
+vec3 noise_voronoi_vec3(vec3 point, vec3 seed, out vec3 cell_id, out vec3 center_id, vec3 strength, int layers, float gain, float scale)
 {
     return vec3(
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale),
-        noise_voronoi(point, cell_id, center_id, seed++, strength, layers, gain, scale)
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale),
+        noise_voronoi(point, seed++, cell_id, center_id, strength, layers, gain, scale)
     );
 }
 
