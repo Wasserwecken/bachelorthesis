@@ -7,15 +7,10 @@
 #include "noise.fbm.glsl"
 
 
-#ifndef NOISE_EXT
-#define NOISE_EXT
+#ifndef NOISE_DIM
+#define NOISE_DIM
 
 
-//------------------------------------------------------
-//------------------------------------------------------
-//      DIMENSION EXTENSIONS
-//------------------------------------------------------
-//------------------------------------------------------
 
 // 2D value
 vec2 noise_value_vec2(float point, float seed, float smoothness)
