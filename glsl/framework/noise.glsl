@@ -280,9 +280,9 @@ float noise_voronoi(
     vec2 tile_pos = fract(point);
 
     float min_magnitude = 10.0;
-    for(int x = -1; x < 1; x++)
+    for(int x = -1; x <= 1; x++)
     {
-        for(int y = -1; y < 1; y++)
+        for(int y = -1; y <= 1; y++)
         {
             vec2 offset = vec2(x, y);
             vec2 random_point = random_vec2(tile_id + offset + seed);
@@ -319,11 +319,11 @@ float noise_voronoi(
     vec3 tile_pos = fract(point);
 
     float min_magnitude = 10.0;
-    for(int x = -1; x < 1; x++)
+    for(int x = -1; x <= 1; x++)
     {
-        for(int y = -1; y < 1; y++)
+        for(int y = -1; y <= 1; y++)
         {
-            for(int z = -1; z < 1; z++)
+            for(int z = -1; z <= 1; z++)
             {
                 vec3 offset = vec3(x, y, z);
                 vec3 random_point = random_vec3(tile_id + offset + seed);
