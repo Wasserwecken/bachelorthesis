@@ -8,6 +8,16 @@
 //////////////////////////////
 // Shapes
 //////////////////////////////
+float shape_spiral(vec2 uv, vec2 origin, float start)
+{
+    uv -= origin;
+
+    float spiral = (atan(uv.x, uv.y) + PI) / PI2;
+    spiral = fract(spiral + 0.5 - start);
+
+    return spiral;  
+}
+
 float shape_gradient_direction(vec2 uv, vec2 origin, vec2 direction)
 {
     direction = -direction;
@@ -50,16 +60,6 @@ float shape_rectangle_rounded(vec2 uv, vec2 origin, vec2 size, float blur, float
 
     float l = length(max(uv - size + radius, 0.0)) - radius;
     return value_linear_step(0.0, l, blur);
-}
-
-float shape_spiral(vec2 uv, vec2 origin, float start)
-{
-    uv -= origin;
-
-    float spiral = (atan(uv.x, uv.y) + PI) / PI2;
-    spiral = fract(spiral + 0.5 - start);
-
-    return spiral;  
 }
 
 float shape_ngon(vec2 uv, vec2 origin, float radius, float edges, float bend, float blur)

@@ -7,7 +7,7 @@
 #define NOISE_TESTS
 
 
-vec3 noise_tests_value(vec2 uv, float time)
+vec3 test_noise_value(vec2 uv, float time)
 {
     vec3 noise, point, seed;
     int depth;
@@ -36,7 +36,7 @@ vec3 noise_tests_value(vec2 uv, float time)
     return noise;
 }
 
-vec3 noise_tests_perlin(vec2 uv, float time)
+vec3 test_noise_perlin(vec2 uv, float time)
 {
     vec3 noise, point, seed;
     int depth;
@@ -64,7 +64,7 @@ vec3 noise_tests_perlin(vec2 uv, float time)
     return noise;
 }
 
-vec3 noise_tests_voronoi(vec2 uv, float time)
+vec3 test_noise_voronoi(vec2 uv, float time)
 {
     vec3 noise, point, seed, id, center, strength;
     int depth;
@@ -93,7 +93,7 @@ vec3 noise_tests_voronoi(vec2 uv, float time)
     return noise;
 }
 
-vec3 noise_tests_voronoi_edge(vec2 uv, float time)
+vec3 test_noise_voronoi_edge(vec2 uv, float time)
 {
     vec3 noise, point, seed, id, center, strength;
     int depth;

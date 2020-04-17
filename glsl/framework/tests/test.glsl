@@ -1,4 +1,5 @@
 #include "noise.glsl"
+#include "shapes.glsl"
 
 
 vec2 provide_uv()
@@ -22,14 +23,17 @@ vec2 provide_uv_interactive()
 
 
 void main() {
-    vec2 uv = provide_uv_interactive();
+    vec2 uv = provide_uv();
     float time = iTime;
     vec3 result;
 
-    //result = noise_tests_value(uv, time);
-    //result = noise_tests_perlin(uv, time);
-    //result = noise_tests_voronoi(uv, time);
-    result = noise_tests_voronoi_edge(uv, time);
+
+    //result = test_noise_value(uv, time);
+    //result = test_noise_perlin(uv, time);
+    //result = test_noise_voronoi(uv, time);
+    //result = test_noise_voronoi_edge(uv, time);
+
+    result = test_shapes(uv, time);
 
 
 	gl_FragColor = vec4(result, 1.0);
