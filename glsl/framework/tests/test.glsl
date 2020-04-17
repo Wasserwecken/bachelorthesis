@@ -1,5 +1,6 @@
 #include "noise.glsl"
 #include "shapes.glsl"
+#include "easing.glsl"
 
 
 vec2 provide_uv()
@@ -33,7 +34,8 @@ void main() {
     //result = test_noise_voronoi(uv, time);
     //result = test_noise_voronoi_edge(uv, time);
 
-    result = test_shapes(uv, time);
+    //result = test_shapes(uv, time);
+    result = test_easing(uv, time);
 
 
 	gl_FragColor = vec4(result, 1.0);
