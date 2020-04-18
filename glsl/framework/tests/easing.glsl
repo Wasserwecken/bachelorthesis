@@ -23,6 +23,13 @@ vec3 test_easing(vec2 uv, float time)
     result.y = easing_circular_out(t);
     result.z = easing_circular_inout(t);
 
+    result.x = easing_sinus_in(t);
+    result.y = easing_sinus_out(t);
+    result.z = easing_sinus_inout(t);
+
+    result.x = easing_expo_in(t);
+    result.y = easing_expo_out(t);
+    result.z = easing_expo_inout(t);
 
 
     return step(vec3(uv.y), result);
