@@ -52,14 +52,16 @@ float shape_rectangle(vec2 uv, vec2 origin, vec2 size, vec2 blur)
     return min(isRectangle.x, isRectangle.y);
 }
 
-float shape_rectangle_rounded(vec2 uv, vec2 origin, vec2 size, float blur, float radius)
+float shape_rectangle_rounded(vec2 uv, vec2 origin, vec2 size, float blur, vec4 radius)
 {
+    uv -= origin;
     size *= 0.5;
-    radius *= min(size.x, size.y);
-    uv = abs(uv - origin);
 
-    float l = length(max(uv - size + radius, 0.0)) - radius;
-    return value_linear_step(0.0, l, blur);
+    radius.xy = (uv.x > 0.0) ? radius.xy : radius.zw;
+    radius.x  = (uv.y > 0.0) ? radius.x  : radius.y;
+    vec2 q = abs(uv)-size+radius.x;
+    float df = min(max(q.x,q.y),0.0) + length(max(q,0.0)) - radius.x;
+    return value_linear_step(0.0, df, blur);
 }
 
 float shape_ngon(vec2 uv, vec2 origin, float radius, float edges, float bend, float blur)

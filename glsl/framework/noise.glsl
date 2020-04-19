@@ -458,7 +458,7 @@ float noise_voronoi_edge(
     {
         for(int y = -2; y <= 2; y++)
         {
-            for(int z = -1; z <= 1; z++)
+            for(int z = -2; z <= 2; z++)
             {
                 vec3 offset = cell_offset - vec3(x, y, z);
                 vec3 random_point = random_vec3(tile_id + offset + seed);

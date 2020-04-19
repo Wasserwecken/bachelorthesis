@@ -13,18 +13,7 @@
 
 
 
-void compound_paving_stone(
-        vec2 uv,
-        vec2 seed,
-        out vec3 albedo,
-        out float roughness,
-        out float height)
-{
-    
 
-
-    albedo = vec3(0.5);
-}
 
 
 
