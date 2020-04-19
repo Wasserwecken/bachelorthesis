@@ -26,11 +26,13 @@ vec3 test_noise_value(vec2 uv, float time)
     noise.x = noise_value(point.x, seed.x, smoothness);
     noise.x = noise_value(point.xy, seed.xy, smoothness);
     noise.x = noise_value(point.xyz, seed.xyz, smoothness);
+    noise = vec3(noise.x);
     
     // 1D FBM
     noise.x = noise_value(point.x, seed.x, smoothness, depth, gain, scale);
     noise.x = noise_value(point.xy, seed.xy, smoothness, depth, gain, scale);
     noise.x = noise_value(point.xyz, seed.xyz, smoothness, depth, gain, scale);
+    noise = vec3(noise.x);
 
 
     return noise;
@@ -54,11 +56,13 @@ vec3 test_noise_perlin(vec2 uv, float time)
     noise.x = noise_perlin(point.x, seed.x);
     noise.x = noise_perlin(point.xy, seed.xy);
     noise.x = noise_perlin(point.xyz, seed.xyz);
+    noise = vec3(noise.x);
     
     // 1D FBM
     noise.x = noise_perlin(point.x, seed.x, depth, gain, scale);
     noise.x = noise_perlin(point.xy, seed.xy, depth, gain, scale);
     noise.x = noise_perlin(point.xyz, seed.xyz, depth, gain, scale);
+    noise = vec3(noise.x);
 
 
     return noise;
@@ -83,12 +87,13 @@ vec3 test_noise_voronoi(vec2 uv, float time)
     noise.x = noise_voronoi(point.x, seed.x, id.x, center.x, strength.x);
     noise.x = noise_voronoi(point.xy, seed.xy, id.xy, center.xy, strength.xy);
     noise.x = noise_voronoi(point.xyz, seed.xyz, id.xyz, center.xyz, strength.xyz);
+    noise = vec3(noise.x);
     
     // 1D FBM
     noise.x = noise_voronoi(point.x, seed.x, id.x, center.x, strength.x, depth, gain, scale);
     noise.x = noise_voronoi(point.xy, seed.xy, id.xy, center.xy, strength.xy, depth, gain, scale);
     noise.x = noise_voronoi(point.xyz, seed.xyz, id.xyz, center.xyz, strength.xyz, depth, gain, scale);
-
+    noise = vec3(noise.x);
 
     return noise;
 }
@@ -111,6 +116,12 @@ vec3 test_noise_voronoi_edge(vec2 uv, float time)
     // 1D
     noise.x = noise_voronoi_edge(point.xy, seed.xy, id.xy, center.xy, dist, strength.xy);
     noise.x = noise_voronoi_edge(point.xyz, seed.xyz, id.xyz, center.xyz, dist, strength.xyz);
+    noise = vec3(noise.x);
+ 
+    // 1D FBM
+    noise.x = noise_voronoi_edge(point.xy, seed.xy, id.xy, center.xy, dist, strength.xy, depth, gain, scale);
+    noise.x = noise_voronoi_edge(point.xyz, seed.xyz, id.xyz, center.xyz, dist, strength.xyz, depth, gain, scale);
+    noise = vec3(noise.x);
 
 
     return noise;
