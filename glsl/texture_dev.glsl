@@ -31,14 +31,8 @@ vec2 provide_uv_interactive()
 }
 
 
-
-
-
-
-
-
 void main() {
-    vec2 uv = provide_uv_interactive();
+    vec2 uv = provide_uv();
     float time_seed = floor(iTime * 0.25);
     time_seed = 1.0;
     vec2 time_seed2 = vec2(time_seed);
