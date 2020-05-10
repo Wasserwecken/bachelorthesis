@@ -1,30 +1,38 @@
 <!-- ########################################## -->
-# Einführung
-## Prozedurale Texturen
-* Was bedeuted prozedural
-* Welche Vorteile bietet das
+# Begrifferklärung
+* Prozedural
 * Non destructual Workflow
-* Mehrere Texturen für eine Oberfläche (PBR)
+* mehere Texturen für ein Material
+* Fragmentshader
 
-## Fragment Shader
-* Wie funktionert ein Fragment Shader
-
+# Einführung
 ## Problem
-* 
+* Kein allgemeines Vorgehen bekannt
+* Jede Software hat eigene Funktionalitäten
+* Noises / Formen / etc können kompliziert sein
 
 ## Ziel
-* 
+* Einfachen Workflow finden
+* Worflow soll die meisten Materialien abdecken können
 
 ## Lösung
-* 
+* Kleines Framework
+* Worflow beschreiben
+
+## Testbarkeit
+* ???
+
 
 
 <!-- ########################################## -->
 # Analyse
+* Wie nimmt man ein Material auseinander.
+* Wie sammelt man seine Anforderungen.
 
 ## Bedarf
-* Wie weit ist die Oberfläche vom Sichtpunk entfernt?
-* Wie viel Detail ist vom Projekt gefordert
+* Sichtbarkeit der Oberfläche
+* Entfernung der Oberfläche
+* Generelle Anforderung ans Detail
 
 ## Kontext
 * Wo findet man die Oberfläche? Im Freien / Im Wald / etc.
@@ -32,13 +40,13 @@
 * Wie alt ist die Oberfläche?
 
 ## Komposition
-### Trennung in einzelne Oberflächen
+### Trennung der Oberfläche in einzelne Materialien
 * Aus welchen Materialien setzt sich die Oberfläche zusammen.
 * Liegt etwas auf der Oberfläche zusätzlich drauf (Staub, Blätter, Kratzer).
 * Liegen Beschädigungen vor?
 * Haben die einzelnen Komponenten einen Zusammenhang?
 
-### Analyse der Materialien der Oberfläche
+### Analyse der Materialien
 * Welche eigenschaften hat das Material?
 * Wie setzt es sich im Volumen zusammen
 * Wie entsteht es?
@@ -47,8 +55,6 @@
 * Sind regelmäßige Muster wie Kacheln oder Formen zu erkennen.
 * Erst grobe Strukturen analysieren dann immer Feiner werden.
 * Sind Muster in Muster zu erkennen?
-* Welche Muster treten häufig auf.
-* Welche Formen treten häufig auf.
 * Gibt es erkennbare Verzerrungen?
 
 ### Höhenverteilung
@@ -56,6 +62,7 @@
 * Welche Muster sind in der Höhe zu erkennen
 * Wie ist die Höhenverteilung der Oberfläche.
 * Hat die Höhe einfluss auf die Verteilung von den Materialien?
+
 
 
 <!-- ########################################## -->
@@ -79,18 +86,16 @@
 ## UV als Leinwand
 * Wiederverwndbarkeit
 * Manipulation der UV
-
-## Masking
-* Wie können Patterns und Formen als Masken eingesetzt werden?
-* Wie kann man Masken ableiten?
+* Manipulation der UV vs Form
 
 ## Unvollkommenheit
 * Wieso sehen perfekte Oberflächen nicht gut aus.
 
 ## Kombination von Formen
 * Wie können komplexe Formen aus simplen zusamengesetzt werden.
+* Formen für Masking
 
-## Kombination von Formen und Pattern
+## Kombination von Formen und Pattern / Noise
 * Wie können Formen regelmäßig wiederholt werden
 * Wie können Formen mit patterns ergänzt und manipuliert werden.
 
@@ -99,18 +104,17 @@
 * Welche Formen gibt es?
 * Welche Manipulationen ergeben sich
 
-## Kombinieren von Layern / Materialien
-* Welchen zweck haben Masken.
-* Wie kann man Masken ableiten.
-
 ## Iterieren
 * Von Grob zu fein.
 * Wie teilt man Grob und fein ein.
 
+## Kombinieren von Layern / Materialien
+* Welchen zweck haben Masken.
+* Wie kann man Masken ableiten.
+
 ## Höhe als ausgang für andere Texturinfos
 * Welche einflüsse kann die Höhe haben.
 * Höhe als Maske.
-
 
 
 
