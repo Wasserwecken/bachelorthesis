@@ -6,6 +6,8 @@
 
 # Einführung
 ## Problem
+Viele Arbeiten die sich mit dem Thema prozedurale Textur generierung beschäftigen haben bereits die Bedetung, Entwicklung und Verwendungszwecke von Algorithmen untersucht. Allerdings ist es nachwievor nicht leicht zu erkennen wie Algorithmen und Techniken zusammenspielen müssen um ein bestimmtes Ergebnis in Form eines prozeduralen Materials zu bekommen. Hier setzt diese Arbeit an.
+
 Viele Softwarelösungen im 3D Bereich bieten eine Shaderintegration, oft in Form eines Node-Systems, an. Durch diese Integration ist es möglich prozedurale Texturen mithilfe eines Fragment-Shader zu erzeugen.
 
 Allerdings ist ein strukturiertes Vorgehen nicht gegeben, und jede Software bringt eingene ergänzende Funktionalitäten mit sich die den Workflow beeinflussen können. Diese Funktionalitäten sind aber das kernelment von prozeduralen Texturen.
@@ -26,45 +28,80 @@ Ein Workflow soll ausgearbeitet werden welcher auf jede Textur anwendbar und nac
 * ???
 
 
-# Prozedurale Materialien
-Der Prozess zum erstellen von prozeduralen Materialen umfasst verschiedene Teilbereiche. Diese fallen je nach gefordertem Material intensiver aus oder gar weg. Um die Abfolge und Relevanz einordnen zu können wird der ganze Prozess in zwei Hauptphasen eingeteilt:
+# Übersicht
 - Analyse
+    - Material
+    - Komposition
+
 - Umsetzung
+    - Algorithmen
+        - Noise
+        - UV
+        - Shapes
+        - Easing
 
-Die Analyse dient dazu alle relevanten Informationen und Referenzen für das neue Material zu sammeln, verarbeiten und in abstrahierten Form wiedergeben zu können. Die Analyse ist die erste Pase die durchlaufen werden muss.
+    - Techniken
+        - Höhe zurest
+        - Masking
+        - Layering
+        - Manipulation
 
-Die Umsetzung besteht darin Algorithmen und deren Parameter zu kombinieren und layern. Dabei entstehen Texturen als Ergebnis die die Eigenschaften des Materials repräsentieren.
 
-Der gesammte Prozess kann dabei sowohl komplex als auch simpel ausfallen. Eintscheident ist der geforderte Detailgrad. Ein fotorealistisches Material erfordert eine deutlich intensivere Analyse und komplexere Umsetzung, als ein Low-Poly Material. Dieses kann im Extreamfall einen einzelnen Farbwert als einzelne Eigenschaft besitzen. Der Detailgrad kann dabei von viele Faktoren abhängen. Als Beispiel könnte Entfernung und Style-Giudeline entscheident sein. Wie sich der Detailgrad zusammensetzt ist nicht für diese Arbeit, er bestimmt aber die Relevanz für alle Ausführungen in der Workflow-Definition.
+
+
+# Prozedurale Materialien
+Ein Material für einen Shader besteht in den meisten Fällen nicht aus einer einzelnen Textur. So wie ein Shader verschiedene Eigenschaften für seine Verarbeitung besitzt kann ein Material diese steuern um die gewünschte optische Erscheinung zu erreichen. Nimmt man als Beispiel einen Phong-Shader, weißt dieser drei Eigenschaften auf: Diffuse Color, Specular Color und Shininess. Eine PBR-Shader implementation hat wiederum andere Eigenschaften die gesteuert werden können. Ein Material in Form einer Textur besteht also aus mehren Texturen die diese Eigenschaften steuern.
+
+Eine prozedurales Material innerhalb eines Fragment-Shader muss auch die Eigenschaften des Shader steuern. So entsteht bei einem prozeduralen Material als gesamtes Ergebnis mehrere Teilergebnisse die mit Texturen gleichgesetzt werden können.
+
+Um den Prozess des Erstellens von einem prozeduralen Material zu definieren, wird dieser in seine einzelnen Teilprozesse zerlegt. Als Einstieg dient dabei die klassische Unterteilung in: Analyse und Umsetzung.
+
+Diese Teilprozesse stehen nicht für sich selbst geschlossen dar und können mehrmals im Verlauf einer Entwicklung durchlaufen werden. Sie hängen beide dennoch voneinander ab. Die Analyse muss Informationen und Referenzen so aufarbeiten und abstrahieren das diese auf die Möglichkeiten der Umsetzung angepasst sind. Die Umsetzung muss natürlich die aufbereiteten Informationen implementieren.
+
+Durch die Abhängigkeit der Analyse zur Umsetzung wird in dieser Arbeit die Umsetzung zuerst behandelt. Bei der Ausführung des Prozesses sollte die Analyse immer vor der Umsetzung durchgeführt werden.
+
+Eine zusätzliche essentiell übergreifende Information die in jedem Teilprozess zum tragen kommt ist der geforderte Detailgrad eines prozeduralen Materials. Dieser Detailgrad bestimmt wie intensiv Teilprozesse durchlaufen müssen, oder welche nicht benötigt werden. Welche Teilprozesse wie davon betroffen sind, muss der Anwender selbst entscheiden. Ein Beispiel: Ein fotorealistisches PBR Material benötigt eine deutlich intensivere Analyse und komplexere Umsetzung als ein Phong Low-Poly Material, welches im Extremfall einen einzelnen Farbwert als einzige Eigenschaft besitzen. Woran sich der geforderte Detailgrad ableitet ist nicht Teil dieser Arbeit, wichtig ist aber diesen zu kennen.
+
+
 
 
 # Umsetzung
-Um ein Material strukturiert Umzusetzen muss definiert werden wie Algorithmen kategorisiert werden können um diese als Techniken zu verwenden können. Als Kategorien für Algorithmen werden folgende definiert:
-- Random
-- Noise
-- UV
-- Shapes
-- Easing
-
-Um die definierten Kategorien sinnvoll Einzusetzten muss Entwicklungsprozess der Umsetzung näher betrachtet werden.
+Für die implementation eines prozeduralen Materials ist es wichtig zu wissen welche technische und künstlerische Möglichkeiten durch einen Fragment-Shader zu Verfügung stehen. Dabei muss zwischen Algorithmen und Techniken unterschieden werden. Techniken definieren sich durch das geschickte kombinieren von Algorithmen um optische Modifikationen oder Eigenschaften zu erreichen. Algorithmen bilden wiederum atomare Bausteine auf die eine prozedurale Textur aufbaut. Ähnlich vergleichbar mit einem Lego Spiel.
 
 
-## Kategorien
-Die Kategorien leiten sich ab durch... ???
-Die Kategorien dienen zur Einordnung der anwendung der darunter liegenden Algorithmen. Die Algorithmen selbst können dabei selbst gewählt werden. Einzelne Algorithmen zu definieren würde den Rahmen der Arbeit überschreiten und einen allgemein gültigen Workflow verhindern.
 
-### Random
+## Algorithmen
+Wie bereits erwähnt stellen Algorithmen atomare Bausteine für ein prozedurales Material dar. Die Bausteine selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material hinweg gleich. Durch die atomare Definition kann eine Bibliothek aufgebaut werden.
 
 
 ### Noise
+Bla
+
+
 ### UV
+Bla
+
+
 ### Shapes
+Bla
+
+
 ### Easing
+Bla
 
 
 
 
-## Entwicklungsprozess
+
+
+
+
+
+
+
+
+
+
 
 
 
