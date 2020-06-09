@@ -28,25 +28,6 @@ Ein Workflow soll ausgearbeitet werden welcher auf jede Textur anwendbar und nac
 * ???
 
 
-# Übersicht
-- Analyse
-    - Material
-    - Komposition
-
-- Umsetzung
-    - Algorithmen
-        - Noise
-        - UV
-        - Shapes
-        - Easing
-
-    - Techniken
-        - Höhe zurest
-        - Masking
-        - Layering
-        - Manipulation
-
-
 
 
 # Prozedurale Materialien
@@ -71,61 +52,82 @@ Für die implementation eines prozeduralen Materials ist es wichtig zu wissen we
 
 
 ## Algorithmen
-Wie bereits erwähnt stellen Algorithmen atomare Bausteine für ein prozedurales Material dar. Die Bausteine selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material hinweg gleich. Durch die atomare Definition kann eine Bibliothek aufgebaut werden.
+Algorithmen stellen atomare Bausteine für ein prozedurales Material dar. Die Algorithmen selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material gleich. 
+
+Um die spezifische Aufgabe eines Algorithmus besser zu verstehen und eine Austauschbarkeit zu ermöglichen, werden diese nach Ihrer Aufgabe kategorisiert.
 
 
 ### Noise
-Bla
+Unter der Kategorie Noise können alle Algorithmen verstanden werden, welche als Ergebnis ein zufälliges variierendes regelmäßiges Muster erzeugen. Als Beispiel können WhiteNoise, PerlinNoise, FractalBrowningMotion genannt werden.
+
+Noise wird in prozeduralen Materialien verwendet um Imperfektion und natürliche Variation in Oberflächen zu bringen. So kann das Ergebnis eines Noise-Algorithmus als Höhenkarte oder Maske für andere Layer dienen.
 
 
 ### UV
-Bla
+Die UV ist in einem Fragment-Shader die Leinwand eines prozeduralen Materials.
+Durch die Manipulation der Leinwand können zusätzliche Variationen und Effekte entstehen. Als einfachstes Beispiel dient Rotation und Frakturierung.
+Durch ein anderes Mapping, z.B. auf Polar-Koordinaten können gewünschte optische EEigenschaften einfach erreicht werden.
 
 
 ### Shapes
-Bla
+Formen sind für Basis für komplexere Formen. Dadurch das in einem Fragment-Shader nicht auf Nachbarpixel zugegriffen werden kann, empfiehlt es sich für jede Form einen Blur-Parameter zu implementieren. Durch einen weichen Übergang an den Rändern können viele Effekte erreicht werden.
 
 
 ### Easing
-Bla
+Easing-Algorithmen werden meist beim manipulieren von Höhenkarten und Masken verwendet. Auch kann als Beispiel die Verteilung von WhiteNoise gesteuert werden.
+
+
+### Mathematische Funktionen
+Was soll man sagen?
 
 
 
+## Techniken
+Techniken beschreiben das allgemeine Vorgehen und Lösungsansätze für wiederkehrende Aufgaben und Probleme.
 
 
+### Höhe als Grundlage
+Die Höhe sollte in schwarz weiß dargestellt werden. Schwarz für die Tiefen als 0.0, Weiß für de Höhen als 1.0. Das hat den Vorteil dass das Ergebnis einfach für den AAnwender zu interpretieren ist. Auch ist die Performance von Floating-Point Operationen besser als wenn man mit einem Vektor arbeiten würde.
+Viele Algorithmen können somit die Höhenwerte einfach und transparent verarbeiten.
+
+Die Höhe ist deshalb als Grundlage wichtig, da viele visuelle Eigenschaften davon abgeleitet werden können. Es können Aufgrund der Höhe beispielweise Masken erstellt werden um andere Materialien miteinander zu verbinden. Auch die Verteilung von Schmutz und Gebrauchsspuren können mit einer Höhenkarte glaubhaft verteilt werden.
+
+Ein weiterer Vorteil ist die Entstehung eines Non-Destruktiv-Workflows. Sprich da alles was in einem prozeduralen Material geschieht auf der Höhe basiert, kann diese im Nachhinein immer noch bearbeitet werden, ohne die Nachfolgende Arbeit zu zerstören. Die nachfolgende Logik wird auf die neue Höhenverteilung korrekt reagieren. 
+
+Die Bearbeitung der Höhenkarte ist ein Prozess der sich fast bis zum Ende des Materials hindurchzieht.
 
 
+### Blending
+Durch das Kombinieren von Formen und oder Noise entstehen die gewünschten Merkmale eines Materials. Dies funktioniert wie in einer Bildbearbeitungs-Software. Die miteinander zu verbindenden Ergebnisse sind als Layer zu betrachten. Durch eine gegebene Maske können diese mit einer Blend-Logik miteinander verbunden werden. Dabei muss Blending nicht immer nur zwei eigenständige komplexe Ergebnisse miteinander verbinden. Es kann auch dazu genutzt werden um bestehende Ergebnisse leicht abzuwandeln.
+
+Blending kann im ganzen Material Anwendung finden. Sowohl Höhen können manipuliert werden, als auch Farbwerte.
 
 
+### UV-Manipulationen
+Viele Ergebnisse der Algorithmen sind für sich stehend oft zu perfekt oder bieten nicht die Nötige Abwechslung und Merkmale. Durch die Manipulation der UV können diese aber so abgewandelt werden um das auszugleichen. Als Beispiel ein zertretener Kaugummi: Nimmt man einen Kreis, manipuliert seine UV mit einer Rotation die durch eine Noise gesteuert wird, können Unregelmäßigkeiten erzeugt werden.
 
 
+### Natürliche Unregelmäßigkeit
+Durch die Definierung eines Materials mit einer mathematischen Grundlage, entstehen so schnell Ergebnisse die nahe an Oberflächen aus der Realität erinnern, sind aber häufig zu perfekt. Als Beispiel eine geflieste Oberfläche:
+Diese sieht bereits glaubhaft aus, kann aber noch weiter verbessert werden. So kann man all Kacheln zufällig um ein paar Grad drehen um den Menschlichen Fehler beim fließen zu simulieren. Zusätzlich können alle Kacheln um ein paar Grad geneigt werden. Eine weitere Noise steuert zuletzt die Kalkablagerung.
 
-
-
-
-
-
-
+Festzuhalten ist, das keine Oberfläche perfekt ist. Eine Oberfläche ist immer äußeren Auswirkungen ausgesetzt. Die können je nach Material und Umgebung sehr unterschiedlich ausfallen. Bei der Analyse sollten diese aber erkannt werden. Ein Material kann somit deutlich an Glaubhaftigkeit und Realismus gewinnen.
 
 
 
 
 
 # Analyse
-
-
-
-# Vorbereitung
-Die Vorbereitung soll abstrakt herrausarbeiten welche Techniken und Algorithmen bei der Umsetzung angewendet werden können. Das führt dazu zu schnellen ersten Ergebnissen und unnötige Trial-And-Error Phasen werden minimiert. Um eine gewünschte Textur zu abstrahieren müssen Referenzen und Informationen aus zwei Blickwinkel betrachtet werden. Aus der Sicht von:
+Die Vorbereitung soll abstrakt herausarbeiten welche Techniken und Algorithmen bei der Umsetzung angewendet werden können. Das führt dazu zu schnellen ersten Ergebnissen und unnötige Trial-And-Error Phasen werden minimiert. Um eine gewünschte Textur zu abstrahieren müssen Referenzen und Informationen aus zwei Blickwinkel betrachtet werden. Aus der Sicht von:
 - Material
 - Komposition
 
-Das ist notwendig um zum einen eine WIederverwendbarkeit von erstellten Texturen und Teilumsetzungen zu ermöglichen, aber auch werden teilweise unterschiedliche Techniken für Materialien und Komposition verwendet.
-Der erste Schritt ist herrauszuarbeiten welche Materialien in der zu erstellenden Textur verwendet werden, und wie sie aufgeteilt werden. Am Beispiel einer einfachen Mauer sind die zu erkennenden Materialien Stein und Mörtel. Die Komposition wird bestimmt durch die Steinform und der Mörtel füllt die Lücken aus.
+Das ist notwendig um zum einen eine Wiederverwendbarkeit von erstellten Texturen und Teilumsetzungen zu ermöglichen, aber auch werden teilweise unterschiedliche Techniken für Materialien und Komposition verwendet.
+Der erste Schritt ist auszuarbeiten welche Materialien in der zu erstellenden Textur verwendet werden, und wie sie aufgeteilt werden. Am Beispiel einer einfachen Mauer sind die zu erkennenden Materialien Stein und Mörtel. Die Komposition wird bestimmt durch die Steinform und der Mörtel füllt die Lücken aus.
 
 
 ## Materialien
-Die Eigenschaften eines Materials werden durch verschiedene Faktoren bestimmt. Diese können für jedes Material individuel ausfallen. Einige Faktoren
+Die Eigenschaften eines Materials werden durch verschiedene Faktoren bestimmt. Diese können für jedes Material individuell ausfallen. Einige Faktoren
 
 
 
@@ -135,11 +137,11 @@ Die Eigenschaften eines Materials werden durch verschiedene Faktoren bestimmt. D
 
 
 
-Materialien müssen deshalb verstanden werden, da ein Material seine Optik und EIgenschaften in unterschiedlichen weisen repräsentieren kann. Wie ein Material
-sich allerdings darsellt hängt von verschiedenen Faktoren ab.
+Materialien müssen deshalb verstanden werden, da ein Material seine Optik und EEigenschaften in unterschiedlichen weisen repräsentieren kann. Wie ein Material
+sich allerdings darstellt hängt von verschiedenen Faktoren ab.
 
 ### Interne
-Als intern können Faktoren gesehen werden die das Material ausschließlich selbst betreffen. Wie z.b. die Art der Produktion und oder Entstehung. Als Beispiel Holz: Jede Holzart eigene visuele Merkmale als auch teilweise einschlägige Farbtöne. Auch lässt sich durch die Analyse der Entstehung die charakteristischen Farbabstufungen im Holz durch die Jahresringe und ausgehende Äste erklären. Das ist deshalb interesant da ein gesägtes Brett gleich einem Querschnitt steht. Ein Querschnitt in einer 3D Noise kann teilweise erwünschte Resultate erziehlen.
+Als intern können Faktoren gesehen werden die das Material ausschließlich selbst betreffen. Wie z.b. die Art der Produktion und oder Entstehung. Als Beispiel Holz: Jede Holzart eigene visuelle Merkmale als auch teilweise einschlägige Farbtöne. Auch lässt sich durch die Analyse der Entstehung die charakteristischen Farbabstufungen im Holz durch die Jahresringe und ausgehende Äste erklären. Das ist deshalb interessant da ein gesägtes Brett gleich einem Querschnitt steht. Ein Querschnitt in einer 3D Noise kann teilweise erwünschte Resultate erzielen.
 
 ### Externe
 Externe Faktoren sind all jene Umstände und Informationen welche nicht direkt im Zusammenhang mit dem Material stehen sondern durch die Umgebung bestimmt sind. So kann 
