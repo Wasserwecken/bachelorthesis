@@ -1,11 +1,14 @@
-# Begrifferklärung
-- Material
-- Materialeigenschaft
-- Textur
-- Prozedural
+
 
 # Einführung
+In der Vergangenheit haben viele Arbeiten bereits verschiedene Algorithmen als Grundlage für prozedurale Oberflächen hervorgebracht [(LLC01)],[(P01)],[(W01)],[(EMP01)]. Sie haben ausführlich die Bedeutung, Entwicklung und Verwendungszwecke behandelt und damit die Computergrafik nachhaltig geprägt. Einige dieser Algorithmen, vor allem für Noise, können dabei gut parallelisiert und abstrahiert werden, um in Fragment-Shader Anwendung zu finden [(G01)]. Zusätzlich bieten viele Grafik-Programme eine Schnittstelle, meist in Form eines Node-System, zu Fragment- und Vertex-Shader 
+[(BLE01)],[(MAY01)],[(UNI01)],[(UNR01)]. Dies ermöglicht Usern nicht nur Einfluss auf das Shading zu nehmen, sondern auch auf die Texturierung. Dabei unterstützen diese Applikationen den User indem die Schnittstellen bereits fertige Implementierungen von Algorithmen als Bausteine anbieten. Durch das kombinieren von Algorithmen, bzw. Bausteinen, können so eindrucksvolle prozedurale Materialen erstellt werden.
+
+
 ## Problem
+
+
+
 Viele Arbeiten die sich mit dem Thema prozedurale Textur generierung beschäftigen haben bereits die Bedetung, Entwicklung und Verwendungszwecke von Algorithmen untersucht. Allerdings ist es nachwievor nicht leicht zu erkennen wie Algorithmen und Techniken zusammenspielen müssen um ein bestimmtes Ergebnis in Form eines prozeduralen Materials zu bekommen. Hier setzt diese Arbeit an.
 
 Viele Softwarelösungen im 3D Bereich bieten eine Shaderintegration, oft in Form eines Node-Systems, an. Durch diese Integration ist es möglich prozedurale Texturen mithilfe eines Fragment-Shader zu erzeugen.
@@ -31,7 +34,14 @@ Ein Workflow soll ausgearbeitet werden welcher auf jede Textur anwendbar und nac
 
 
 # Prozedurale Materialien
-Ein Material für einen Shader besteht in den meisten Fällen nicht aus einer einzelnen Textur. So wie ein Shader verschiedene Eigenschaften für seine Verarbeitung besitzt kann ein Material diese steuern um die gewünschte optische Erscheinung zu erreichen. Nimmt man als Beispiel einen Phong-Shader, weißt dieser drei Eigenschaften auf: Diffuse Color, Specular Color und Shininess. Eine PBR-Shader implementation hat wiederum andere Eigenschaften die gesteuert werden können. Ein Material in Form einer Textur besteht also aus mehren Texturen die diese Eigenschaften steuern.
+
+## Definition Prozedural
+
+## Definition Material
+
+
+
+Ein Material für einen Shader besteht in den meisten Fällen nicht aus einer einzelnen Textur. So wie ein Shader verschiedene Eigenschaften für seine Verarbeitung besitzt kann ein Material diese steuern um die gewünschte optische Erscheinung zu erreichen. Nimmt man als Beispiel einen Phong-Shader, weißt dieser drei Eigenschaften auf: Diffuse Color, Specular Color und Specularity. Eine PBR-Shader implementation hat wiederum andere Eigenschaften die gesteuert werden können. Ein Material in Form einer Textur besteht also aus mehren Texturen die diese Eigenschaften steuern.
 
 Eine prozedurales Material innerhalb eines Fragment-Shader muss auch die Eigenschaften des Shader steuern. So entsteht bei einem prozeduralen Material als gesamtes Ergebnis mehrere Teilergebnisse die mit Texturen gleichgesetzt werden können.
 
@@ -58,7 +68,7 @@ Um die spezifische Aufgabe eines Algorithmus besser zu verstehen und eine Austau
 
 
 ### Noise
-Unter der Kategorie Noise können alle Algorithmen verstanden werden, welche als Ergebnis ein zufälliges variierendes regelmäßiges Muster erzeugen. Als Beispiel können WhiteNoise, PerlinNoise, FractalBrowningMotion genannt werden.
+Unter der Kategorie Noise können alle Algorithmen verstanden werden, welche als Ergebnis ein zufälliges variierendes regelmäßiges Muster erzeugen. Als Beispiel können WhiteNoise, Perlin-Noise, Fractal-Browning-Motion genannt werden.
 
 Noise wird in prozeduralen Materialien verwendet um Imperfektion und natürliche Variation in Oberflächen zu bringen. So kann das Ergebnis eines Noise-Algorithmus als Höhenkarte oder Maske für andere Layer dienen.
 
@@ -78,7 +88,7 @@ Easing-Algorithmen werden meist beim manipulieren von Höhenkarten und Masken ve
 
 
 ### Mathematische Funktionen
-Was soll man sagen?
+Nicht alle Algorithmen oder Methoden können unter die anderen Kategorien eingeteilt werden. Manchmal sind diese einfach zu generisch und finden in jedem Bereich seine Anwendung. Nichts desto trotz gibt es Methoden die genauso wichtig sind um Werte zu brachen und manipulieren. 
 
 
 
@@ -114,37 +124,65 @@ Diese sieht bereits glaubhaft aus, kann aber noch weiter verbessert werden. So k
 Festzuhalten ist, das keine Oberfläche perfekt ist. Eine Oberfläche ist immer äußeren Auswirkungen ausgesetzt. Die können je nach Material und Umgebung sehr unterschiedlich ausfallen. Bei der Analyse sollten diese aber erkannt werden. Ein Material kann somit deutlich an Glaubhaftigkeit und Realismus gewinnen.
 
 
+### Seed
+Bei der Entwicklung von mehreren prozeduralen Texturen hat sich gezeigt das die Verwendung eines Seed Überschneidungen und Korrelationen innerhalb von Teilergebnissen eines Materials vermieden werden können. Dies liegt daran, das es auf der Grafikkarte kein keinen persistierten Pseudozufallsgenerator gibt. Dieser muss zum einen selbst implementiert werden und mit mindestens einem Eingangswert aufgerufen werden. Um nun innerhalb von Teilergebnissen nicht immer eine magische Nummer statisch im Code verankern zu müssen, ist es Hilfreich bei Methoden die auf Zufall basieren einen Seed-Parameter mit zu implementieren. Dieser kann hierarchisch immer weiter gegeben werden und bei jeder Verwendung oder Weitergabe wird dieser inkrementiert oder verändert.
 
 
 
 # Analyse
-Die Vorbereitung soll abstrakt herausarbeiten welche Techniken und Algorithmen bei der Umsetzung angewendet werden können. Das führt dazu zu schnellen ersten Ergebnissen und unnötige Trial-And-Error Phasen werden minimiert. Um eine gewünschte Textur zu abstrahieren müssen Referenzen und Informationen aus zwei Blickwinkel betrachtet werden. Aus der Sicht von:
-- Material
-- Komposition
+Die Analyse soll abstrakt herausarbeiten welche Techniken und Algorithmen bei der Umsetzung angewendet werden können. Das führt dazu zu schnellen ersten Ergebnissen und unnötige Trial-And-Error Phasen werden minimiert. Um eine gewünschte Textur zu abstrahieren müssen Referenzen und Informationen aus zwei Blickwinkel betrachtet werden. Aus der Sicht von Material und Komposition.
 
 Das ist notwendig um zum einen eine Wiederverwendbarkeit von erstellten Texturen und Teilumsetzungen zu ermöglichen, aber auch werden teilweise unterschiedliche Techniken für Materialien und Komposition verwendet.
 Der erste Schritt ist auszuarbeiten welche Materialien in der zu erstellenden Textur verwendet werden, und wie sie aufgeteilt werden. Am Beispiel einer einfachen Mauer sind die zu erkennenden Materialien Stein und Mörtel. Die Komposition wird bestimmt durch die Steinform und der Mörtel füllt die Lücken aus.
 
 
 ## Materialien
-Die Eigenschaften eines Materials werden durch verschiedene Faktoren bestimmt. Diese können für jedes Material individuell ausfallen. Einige Faktoren
+Eine Oberfläche für sich gesehen als ganzes hat bestimmte Merkmale und Eigenschaften die Einfluss auf die Erscheinung haben. Eine Vielzahl an unterschiedlichsten Faktoren können diese zusätzlich ändern oder neue Merkmale und Eigenschaften hinzufügen. Um eine Oberfläche glaubhaft als prozedurales Material abzubilden ist es wichtig sich mit den Eigenschaften und Merkmalen, die sowohl vom Material selbst als auch durch Einflüsse gegeben sind, zu analysieren. Als Beispiel: Holz. Sowohl die Holzart selbst als auch die Verarbeitung hat gravierende Auswirkung auf die Erscheinung. Fügt man nun Faktoren wie Alter und Abnutzung hinzu ändert sich sich das Bild der Oberfläche noch einmal drastisch. Durch die Interpretation und Verständnis solcher Merkmale und Eigenschaften in prozeduralen Materialien können Charakter, Storytelling und Glaubwürdigkeit vermittelt werden. Um die Faktoren zu ermitteln welche entscheidend für ein Material sind können Faktoren in Interne und Externe eingeteilt werden. Dabei muss Festgehalten werden das jegliche Analyse die sich um ein Material dreht sich auch nur auf jenes bezieht. Dies darf nicht mit äußeren Faktoren wie Ablagerungen verwechselt werden. Diese sind als eigenes Material zu betrachten. Für das gesamte Material wird hier eine Komposition aus mehreren zusammenspielenden Materialiens erstellt.
 
-
-
-
-
-
-
-
-
-Materialien müssen deshalb verstanden werden, da ein Material seine Optik und EEigenschaften in unterschiedlichen weisen repräsentieren kann. Wie ein Material
-sich allerdings darstellt hängt von verschiedenen Faktoren ab.
 
 ### Interne
-Als intern können Faktoren gesehen werden die das Material ausschließlich selbst betreffen. Wie z.b. die Art der Produktion und oder Entstehung. Als Beispiel Holz: Jede Holzart eigene visuelle Merkmale als auch teilweise einschlägige Farbtöne. Auch lässt sich durch die Analyse der Entstehung die charakteristischen Farbabstufungen im Holz durch die Jahresringe und ausgehende Äste erklären. Das ist deshalb interessant da ein gesägtes Brett gleich einem Querschnitt steht. Ein Querschnitt in einer 3D Noise kann teilweise erwünschte Resultate erzielen.
+Interne Faktoren bestimmen Eigenschaften und Merkmale die losgelöst von äußeren Einflüssen sind. Diese Faktoren bestimmen die grundsätzliche Erscheinung einer Oberfläche und sind losgelöst von äußeren Einflüssen. Natürlich muss die Zusammensetzung eines Materials nicht endlos Tief betrachtet werden. Hier sollte auf den bereits genannten Detailgrad geachtet werden. Auch spielt die Prägnanz der Merkmale und Eigenschaften eine Rolle. Zudem müssen erfasste Merkmale nicht realitätsgetreu umgesetzt werden. Außerdem kann die Oberfläche als Querschnitt eines Materials gesehen werden. So kann eine 3D Noise welche auf 2D abgebildet wird möglicherweise schnell zu einem Ergebnis führen, da dies genauso einem Querschnitt entspricht.
 
 ### Externe
-Externe Faktoren sind all jene Umstände und Informationen welche nicht direkt im Zusammenhang mit dem Material stehen sondern durch die Umgebung bestimmt sind. So kann 
+Externe Faktoren sind all jene Umstände und Informationen welche von der Umgebung abhängen. Wie bereits erwähnt ist keine Oberfläche perfekt und unberührt. Durch diese Faktoren entsteht die eigentliche Glaubwürdigkeit und der Charakter eines Materials. Als Einflüsse können Alter und Abnutzung aufgezählt werden. Die meisten Faktoren können aber zwischen Ablagerungen, chemische Reaktionen und physische Einwirkungen unterteilt werden. Welche Faktoren und in welchem Umfang zutreffen muss für jede Textur und Umgebung neu ermittelt werden.
 
 
 ## Komposition
+Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In der Realität bestehen Oberflächen aus überlagerten oder zusammengesetzten Materialien. Auch kann eine Komposition durch äußere Einflüsse entstehen, die auf den gleichen externen Faktoren der Material-Analyse basieren. Ein Beispiel: Rostendes Metall. Hier verändert ein chemischer Prozess die Oberfläche so, das aus Metall ein Oxid mit komplett eigenen Eigenschaften und Merkmalen wird. Durch das Blenden dieser zweier Materialien entsteht am Ende eine überzeugende Komposition. Die Komposition beschränkt sich aber nicht nur auf das überlagern von Materialien um ein Uber-Material zu erzeugen. Als Oberfläche können auch Mauern gesehen werden die auf ganz natürlicherweise aus mehreren Materialien zusammengesetzt werden.
+
+
+
+# Literatur
+[(LLC01)]: https://lirias.kuleuven.be/retrieve/126051
+> [(LLC01)]: *A survey of procedural noise functions* | 2010 | A. Lagae, S. Lefebvre, R. Cook, T. DeRose, G. Drettakis, D.S. Ebert,
+J.P. Lewis, K. Perlin, M. Zwicker
+
+[(P01)]: https://dl.acm.org/doi/pdf/10.1145/325165.325247
+> [(P01)]: *An image synthesizer* | 1985 | Ken Perlin
+
+[(P02)]: https://www.csee.umbc.edu/~olano/s2002c36/ch02.pdf
+> [(P02)]: *Noise hardware* | 2001 | Ken Perlin
+
+[(W01)]: https://dl.acm.org/doi/pdf/10.1145/237170.237267
+> [(W01)]: *A Cellular Texture Basis Function* | 1996 | Steven Worley
+
+[(G01)]: http://www.diva-portal.org/smash/get/diva2:618262/FULLTEXT02
+> [(G01)]: *Procedural Textures in GLSL* | 2012 | Stefan Gustavson
+
+[(B01)]: https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+> [(B01)]: *Physically-Based Shading at Disney* | 2012 | Brent Burley
+
+[(EMP01)]: https://www.google.com/search?q=Texturing+%26+modeling%3A+a+procedural+approach&oq=Texturing+%26+modeling%3A+a+procedural+approach&aqs=chrome..69i57j69i65j69i60l3.646j0j7&sourceid=chrome&ie=UTF-8
+> [(EMP01)]: *Texturing & modeling: a procedural approach* | 2003 | David S Ebert, F Kenton Musgrave, Darwyn Peachey, Ken Perlin, Steven Worley
+
+[(BLE01)]: https://docs.blender.org/manual/en/latest/render/shader_nodes/index.html
+> [(BLE01)]: *Blender Shader Nodes* | 2020 | Blender Foundation
+
+[(MAY01)]: https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2019/ENU/Maya-LightingShading/files/GUID-62DAABF0-299A-4F40-894D-C8FCACD1C046-htm.html
+> [(MAY01)]: *Maya Texture Nodes* | 2020 | Autodesk
+
+[(UNI01)]: https://unity.com/de/shader-graph
+> [(UNI01)]: *Unity ShaderGraph* | 2020 | Unity Technologies
+
+[(UNR01)]: https://docs.unrealengine.com/en-US/Engine/Rendering/Materials/Editor/index.html
+> [(UNR01)]: *Unreal Material Editor* | 2020 | Epic Games

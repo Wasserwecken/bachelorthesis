@@ -1,1 +1,0 @@
-S. Haruyama and B. A. Barsky, "Using Stochastic Modeling for Texture Generation," in IEEE Computer Graphics and Applications, vol. 4, no. 3, pp. 7-19, March 1984, doi: 10.1109/MCG.1984.276056.
