@@ -1,50 +1,58 @@
 
+# Begriffserklärungen
+In der Computergrafik begegnet man immer wieder Ausdrücken und Wörtern die ähnlich klingen und auch ähnliches behandeln. Hier soll nochmal die Definition einzelner Ausdrücke wiederholt werden, aber auch neue Definitionen hinzugefügt werden. Diese sind für die nachfolgende Arbeit wichtig, da auf die kleinen Unterschiede eingegangen wird.
+
+
+## Surface-Shader
+Ein Shader ist ein Programm das meist auf der GPU läuft um die Schattierung und Farbgebung eines Objektes, sowohl 2D oder 3D, festzulegen. Dabei können Parameter für das shading von außen gesetzt, aber auch selbst generiert werden.
+
+Als Surface-Shader bezeichnet man Algorithmen, die Berechnungen für Lichteinfall und teilweise Verformungen der Oberfläche übernehmen. Surface-Shader werden über Materialien hinweg wiederverwendet und nur durch ihre Parameter gesteuert.
+
+
+## Material
+Ein Material besteht aus einem Zusammenschluss von Informationen die für die Parameter eines Surface-Shader benötigt werden. Ein Material kann sowohl ein Zusammenschluss von mehreren Materialien sein, als auch für sich alleine stehen. Letztendlich bedient aber immer nur ein Material einen Surface-Shader.
+
+
+## Textur
+Eine Textur ist eine Zwei-Dimensionale Abbildung von Farbwerten. Materialien bestehen oft aus mehreren einzelnen Texturen die die Parameter eines Surface-Shader bedienen.
+
+
+## Prozedurale Textur
+Eine von vielen Definitionen für den Ausdruck "prozedurale Textur": "A procedural texture is a computer-generated image created using an algorithm
+(this is where the term procedural is derived from: a procedure is driving the
+process), instead of a digital painting or image processing application[...]" [(D01)].
+
+Prozedurale Texturen stellen einen expliziten Verarbeitungsprozess innerhalb eines Surface-Shader für Informationen dar. Explicit deshalb, da die Informationen vor dem Auswerten des Surface-Shader bereits feststehen [(EMP01)], [(D01)]. Die Erstellung einer Textur kann aber implizit erfolgen.
+
+## Prozedurales Material
+Als prozedurales Material ist ein Algorithmus der nicht nur eine einzelne Oberflächen-Eigenschaft beschreibt oder Surface-Shader-Parameter bedient. Ein prozedurales Material liefert für eine Oberfläche alle nötigen Informationen für einen Surface-Shader die passend zusammenspielen und zusammenhängen.
+
+## Prozedurales Shader Material
+Ein Material das als Shader implementiert ist, bildet einen impliziten Prozess ab. Es wird dabei ein immer nur ein einzelner Punkt des Materials ausgewertet. Bei der Auswertung besteht keine Abhängigkeit zu Nachbarpixel oder Fragmente. Dies hat einige Einflüsse auf die technische Möglichkeiten, Informationen für die Parameter eines Surface-Shader zu generieren.
+
+So entsteht bei einem prozeduralen Material als gesamtes Ergebnis mehrere Teilergebnisse die mit Texturen gleichgesetzt werden können.
+
+
 
 # Einführung
-In der Vergangenheit haben viele Arbeiten bereits verschiedene Algorithmen als Grundlage für prozedurale Oberflächen hervorgebracht [(LLC01)],[(P01)],[(W01)],[(EMP01)]. Sie haben ausführlich die Bedeutung, Entwicklung und Verwendungszwecke behandelt und damit die Computergrafik nachhaltig geprägt. Einige dieser Algorithmen, vor allem für Noise, können dabei gut parallelisiert und abstrahiert werden, um in Fragment-Shader Anwendung zu finden [(G01)]. Zusätzlich bieten viele Grafik-Programme eine Schnittstelle, meist in Form eines Node-System, zu Fragment- und Vertex-Shader 
-[(BLE01)],[(MAY01)],[(UNI01)],[(UNR01)]. Dies ermöglicht Usern nicht nur Einfluss auf das Shading zu nehmen, sondern auch auf die Texturierung. Dabei unterstützen diese Applikationen den User indem die Schnittstellen bereits fertige Implementierungen von Algorithmen als Bausteine anbieten. Durch das kombinieren von Algorithmen, bzw. Bausteinen, können so eindrucksvolle prozedurale Materialen erstellt werden.
+In der Vergangenheit haben viele Arbeiten bereits verschiedene Algorithmen als Grundlage für prozedurale Texturen hervorgebracht [(LLC01)],[(P01)],[(W01)],[(EMP01)]. Sie haben ausführlich die Bedeutung, Entwicklung und Verwendungszwecke behandelt und damit die Computergrafik nachhaltig geprägt. Viele dieser Algorithmen können parallelisiert und so abstrahiert werden um in Fragment-Shader Anwendung zu finden [(G01)]. Zusätzlich bieten viele Grafik-Programme eine Schnittstelle, meist in Form eines Node-System, zu Fragment- und Vertex-Shader 
+[(BLE01)],[(MAY01)],[(UNI01)],[(UNR01)]. Dies ermöglicht nicht nur Einfluss auf das Shading der Scene und Objekte zu nehmen, sondern auch auf die Texturierung. Zusätzlich bieten diese Applikationen fertige implizite Implementierungen von Algorithmen für ihre Schnittstellen. Diese sind so abstrahiert das diese wie Bausteine verwendet werden können. Durch das kombinieren von Algorithmen, bzw. Bausteinen, können so eindrucksvolle prozedurale Materialen erstellt werden, die keine Abhängigkeiten zu Texturen besitzen.
 
 
 ## Problem
+Der Prozess, eine prozedurales Material zu erstellen, kann aufwendig und komplex sein der unter vielen Einflüssen und Abhängigkeiten steht. Dem Anwender steht hier die Welt mit all ihren Möglichkeiten offen. Ohne Vorerfahrung, technisches Hintergrundwissen und oder strukturiertes Vorgehen kann es schwer sein gute Ergebnisse zu erzielen.
+
+Dazu kommt das Applikationen mit Shader-Schnittstellen, bereits fertige Bausteine mit ausliefern. Applikationen benennen diese aber teilweise unterschiedlich, stellen unterschiedliche Parameter zur Steuerung bereit oder bieten nur einige oder keine Bausteine an.
+
+
+## Ziel der Arbeit
+Durch die Definierung eines Workflows und seiner Teilprozesse wird ein Applikation übergreifendes strukturiertes Vorgehen möglich. Auch fehlende Erfahrung kann damit ausgeglichen werden. Die Definition umschließt sowohl das sammeln an Informationen über eine Oberfläche, als auch die eigentliche Implementierung.
+
+Durch eine Kategorisierung nach Verwendungszwecken und Art von Algorithmen wird ein Überblick geschaffen, der zeigt welche Art von Algorithmen nötig sind um prozedurale Materialien zu erstellen. Durch eine Definition von sich wiederholenden Techniken die den Umgang und Kombination von Algorithmen beschreiben kann auch die Verwendung standarisiert werden.
 
 
 
-Viele Arbeiten die sich mit dem Thema prozedurale Textur generierung beschäftigen haben bereits die Bedetung, Entwicklung und Verwendungszwecke von Algorithmen untersucht. Allerdings ist es nachwievor nicht leicht zu erkennen wie Algorithmen und Techniken zusammenspielen müssen um ein bestimmtes Ergebnis in Form eines prozeduralen Materials zu bekommen. Hier setzt diese Arbeit an.
-
-Viele Softwarelösungen im 3D Bereich bieten eine Shaderintegration, oft in Form eines Node-Systems, an. Durch diese Integration ist es möglich prozedurale Texturen mithilfe eines Fragment-Shader zu erzeugen.
-
-Allerdings ist ein strukturiertes Vorgehen nicht gegeben, und jede Software bringt eingene ergänzende Funktionalitäten mit sich die den Workflow beeinflussen können. Diese Funktionalitäten sind aber das kernelment von prozeduralen Texturen.
-
-Das erstellen von prozedural Texturen konzerntriert sich darauf, bestehende komplexe Algorithmen miteinander zu verbinden und oder deren Parameter anzupassen. Die benötigten Funktionalitäten sind allerdings nicht in jeder Lösung zu finden und müssen daher selbt implementiert werden.
-
-
-Das erstellen von prozeduralen Texturen erfordert Erfahrungen und Wissen, welches sich meist durch Training und Experiment angeeigt wird.
-
-## Ziel
-Das Ziel dieser Arbeit ist es einen allgemein gültigen, strukturierten Workflow zu finden. Auch soll analysiert werden welche Funktionalitäten essentiel sind und wie diese Verwendung finden können.
-
-
-## Lösung
-Ein Workflow soll ausgearbeitet werden welcher auf jede Textur anwendbar und nachvollziehbar ist. Funktionalitäten sollen Kategorisiert und die Anwendungen definiert werden.
-
-## Testbarkeit
-* ???
-
-
-
-
-# Prozedurale Materialien
-
-## Definition Prozedural
-
-## Definition Material
-
-
-
-Ein Material für einen Shader besteht in den meisten Fällen nicht aus einer einzelnen Textur. So wie ein Shader verschiedene Eigenschaften für seine Verarbeitung besitzt kann ein Material diese steuern um die gewünschte optische Erscheinung zu erreichen. Nimmt man als Beispiel einen Phong-Shader, weißt dieser drei Eigenschaften auf: Diffuse Color, Specular Color und Specularity. Eine PBR-Shader implementation hat wiederum andere Eigenschaften die gesteuert werden können. Ein Material in Form einer Textur besteht also aus mehren Texturen die diese Eigenschaften steuern.
-
-Eine prozedurales Material innerhalb eines Fragment-Shader muss auch die Eigenschaften des Shader steuern. So entsteht bei einem prozeduralen Material als gesamtes Ergebnis mehrere Teilergebnisse die mit Texturen gleichgesetzt werden können.
-
+# Und Los
 Um den Prozess des Erstellens von einem prozeduralen Material zu definieren, wird dieser in seine einzelnen Teilprozesse zerlegt. Als Einstieg dient dabei die klassische Unterteilung in: Analyse und Umsetzung.
 
 Diese Teilprozesse stehen nicht für sich selbst geschlossen dar und können mehrmals im Verlauf einer Entwicklung durchlaufen werden. Sie hängen beide dennoch voneinander ab. Die Analyse muss Informationen und Referenzen so aufarbeiten und abstrahieren das diese auf die Möglichkeiten der Umsetzung angepasst sind. Die Umsetzung muss natürlich die aufbereiteten Informationen implementieren.
@@ -186,3 +194,6 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(UNR01)]: https://docs.unrealengine.com/en-US/Engine/Rendering/Materials/Editor/index.html
 > [(UNR01)]: *Unreal Material Editor* | 2020 | Epic Games
+
+[(D01)]: https://www.researchgate.net/publication/314637042_The_New_Age_of_Procedural_Texturing
+> [(D01)]: *The New Age of Procedural Texturing* | 2015 | Dr S´ebastien Deguy
