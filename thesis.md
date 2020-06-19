@@ -5,16 +5,15 @@ GENERATION OF PROCEDURAL MATERIALS WITHIN A SINGLE-PASS FRAGMENT-SHADER
 
 
 # Introduction
-Procedural texturing always has been a subject in computer graphics.
-Researchers, like Ken Perlin [(P01)], sought for algorithms and improvements to synthesize images to represent natural looking surfaces. Some Algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still used today. Their essential for procedural texture generation due to their appeareance for modeling natural properties.
+Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Some early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today. Their essential for procedural texture generation due to their appeareance for modeling natural properties.
 
 ![alt][NOISE01]
 > *Images from papers. Left: Perlin noise [(P01)]; Right: Worley noise [(W01)]*
 
-"With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)].
+"With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used imclicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
 
 Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural informations, because they work and behave like a fragment shader.
-These interfaces also shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The posibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependecies to textures or other external references.
+These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The posibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependecies to textures or other external references.
 
 ![alt][NODEV01]
 > *Procedural Materials in Blender, created for "Nodevember" with a sphere as base; By Simon Thommes 2019*
