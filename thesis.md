@@ -1,13 +1,42 @@
+GENERATION OF PROCEDURAL MATERIALS WITHIN A SINGLE-PASS FRAGMENT-SHADER
+
+# Abstract
+...
+
+
+# Introduction
+Procedural texturing always habs been a subject in computer graphics. Researchers, like Ken Perlin, sought for algorithms and improvements to synthesise 
+
+
+
+
+
+
+
+
+
+
+
 
 # Einführung
 In der Vergangenheit haben viele Arbeiten bereits verschiedene Algorithmen als Grundlage für prozedurale Texturen hervorgebracht [(LLC01)],[(P01)],[(W01)],[(EMP01)]. Sie haben ausführlich die Bedeutung, Entwicklung und Verwendungszwecke behandelt und damit die Computergrafik nachhaltig geprägt. Viele dieser Algorithmen können parallelisiert und so abstrahiert werden um in Fragment-Shader Anwendung zu finden [(G01)]. Zusätzlich bieten viele Grafik-Programme eine Schnittstelle, meist in Form eines Node-System, zu Fragment- und Vertex-Shader 
 [(BLE01)],[(MAY01)],[(UNI01)],[(UNR01)]. Dies ermöglicht nicht nur Einfluss auf das Shading der Scene und Objekte zu nehmen, sondern auch auf die Texturierung. Dabei bieten diese Applikationen fertige Implementierungen von Algorithmen für ihre Schnittstellen an. Die fertigen Implementationen umfassen dabei sowohl bekannte Methoden der Shader-Sprachen bis hin zu komplexen Algorithmen wie Noise. Diese sind so abstrahiert das diese wie Bausteine verwendet werden können. Durch das kombinieren von Algorithmen, bzw. Bausteinen, können so eindrucksvolle prozedurale Materialen erstellt werden, die keine Abhängigkeiten zu Texturen besitzen.
 
+
+
+//
+
+
+
+
+
 ## Problem
 Der Prozess, eine prozedurales Material zu erstellen, kann aufwendig und komplex sein der unter vielen Einflüssen und Abhängigkeiten steht. Dem Anwender steht hier die Welt mit all ihren Möglichkeiten offen. Ohne Vorerfahrung, technisches Hintergrundwissen und oder strukturiertes Vorgehen kann es schwer sein gute Ergebnisse zu erzielen. Dazu kommt das sich die vorgefertigten Bausteine selbst und die Auswahl an Bausteinen sich stark von Applikation zu Applikation unterscheiden.
 
+Eine weitere Einschränkung ergibt sich durch die ausschließliche Programmierung mit Shadern. Diese haben die Eigenschaft das Code für einen einzelnen Punkt ausgeführt wird. Dabei können Ergebnisse von benachbarte Punkte nicht ausgelesen werden. Möchte man dies tun müsste man mit Buffer arbeiten. Die Schnittstellen vieler Applikationen bieten hier aber keine Möglichkeiten diese zu nutzen.
+
 ## Ziel der Arbeit
-Durch eine Analyse des Aufbau eines prozeduralen Materials soll eine Definition und Kategorisierung erfolgen die den Workflow, seine Teilprozesse und Werkzeuge beschreibt. Die Analyse, Definition und Kategorisierung umschließt dabei sowohl das sammeln von Informationen über eine Oberfläche, als auch die eigentliche Implementierung. Dadurch sollen prozedurale Materialien strukturierter erstellt und die Trial-And-Error Phasen stark reduziert werden können.
+Durch eine Analyse des Aufbau eines prozeduralen Materials soll eine Definition und Kategorisierung erfolgen die den Workflow, seine Teilprozesse und Werkzeuge beschreibt. Die Analyse, Definition und Kategorisierung umschließt dabei sowohl das sammeln von Informationen über eine Oberfläche, als auch die eigentliche Implementierung. Dadurch sollen prozedurale Materialien strukturierter erstellt und die Trial-And-Error Phasen stark reduziert werden können. Außerdem konzentriert sich diese Arbeit darauf den Prozess des Erstellens von prozeduralen Materialien innerhalb eines Passes in einem Fragment-Shader abzubilden.
 
 
 
@@ -15,50 +44,53 @@ Durch eine Analyse des Aufbau eines prozeduralen Materials soll eine Definition 
 Nimmt man ein bestehendes prozedurales Material und versucht es auseinander zu nehmen stellt man fest das viele Komponenten dabei zusammen spielen. Auch begegnet man immer wieder Ausdrücken und Wörtern die ähnlich klingen und auch ähnliches behandeln, müssen aber unterschieden werden.
 
 ## Komponenten eines Materials
-Damit eine Oberfläche wie gewünscht virtuell dargestellt wird benötigt es zwei Komponenten der Rendering Pipeline: Vertex Shader und Fragment Shader. Der Vertex-Shader hat die Aufgabe die Vertices eines Mesh so zu verschieben das die Geometrie des Materials widergespiegelt wird. Innerhalb eines Fragments-Shader definiert sich ein Material nur bis zum Surface-Shader. Ein Surface-Shader bezeichnet man den Teil des Shader's der die Interaktion mit Lichtquellen behandelt und die letztendliche Oberflächenfarbe wiedergibt. Damit ein Material nun funktioniert und sich einfügen wird aber nur der Surface-Shader benötigt.
+Damit eine Oberfläche wie gewünscht virtuell dargestellt wird benötigt es zwei Komponenten der Rendering Pipeline: Vertex Shader und Fragment Shader. Der Vertex-Shader hat die Aufgabe die Vertices eines Mesh so zu verschieben das die Geometrie des Materials widergespiegelt wird. Innerhalb eines Fragments-Shader definiert sich ein Material nur bis zum Surface-Shader. Damit ein Material nun funktioniert wird aber nur der Surface-Shader benötigt. Ein Surface-Shader bezeichnet man den Teil des Shader's der die Interaktion mit Lichtquellen behandelt und die letztendliche Oberflächenfarbe wiedergibt. Siehe Abbildung:
+
+![alt][PBRNPR]
+> *Unterschiedliche Surface-Shader mit gleichem Material und Mesh. Links: PBR, Rechts: NPR*
 
 ## Definition eines Materials
-Ein Material besteht aus einem Zusammenschluss von mehreren Informationen die eine Oberfläche an ihren einzelnen Punkten beschreiben und die Eigenschaften eines Surface-Shader steuern. Ein Material kann diese Informationen dabei innerhalb eines Fragment-Shader generieren, oder diese aus vorgefertigten Texturen gewinnen.
+Ein Material besteht aus einem Zusammenschluss von mehreren Informationen die eine Oberfläche an ihren einzelnen Punkten beschreiben und die Parameter eines Surface-Shader steuern. Die Informationen eines Materials können dabei implizit und explizit vorliegen. "
+– implicit generation: in this case the generation algorithms are analytically defined, allowing to be easily called in a random fashion. Usually, rendering engines will ask for a certain (u,v) value to be generated in the parameterization space for the given geometry upon which the procedural textures are applied. With this approach, no bitmap texture is stored in memory, usually at the cost of ”expression power”.
+– explicit generation: here a resolution for the final output textures is set and the whole texture is rasterised, in one and only one step, and ”baked out” as a bitmap texture, stored in central or video memory to be accessed by the rendering engine. This explicit techniques allow for a verry wide range of output, referred to as "high power of expression"" [(D01)].
 
 ## Prozedurale Texturen
 "A procedural texture is a computer-generated image created using an algorithm
 (this is where the term procedural is derived from: a procedure is driving the
-process), instead of a digital painting or image processing application[...]" [(D01)]. Prozedurale Texturen stellen einen expliziten Verarbeitungsprozess innerhalb eines Surface-Shader für Informationen dar. Explicit deshalb, da die Informationen vor dem Auswerten des Surface-Shader bereits feststehen [(EMP01)], [(D01)]. Die Erstellung einer Textur kann aber implizit erfolgen. In dieser Arbeit wird aber der implizite Prozess betrachtet. D.h. die Informationen für eine Oberfläche werden zur Laufzeit durch Algorithmen für einen benötigten Punkt einer Oberfläche generiert. Dabei bildet der implizite Prozess den Informationsgehalt und Aufteilung von Texturen ab.
+process), instead of a digital painting or image processing application[...]" [(D01)]. Prozedurale Texturen stellen einen expliziten Verarbeitungsprozess innerhalb eines Surface-Shader für Informationen dar. Explicit deshalb, da die Informationen vor dem Auswerten des Surface-Shader bereits feststehen [(EMP01)], [(D01)]. In dieser Arbeit wird beschrieben wie der Prozess des Erstellens solcher Texturen in einen Single-Pass Shader verlagert werden kann.
 
 
 
-# Prozessdefinition
-Um den Prozess des Erstellens von einem prozeduralen Material zu definieren, wird dieser in seine einzelnen Teilprozesse zerlegt. Als Einstieg dient dabei die klassische Unterteilung in: Analyse und Umsetzung.
-
-Diese Teilprozesse stehen nicht für sich selbst geschlossen dar und können mehrmals im Verlauf einer Entwicklung durchlaufen werden. Sie hängen beide dennoch voneinander ab. Die Analyse muss Informationen und Referenzen so aufarbeiten und abstrahieren das diese auf die Möglichkeiten der Umsetzung angepasst sind. Die Umsetzung muss natürlich die aufbereiteten Informationen implementieren.
+# Der Prozess
+Um den Prozess des Erstellens von einem prozeduralen Material zu definieren, wird dieser in seine einzelnen Teilprozesse zerlegt. Als Einstieg dient dabei die klassische Unterteilung in: Analyse und Umsetzung. Diese Teilprozesse stehen nicht für sich selbst geschlossen dar und können mehrmals im Verlauf einer Entwicklung durchlaufen werden. Sie hängen beide dennoch voneinander ab. Die Analyse muss Informationen und Referenzen so aufarbeiten und abstrahieren das diese auf die Möglichkeiten der Umsetzung angepasst sind. Die Umsetzung muss dann die aufbereiteten Informationen implementieren.
 
 Durch die Abhängigkeit der Analyse zur Umsetzung wird in dieser Arbeit die Umsetzung zuerst behandelt. Bei der Ausführung des Prozesses sollte die Analyse immer vor der Umsetzung durchgeführt werden.
 
-Eine zusätzliche essentiell übergreifende Information die in jedem Teilprozess zum tragen kommt ist der geforderte Detailgrad eines prozeduralen Materials. Dieser Detailgrad bestimmt wie intensiv Teilprozesse durchlaufen müssen, oder welche nicht benötigt werden. Welche Teilprozesse wie davon betroffen sind, muss der Anwender selbst entscheiden. Ein Beispiel: Ein fotorealistisches PBR Material benötigt eine deutlich intensivere Analyse und komplexere Umsetzung als ein Phong Low-Poly Material, welches im Extremfall einen einzelnen Farbwert als einzige Eigenschaft besitzen. Woran sich der geforderte Detailgrad ableitet ist nicht Teil dieser Arbeit, wichtig ist aber diesen zu kennen.
-
-
+Eine zusätzliche essentiell übergreifende Information die in jedem Teilprozess zum tragen kommt ist der geforderte Detailgrad eines prozeduralen Materials. Dieser Detailgrad bestimmt wie intensiv Teilprozesse durchlaufen müssen, oder welche nicht benötigt werden. Welche Teilprozesse wie davon betroffen sind, muss der Anwender selbst entscheiden. Siehe Abbildung PBRNPR: Ein fotorealistisches PBR Material benötigt eine deutlich intensivere Analyse und komplexere Umsetzung als ein Low-Poly Material, welches im Extremfall einen einzelnen Farbwert als einzige Eigenschaft besitzen. Woran sich der geforderte Detailgrad ableitet ist nicht Teil dieser Arbeit, wichtig ist aber diesen zu kennen.
 
 ## Umsetzung
-Für die implementation eines prozeduralen Materials ist es wichtig zu wissen welche technische und künstlerische Möglichkeiten durch einen Fragment-Shader zu Verfügung stehen. Dabei muss zwischen Algorithmen und Techniken unterschieden werden. Techniken definieren sich durch das geschickte kombinieren von Algorithmen um optische Modifikationen oder Eigenschaften zu erreichen. Algorithmen bilden wiederum atomare Bausteine auf die eine prozedurale Textur aufbaut. Ähnlich vergleichbar mit einem Lego Spiel.
-
-
+Für die Umsetzung eines prozeduralen Materials ist es wichtig zu wissen welche technische und künstlerische Möglichkeiten durch einen Fragment-Shader zu Verfügung stehen. Um Werkzeuge für die Umsetzung zu definieren muss zwischen Algorithmen und Techniken unterschieden werden. Durch diese Unterteilung ist es möglich tiefer in den Aufbau einer prozeduralen Materials einzugehen.
 
 ### Algorithmen
-Algorithmen stellen atomare Bausteine für ein prozedurales Material dar. Die Algorithmen selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material gleich. 
-
-Um die spezifische Aufgabe eines Algorithmus besser zu verstehen und eine Austauschbarkeit zu ermöglichen, werden diese nach Ihrer Aufgabe kategorisiert.
-
+Algorithmen bilden wiederum atomare Bausteine auf die eine prozedurale Textur aufbaut. Ähnlich vergleichbar mit einem Lego Spiel. Die Algorithmen selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material gleich. Um die spezifische Aufgabe und mögliche Verwendung eines Algorithmus besser zu verstehen und eine Austauschbarkeit zu ermöglichen, werden diese nach Ihrer Aufgabe kategorisiert.
 
 #### Noise
-Unter der Kategorie Noise können alle Algorithmen verstanden werden, welche als Ergebnis ein zufälliges variierendes regelmäßiges Muster erzeugen. Als Beispiel können WhiteNoise, Perlin-Noise, Fractal-Browning-Motion genannt werden.
+Noise Algorithmen bilden wichtige Bausteine um naturgegebene Unregelmäßigkeiten Abzubilden. Noise definiert sich durch [Definition suchen]. Auf diese zufällige nicht vorhersagbare Frequenzen und WhiteNoise kann nun aufgebaut werden. Noise gibt es in vielen Variationen. Durch die unterschiedlichen Charakteristiken von Noise-Algorithmen unterscheiden sich die Einsatzmöglichkeiten.
 
-Noise wird in prozeduralen Materialien verwendet um Imperfektion und natürliche Variation in Oberflächen zu bringen. So kann das Ergebnis eines Noise-Algorithmus als Höhenkarte oder Maske für andere Layer dienen.
+WhiteNoise nimmt dabei die Rolle eines RNG(Random Number Generator) ein. Sie ist auch die Grundlage aller Noise-Algorithmen. WhiteNoise wird aber auch dann benötigt wenn eine zufällige Entscheidungen getroffen werden sollen.
 
+Wie bereits erwähnt baut Noise auf WhiteNoise auf und Spiegel eine einzelne zufällige Frequenz wieder. Durch Noise können so natürliche Verformungen, Masken und Gradienten erzeugt werden.
+
+Da Noise nur eine einzelne Frequenz widerspiegelt erreicht man nicht immer ein gewünschtes Ergebnis das oft Details wie ausgefranste Ränder fehlen. Dur Fractal Browning Motion können solche Details erzeugt werden. Dabei ist der Grundlegende Noise Algorithmus austauschbar.
 
 #### UV
-Die UV ist in einem Fragment-Shader die Leinwand eines prozeduralen Materials.
-Durch die Manipulation der Leinwand können zusätzliche Variationen und Effekte entstehen. Als einfachstes Beispiel dient Rotation und Frakturierung.
-Durch ein anderes Mapping, z.B. auf Polar-Koordinaten können gewünschte optische EEigenschaften einfach erreicht werden.
+Als UV bezeichnet man die Texturkoordinaten. Wenn in einem Material Texturen als Informationen für einen Surface-Shader genutzt werden beschreiben diese Koordinaten welche Pixel auf der Textur ausgelesen werden. Diese Koordinaten können als Eingangsinformation verwendet werden um Informationen für einen bestimmten Punkt, durch die Koordinaten gegeben, abzufragen.
+
+Die UV stellt somit die "Leinwand" für ein prozedurales Material dar. Dabei kann die UV in mehrere Teile oder Ebenen aufgeteilt werden. Durch mehrere UV's kann z.B. eine Rotation oder Skalierung von einzelnen Elementen erreicht werden. Durch eine Aufteilung wiederum ist es möglich Elemente sich wiederholen zu lassen. Sowohl bei Aufteilung als auf bei der Manipulation können wieder neue UV's davon abgeleitet werden um noch mehr Details zu erzeugen.
+
+Eine weitere Möglichkeit der Manipulation ist die Konvertierung der Koordinaten in ein anderes System. So kann z.B. kann ein Polar-Koordinatensystem verwendet werden. Dies ermöglich eine weitere Vielzahl an Möglichkeiten Elemente und Merkmale zu erzeugen, für die sonst komplexe Algorithmen hergezogen werden müssten.
+
+Eine weitere wichtige Manipulation von UV's ist das leichte verschieben oder rotieren durch Noise oder andere über die UV variierende Werte. Somit können Verformungen an Formen vorgenommen werden, bzw. eine natürliche Unregelmäßigkeit simuliert werden. Dies kann in das extreme getrieben werden wenn man mehrere Noise Verformungen aneinanderreiht um letztendlich wieder eine Noise auf diesen Koordinaten zu erzeugen [(IQ01)].
 
 
 #### Shapes
@@ -75,6 +107,8 @@ Nicht alle Algorithmen oder Methoden können unter die anderen Kategorien einget
 
 
 ### Techniken
+Techniken definieren sich durch das geschickte kombinieren von Algorithmen um optische Modifikationen oder Eigenschaften zu erreichen. 
+
 Techniken beschreiben das allgemeine Vorgehen und Lösungsansätze für wiederkehrende Aufgaben und Probleme.
 
 
@@ -134,6 +168,11 @@ Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In 
 
 
 
+
+[PBRNPR]: ./img/pbrnpr.png
+
+
+
 # Literatur
 [(LLC01)]: https://lirias.kuleuven.be/retrieve/126051
 > [(LLC01)]: *A survey of procedural noise functions* | 2010 | A. Lagae, S. Lefebvre, R. Cook, T. DeRose, G. Drettakis, D.S. Ebert,
@@ -171,3 +210,6 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(D01)]: https://www.researchgate.net/publication/314637042_The_New_Age_of_Procedural_Texturing
 > [(D01)]: *The New Age of Procedural Texturing* | 2015 | Dr S´ebastien Deguy
+
+[(IQ01)]: https://www.iquilezles.org/www/articles/warp/warp.htm
+> [(IQ01)]: *domain warping* | 2002 | Inigo Quilez
