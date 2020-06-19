@@ -5,26 +5,20 @@ GENERATION OF PROCEDURAL MATERIALS WITHIN A SINGLE-PASS FRAGMENT-SHADER
 
 
 # Introduction
-Procedural texturing always habs been a subject in computer graphics. Researchers, like Ken Perlin, sought for algorithms and improvements to synthesise 
+Procedural texturing always has been a subject in computer graphics.
+Researchers, like Ken Perlin [(P01)], sought for algorithms and improvements to synthesize images to represent natural looking surfaces. Some Algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still used today. Their essential for procedural texture generation due to their appeareance for modeling natural properties.
 
+![alt][NOISE01]
+> *Images from papers. Left: Perlin noise [(P01)]; Right: Worley noise [(W01)]*
 
+"With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)].
 
+Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural informations, because they work and behave like a fragment shader.
+These interfaces also shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The posibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependecies to textures or other external references.
 
+![alt][NODEV01]
+> *Procedural Materials in Blender, created for "Nodevember" with a sphere as base; By Simon Thommes 2019*
 
-
-
-
-
-
-
-
-# Einführung
-In der Vergangenheit haben viele Arbeiten bereits verschiedene Algorithmen als Grundlage für prozedurale Texturen hervorgebracht [(LLC01)],[(P01)],[(W01)],[(EMP01)]. Sie haben ausführlich die Bedeutung, Entwicklung und Verwendungszwecke behandelt und damit die Computergrafik nachhaltig geprägt. Viele dieser Algorithmen können parallelisiert und so abstrahiert werden um in Fragment-Shader Anwendung zu finden [(G01)]. Zusätzlich bieten viele Grafik-Programme eine Schnittstelle, meist in Form eines Node-System, zu Fragment- und Vertex-Shader 
-[(BLE01)],[(MAY01)],[(UNI01)],[(UNR01)]. Dies ermöglicht nicht nur Einfluss auf das Shading der Scene und Objekte zu nehmen, sondern auch auf die Texturierung. Dabei bieten diese Applikationen fertige Implementierungen von Algorithmen für ihre Schnittstellen an. Die fertigen Implementationen umfassen dabei sowohl bekannte Methoden der Shader-Sprachen bis hin zu komplexen Algorithmen wie Noise. Diese sind so abstrahiert das diese wie Bausteine verwendet werden können. Durch das kombinieren von Algorithmen, bzw. Bausteinen, können so eindrucksvolle prozedurale Materialen erstellt werden, die keine Abhängigkeiten zu Texturen besitzen.
-
-
-
-//
 
 
 
@@ -170,6 +164,9 @@ Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In 
 
 
 [PBRNPR]: ./img/pbrnpr.png
+[NOISE01]: ./img/noiseExamples.png
+[NODEV01]: ./img/nodevember.jpg
+>[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
 
 
 
@@ -208,8 +205,23 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [(UNR01)]: https://docs.unrealengine.com/en-US/Engine/Rendering/Materials/Editor/index.html
 > [(UNR01)]: *Unreal Material Editor* | 2020 | Epic Games
 
+[(CIN01)]: https://www.maxon.net/de/produkte/cinema-4d/features/texturing/node-based-materials/
+> [(CIN01)]: *Node-Based Materials* | 2020 | Maxon
+
 [(D01)]: https://www.researchgate.net/publication/314637042_The_New_Age_of_Procedural_Texturing
 > [(D01)]: *The New Age of Procedural Texturing* | 2015 | Dr S´ebastien Deguy
 
 [(IQ01)]: https://www.iquilezles.org/www/articles/warp/warp.htm
 > [(IQ01)]: *domain warping* | 2002 | Inigo Quilez
+
+[(IQ02)]: https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+> [(IQ02)]: *2D distance functions* | ???? | Inigo Quilez
+
+[(IQ03)]: https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+> [(IQ03)]: *distance functions* | ???? | Inigo Quilez
+
+[(K01)]: https://www.khronos.org/opengl/wiki/Fragment_Shader
+> [(K01)]: *Fragment Shader* | 2020 | Khronos Group
+
+[(C01)]: https://graphics.pixar.com/library/ShadeTrees/paper.pdf
+> [(C01)]: *Shade Trees* | 1984 | Robert L. Cook
