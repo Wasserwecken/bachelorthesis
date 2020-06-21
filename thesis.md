@@ -20,9 +20,9 @@ These interfaces already take advantage of this architecture and shipping with a
 
 
 ## Motivation
+While its possible to use and layer multiple algorithms in a shader and therefore in the interfaces of various applications, creating convincing procedural materials can be a tidious and complex task. To layer and manipulate algorithms like noise in the right manner relies on repetitive tasks and practival knowledge. Besides the many possibilities to work with algortihms, applications and shader do not direct the user to a workflow of how to creating such procedural materials. 
 
-
-
+Additionally, Interfaces in applications are more limited than writing plain shader code due to missing support for loops and buffers. On top, the nature of shaders are the restriction that only implicit algortihms can be used. While other applications, like substance designer, can make use of postprocessing algorithms as blur [(SD01)], within a fragment shader this is not possbile.
 
 
 ## Problem
@@ -226,3 +226,6 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(C01)]: https://graphics.pixar.com/library/ShadeTrees/paper.pdf
 > [(C01)]: *Shade Trees* | 1984 | Robert L. Cook
+
+[(SD01)]: https://docs.substance3d.com/sddoc/blur-hq-159450455.html
+> [(SD01)]: Blur HQ | 2020 | Allegorithmic / Adobe Inc.
