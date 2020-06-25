@@ -21,10 +21,23 @@ These interfaces already take advantage of this architecture and shipping with a
 ![alt][NODEV01]
 > *Procedural Materials in Blender, created for "Nodevember" with a sphere as base; By Simon Thommes 2019*
 
+## Annotation
+By dealing with render applications, procedural texture generation and shaders, some terms can have a similar meaning and sound. Therefore important terms have to be defined to prevent misunderstandings.
+
+### Procedural
+The paper "A Survey of Procedural Noise Functions" gave following definition:
+"The adjective procedural is used in computer science to distinguish entities that are described by program code rather than by data structures. Procedural techniques are code segments or algorithms that specify some characteristic of a
+computer-generated model or effect." [(LLC01)]
+
+### Texture
+Textures are images where a single or more informations about surface properties can be stored. Combined with the definition for "procedural", procedural textures are defined as: "A procedural texture is a computer-generated image created using an algorithm [...], instead of a digital painting or image processing application[...]" [(D01)]
+
+### Material
+
+
 
 ## Motivation
 While its possible to use and layer multiple algorithms in shader and interfaces of various applications, creating convincing procedural materials can be a tidious and complex task. Manipulating results of algorithms in the right manner relies on repetitive tasks and practical knowledge to get convincing results. While there many possibilities and freedom for manipulations and choice of algorithms, shader and interfaces will not enfoce or guide creators to a workflow of creating procedural materials. Additionally, the limitation that only implicit algorithms can be used, exclude post processing algorithms like blur, normal map generation from height or ambient occlusion, because they rely on neighbour informations.
-
 
 ## Ojective
 First a understanding for surfaces and their composition must be created. Therefore surfaces have to be analysed, how they can be decomposed in informations, layers, forms and pattern which then can be replicated by algorithms. To know which algortihms are usefull and in which ways they can be used, a categorisation based on their task is created. This allows the extension and usage of algortihms of own choice. For reducing Trial-And-Error phases and guide creators to a structural process, a workflow and teqniques will be presented. Finally the kategorisation, techniques and the capabilities of the workflow are tested by creating procedural textures with them and preseting their results.
@@ -33,9 +46,33 @@ Details about implementations of noise or other alogrithms will be not part of t
 
 
 # Analysis of surfaces
-Analysing existing surfaces and references is essential for procedural texture generation. Through the analysis of a surface we will see that surfaces are often compositions of multiple materials. All informations of how materials are layered and materials themself are madeup is resued later by replicating them.
+Analysing existing surfaces and references is essential for procedural texture generation. Through the analysis of a surface we will see that surfaces are often compositions of sub-materials. All informations of how materials are layered and materials themself are madeup is resued later by replicating them, suiting algorithms and teqniques which are available in fragment shaders.
 
-The overall objective of the analysis of surfaces should not confound with getting a physical and chemical unserstanding of materials, which might often help and is necessary.
+The overall objective of the analysis of surfaces should not confound with building a physical and chemical understanding of materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric informations about the visual appearance, including height informations. To retrieve these informations, the analysis is carried out in three streps:
+- Extracting material layers
+- Visual appeareance of materials
+- Environmental influences
+
+## Extracting material layers
+Natural surfaces are build up from multiple materials, which work like layers in image editing softwares. Where through blending multiple layers athe final image is created. 
+
+![alt][WIP]
+> *IMAGE OF TILES*
+
+
+
+By seperating a surface in layers of materials several advantages are created:
+- extracted sub-materials can be reused in other procedural materials.
+- sub-materials can be exchanged without breaking the procedural material.
+- other layers of materials, which build on informations of a materials will adjust automaticaly to changes.
+
+
+
+
+
+
+## Visual appeareance of materials
+## Environmental influences
 
 
 
