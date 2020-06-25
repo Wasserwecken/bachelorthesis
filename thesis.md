@@ -3,14 +3,16 @@ GENERATION OF PROCEDURAL MATERIALS WITHIN A SINGLE-PASS FRAGMENT-SHADER
 # Abstract
 ...
 
+# Prerequisites
+This work requires basic understanding for fragment shaders.
 
 # Introduction
-Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Some early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today. Their essential for procedural texture generation due to their appeareance for modeling natural properties.
+Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today and essential for procedural texture generation, due to their appeareance which suits replicating natural properties.
 
 ![alt][NOISE01]
 > *Images from papers. Left: Perlin noise [(P01)]; Right: Worley noise [(W01)]*
 
-"With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used imclicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
+In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used imclicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
 
 Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural informations, because they work and behave like a fragment shader.
 These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The posibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependecies to textures or other external references.
@@ -20,18 +22,33 @@ These interfaces already take advantage of this architecture and shipping with a
 
 
 ## Motivation
-While its possible to use and layer multiple algorithms in a shader and therefore in the interfaces of various applications, creating convincing procedural materials can be a tidious and complex task. To layer and manipulate algorithms like noise in the right manner relies on repetitive tasks and practival knowledge. Besides the many possibilities to work with algortihms, applications and shader do not direct the user to a workflow of how to creating such procedural materials. 
-
-Additionally, Interfaces in applications are more limited than writing plain shader code due to missing support for loops and buffers. On top, the nature of shaders are the restriction that only implicit algortihms can be used. While other applications, like substance designer, can make use of postprocessing algorithms as blur [(SD01)], within a fragment shader this is not possbile.
+While its possible to use and layer multiple algorithms in shader and interfaces of various applications, creating convincing procedural materials can be a tidious and complex task. Manipulating results of algorithms in the right manner relies on repetitive tasks and practical knowledge to get convincing results. While there many possibilities and freedom for manipulations and choice of algorithms, shader and interfaces will not enfoce or guide creators to a workflow of creating procedural materials. Additionally, the limitation that only implicit algorithms can be used, exclude post processing algorithms like blur, normal map generation from height or ambient occlusion, because they rely on neighbour informations.
 
 
-## Problem
-Der Prozess, eine prozedurales Material zu erstellen, kann aufwendig und komplex sein der unter vielen Einflüssen und Abhängigkeiten steht. Dem Anwender steht hier die Welt mit all ihren Möglichkeiten offen. Ohne Vorerfahrung, technisches Hintergrundwissen und oder strukturiertes Vorgehen kann es schwer sein gute Ergebnisse zu erzielen. Dazu kommt das sich die vorgefertigten Bausteine selbst und die Auswahl an Bausteinen sich stark von Applikation zu Applikation unterscheiden.
+## Ojective
+First a understanding for surfaces and their composition must be created. Therefore surfaces have to be analysed, how they can be decomposed in informations, layers, forms and pattern which then can be replicated by algorithms. To know which algortihms are usefull and in which ways they can be used, a categorisation based on their task is created. This allows the extension and usage of algortihms of own choice. For reducing Trial-And-Error phases and guide creators to a structural process, a workflow and teqniques will be presented. Finally the kategorisation, techniques and the capabilities of the workflow are tested by creating procedural textures with them and preseting their results.
 
-Eine weitere Einschränkung ergibt sich durch die ausschließliche Programmierung mit Shadern. Diese haben die Eigenschaft das Code für einen einzelnen Punkt ausgeführt wird. Dabei können Ergebnisse von benachbarte Punkte nicht ausgelesen werden. Möchte man dies tun müsste man mit Buffer arbeiten. Die Schnittstellen vieler Applikationen bieten hier aber keine Möglichkeiten diese zu nutzen.
+Details about implementations of noise or other alogrithms will be not part of this work. As well as a performance analysis of algorithms or entire procedural materials.
 
-## Ziel der Arbeit
-Durch eine Analyse des Aufbau eines prozeduralen Materials soll eine Definition und Kategorisierung erfolgen die den Workflow, seine Teilprozesse und Werkzeuge beschreibt. Die Analyse, Definition und Kategorisierung umschließt dabei sowohl das sammeln von Informationen über eine Oberfläche, als auch die eigentliche Implementierung. Dadurch sollen prozedurale Materialien strukturierter erstellt und die Trial-And-Error Phasen stark reduziert werden können. Außerdem konzentriert sich diese Arbeit darauf den Prozess des Erstellens von prozeduralen Materialien innerhalb eines Passes in einem Fragment-Shader abzubilden.
+
+# Analysis of surfaces
+Analysing existing surfaces and references is essential for procedural texture generation. Through the analysis of a surface we will see that surfaces are often compositions of multiple materials. All informations of how materials are layered and materials themself are madeup is resued later by replicating them.
+
+The overall objective of the analysis of surfaces should not confound with getting a physical and chemical unserstanding of materials, which might often help and is necessary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
