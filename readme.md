@@ -11,7 +11,7 @@ This work requires basic understanding for fragment shaders.
 Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today and essential for procedural texture generation, due to their appeareance which suits replicating natural properties.
 
 ![alt][NOISE01]
-> *Images from papers. Left: Perlin noise [(P01)]; Right: Worley noise [(W01)]*
+> *Images from papers. Left: Perlin noise [(P01)], Right: Worley noise [(W01)]*
 
 In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used imclicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
 
@@ -33,6 +33,10 @@ computer-generated model or effect." [(LLC01)]
 Textures are images where a single or more informations about surface properties can be stored. Combined with the definition for "procedural", procedural textures are defined as: "A procedural texture is a computer-generated image created using an algorithm [...], instead of a digital painting or image processing application[...]" [(D01)]
 
 ### Material
+TODO: Ich möchte hier die Bereiche von einem Material abdecken. Innerhalb von Engines wird ein Material als zusammenschluss aus Oberflächen informationen und Surface-Shader betrachtet. Aus meiner Sicht möchte ich aber das Wort Materials nur auf Oberflächen-EIgenschaften eingrenzen, da diese auch in anderen Surface-Shader verwendet werden können.
+
+![alt][PBRNPR]
+> *Unterschiedliche Surface-Shader mit gleichem Material und Mesh. Links: PBR, Rechts: NPR*
 
 
 
@@ -46,33 +50,57 @@ Details about implementations of noise or other alogrithms will be not part of t
 
 
 # Analysis of surfaces
-Analysing existing surfaces and references is essential for procedural texture generation. Through the analysis of a surface we will see that surfaces are often compositions of sub-materials. All informations of how materials are layered and materials themself are madeup is resued later by replicating them, suiting algorithms and teqniques which are available in fragment shaders.
+Analysing existing surfaces and references is essential for procedural texture generation. Through the analysis of a surface we will see that surfaces are often compositions of sub-surfaces. All informations of how a surface is layered and how they are madeup is resued later by replicating them, suiting algorithms and teqniques which are available in fragment shaders.
 
-The overall objective of the analysis of surfaces should not confound with building a physical and chemical understanding of materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric informations about the visual appearance, including height informations. To retrieve these informations, the analysis is carried out in three streps:
-- Extracting material layers
-- Visual appeareance of materials
+The overall objective of the analysis of surfaces should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric informations about the visual appearance, including height informations. To retrieve these informations, the analysis is carried out in three streps:
+- Extracting surface layers
+- Visual properties
 - Environmental influences
 
-## Extracting material layers
-Natural surfaces are build up from multiple materials, which work like layers in image editing softwares. Where through blending multiple layers athe final image is created. 
+## Extracting surface layers
+Natural surfaces are build up from multiple real world materials, which work like layers in image editing softwares. Where through blending multiple layers the final image is created. For seperating surfaces into layers, pattern and shape recognition is the key. While many surfaces may have a complex visual appeareance, shapes and patterns still appear on them.
 
-![alt][WIP]
-> *IMAGE OF TILES*
+TODO: Die Seperation soll von grob nach fein erfolgen. Gabs schon in vielen Beispielen, muss hier verweiß suchen. Auch kann hier vieleicht zwischen überlagerungu nd zusammensetzung unterscheiden werden. Ist aber schwammig.
+Auch sollte noch geklärt werden was indikatoren für einen trennung sind?
 
+![alt][SEP01]
+> *Left: Floor of a Pub, Mid: Seperation into planks, Right: Seperation into Gums*
 
+I took a picture of the floor of a local Pub for demonstration. The floor is quite old and therefore has a complex apereance. The first seperation is made by the planks, because:
+- they break the continuity of the wood structure.
+- they control the main height of the surface.
+- the space left defines the area for dirt, together they cover the whole surface
 
-By seperating a surface in layers of materials several advantages are created:
-- extracted sub-materials can be reused in other procedural materials.
-- sub-materials can be exchanged without breaking the procedural material.
-- other layers of materials, which build on informations of a materials will adjust automaticaly to changes.
+While the first seperation is oriented to the wood structure, the black dots on the floor apear to be independent to the plank strukture. This is because these dots are old trampled chewing gums. So a second seperation is made because the chewing gums:
+- they are not part of the plank or wood structure.
+- they are overlaping planks.
+- they are are a physical layer ontop of the floor.
 
+Generally seperating a surface into layers creates several advantages:
+- extracted sub-surfaces can be reused in other procedural materials.
+- sub-surfaces can be exchanged without breaking the procedural material.
+- layers of surfaces which have dependecies on the exchanged surface will adjust automaticaly to changes.
 
+## Visual properties
+To replicate the visual properties of a surface, the matieral which represents the surface has to be analysed. While valuable properties which make a surface recognizable are easily seperatable, it may be beneficial to know the reason why the properties are how they are. By gathering informations about the properties themself, these can may be replicated more easily and a understanding is build up which can be transfered to other related materials.
 
+![alt][WOD01]
+> *Left: Plank of a floor in a Pub, Mid: ..., Right: ...*
 
+For the floor from the pub by looking closer to the planks, the typical wood structure can be seen. The structure is made up visually by jiggly lines which are pushed away by darker spots. The physical explanation is that these lines are annual rings, and the darker sports are branches.
 
+TODO: Wie erkläre ich jetzt hier das das Wissen einen weiterbringt? War Holz ein schlechtes beispiel weil obvious? Bzw. das wissen ist ja übertragbar, aber jedes Holz sieht fast so aus.
 
-## Visual appeareance of materials
 ## Environmental influences
+While a surface can be seperated into layers, and the materials which made up the layers are treated seperatly, the surfaces still exists in the environment as single surface. This means the environment where the surface exists has a strong influence to it. The best example are the trampled chewing gums from the pub floor. This property of this specific floor is based on the location. A wodden floor in a living room may not have this proeprty. But there is another property of the pub floor where additional inforation about the location is needed to see and replicate it: The floor is located in a smoking area. Also the floor has all over like "freckles". After a close inspection, these freckles are burned spots from thrown away and trampled cigarett ends.
+
+![alt][SEP02]
+> *Left: Plank of a floor in a Pub, Mid:  burned spots from thrown away and trampled cigarett ends, Right: discoloration from spilled liquids*
+
+Environmental influences have are the factors which make materials finnaly beliveable. Thinking of possible chemical and physical interactions and their duration through time will give a procedural materials the final touch. Therefore it is important of gatherin information about location and story of the environment where the material have to be placed.
+
+
+# Toolbox of algorithms
 
 
 
@@ -90,24 +118,14 @@ By seperating a surface in layers of materials several advantages are created:
 
 
 
-# Analyse von prozedurale Materialien
-Nimmt man ein bestehendes prozedurales Material und versucht es auseinander zu nehmen stellt man fest das viele Komponenten dabei zusammen spielen. Auch begegnet man immer wieder Ausdrücken und Wörtern die ähnlich klingen und auch ähnliches behandeln, müssen aber unterschieden werden.
 
-## Komponenten eines Materials
-Damit eine Oberfläche wie gewünscht virtuell dargestellt wird benötigt es zwei Komponenten der Rendering Pipeline: Vertex Shader und Fragment Shader. Der Vertex-Shader hat die Aufgabe die Vertices eines Mesh so zu verschieben das die Geometrie des Materials widergespiegelt wird. Innerhalb eines Fragments-Shader definiert sich ein Material nur bis zum Surface-Shader. Damit ein Material nun funktioniert wird aber nur der Surface-Shader benötigt. Ein Surface-Shader bezeichnet man den Teil des Shader's der die Interaktion mit Lichtquellen behandelt und die letztendliche Oberflächenfarbe wiedergibt. Siehe Abbildung:
 
-![alt][PBRNPR]
-> *Unterschiedliche Surface-Shader mit gleichem Material und Mesh. Links: PBR, Rechts: NPR*
 
-## Definition eines Materials
-Ein Material besteht aus einem Zusammenschluss von mehreren Informationen die eine Oberfläche an ihren einzelnen Punkten beschreiben und die Parameter eines Surface-Shader steuern. Die Informationen eines Materials können dabei implizit und explizit vorliegen. "
-– implicit generation: in this case the generation algorithms are analytically defined, allowing to be easily called in a random fashion. Usually, rendering engines will ask for a certain (u,v) value to be generated in the parameterization space for the given geometry upon which the procedural textures are applied. With this approach, no bitmap texture is stored in memory, usually at the cost of ”expression power”.
-– explicit generation: here a resolution for the final output textures is set and the whole texture is rasterised, in one and only one step, and ”baked out” as a bitmap texture, stored in central or video memory to be accessed by the rendering engine. This explicit techniques allow for a verry wide range of output, referred to as "high power of expression"" [(D01)].
 
-## Prozedurale Texturen
-"A procedural texture is a computer-generated image created using an algorithm
-(this is where the term procedural is derived from: a procedure is driving the
-process), instead of a digital painting or image processing application[...]" [(D01)]. Prozedurale Texturen stellen einen expliziten Verarbeitungsprozess innerhalb eines Surface-Shader für Informationen dar. Explicit deshalb, da die Informationen vor dem Auswerten des Surface-Shader bereits feststehen [(EMP01)], [(D01)]. In dieser Arbeit wird beschrieben wie der Prozess des Erstellens solcher Texturen in einen Single-Pass Shader verlagert werden kann.
+
+
+
+
 
 
 
@@ -202,17 +220,6 @@ Das ist notwendig um zum einen eine Wiederverwendbarkeit von erstellten Texturen
 Der erste Schritt ist auszuarbeiten welche Materialien in der zu erstellenden Textur verwendet werden, und wie sie aufgeteilt werden. Am Beispiel einer einfachen Mauer sind die zu erkennenden Materialien Stein und Mörtel. Die Komposition wird bestimmt durch die Steinform und der Mörtel füllt die Lücken aus.
 
 
-### Materialien
-Eine Oberfläche für sich gesehen als ganzes hat bestimmte Merkmale und Eigenschaften die Einfluss auf die Erscheinung haben. Eine Vielzahl an unterschiedlichsten Faktoren können diese zusätzlich ändern oder neue Merkmale und Eigenschaften hinzufügen. Um eine Oberfläche glaubhaft als prozedurales Material abzubilden ist es wichtig sich mit den Eigenschaften und Merkmalen, die sowohl vom Material selbst als auch durch Einflüsse gegeben sind, zu analysieren. Als Beispiel: Holz. Sowohl die Holzart selbst als auch die Verarbeitung hat gravierende Auswirkung auf die Erscheinung. Fügt man nun Faktoren wie Alter und Abnutzung hinzu ändert sich sich das Bild der Oberfläche noch einmal drastisch. Durch die Interpretation und Verständnis solcher Merkmale und Eigenschaften in prozeduralen Materialien können Charakter, Storytelling und Glaubwürdigkeit vermittelt werden. Um die Faktoren zu ermitteln welche entscheidend für ein Material sind können Faktoren in Interne und Externe eingeteilt werden. Dabei muss Festgehalten werden das jegliche Analyse die sich um ein Material dreht sich auch nur auf jenes bezieht. Dies darf nicht mit äußeren Faktoren wie Ablagerungen verwechselt werden. Diese sind als eigenes Material zu betrachten. Für das gesamte Material wird hier eine Komposition aus mehreren zusammenspielenden Materialiens erstellt.
-
-
-#### Interne
-Interne Faktoren bestimmen Eigenschaften und Merkmale die losgelöst von äußeren Einflüssen sind. Diese Faktoren bestimmen die grundsätzliche Erscheinung einer Oberfläche und sind losgelöst von äußeren Einflüssen. Natürlich muss die Zusammensetzung eines Materials nicht endlos Tief betrachtet werden. Hier sollte auf den bereits genannten Detailgrad geachtet werden. Auch spielt die Prägnanz der Merkmale und Eigenschaften eine Rolle. Zudem müssen erfasste Merkmale nicht realitätsgetreu umgesetzt werden. Außerdem kann die Oberfläche als Querschnitt eines Materials gesehen werden. So kann eine 3D Noise welche auf 2D abgebildet wird möglicherweise schnell zu einem Ergebnis führen, da dies genauso einem Querschnitt entspricht.
-
-#### Externe
-Externe Faktoren sind all jene Umstände und Informationen welche von der Umgebung abhängen. Wie bereits erwähnt ist keine Oberfläche perfekt und unberührt. Durch diese Faktoren entsteht die eigentliche Glaubwürdigkeit und der Charakter eines Materials. Als Einflüsse können Alter und Abnutzung aufgezählt werden. Die meisten Faktoren können aber zwischen Ablagerungen, chemische Reaktionen und physische Einwirkungen unterteilt werden. Welche Faktoren und in welchem Umfang zutreffen muss für jede Textur und Umgebung neu ermittelt werden.
-
-
 ### Komposition
 Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In der Realität bestehen Oberflächen aus überlagerten oder zusammengesetzten Materialien. Auch kann eine Komposition durch äußere Einflüsse entstehen, die auf den gleichen externen Faktoren der Material-Analyse basieren. Ein Beispiel: Rostendes Metall. Hier verändert ein chemischer Prozess die Oberfläche so, das aus Metall ein Oxid mit komplett eigenen Eigenschaften und Merkmalen wird. Durch das Blenden dieser zweier Materialien entsteht am Ende eine überzeugende Komposition. Die Komposition beschränkt sich aber nicht nur auf das überlagern von Materialien um ein Uber-Material zu erzeugen. Als Oberfläche können auch Mauern gesehen werden die auf ganz natürlicherweise aus mehreren Materialien zusammengesetzt werden.
 
@@ -223,6 +230,8 @@ Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In 
 [NOISE01]: ./img/noiseExamples.png
 [NODEV01]: ./img/nodevember.jpg
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
+[SEP01]: ./img/planks.png
+[WOD01]: ./img/wood.png
 
 
 
