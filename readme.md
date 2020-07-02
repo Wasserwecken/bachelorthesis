@@ -1,4 +1,4 @@
-> # GENERATION OF PROCEDURAL MATERIALS WITHIN A SINGLE-PASS FRAGMENT-SHADER
+> # GENERATION OF PROCEDURAL MATERIALS WITHIN FRAGMENT-SHADER
 
 
 # Abstract
@@ -44,45 +44,48 @@ TODO: Ich möchte hier die Bereiche von einem Material abdecken. Innerhalb von E
 While its possible to use and layer multiple algorithms in shader and interfaces of various applications, creating convincing procedural materials can be a tidious and complex task. Manipulating results of algorithms in the right manner relies on repetitive tasks and practical knowledge to get convincing results. While there many possibilities and freedom for manipulations and choice of algorithms, shader and interfaces will not enfoce or guide creators to a workflow of creating procedural materials. Additionally, the limitation that only implicit algorithms can be used, exclude post processing algorithms like blur, normal map generation from height or ambient occlusion, because they rely on neighbour informations.
 
 ## Ojective
-First a understanding for surfaces and their composition must be created. Therefore surfaces have to be analysed, how they can be decomposed in informations, layers, forms and pattern which then can be replicated by algorithms. To know which algortihms are usefull and in which ways they can be used, a categorisation based on their task is created. This allows the extension and usage of algortihms of own choice. For reducing Trial-And-Error phases and guide creators to a structural process, a workflow and teqniques will be presented. Finally the kategorisation, techniques and the capabilities of the workflow are tested by creating procedural textures with them and preseting their results.
+First a understanding for surfaces and their composition must be created. Therefore surfaces have to be analysed, how they can be decomposed in informations, layers, forms and pattern which then can be replicated by algorithms.
+
+To know which algortihms are usefull and in which ways they can be used, a categorisation based on their task is created. This allows the extension and usage of algortihms of own choice.
+
+For reduced Trial-And-Error phases and guide creators to a structural process, a workflow and teqniques will be presented.
+
+Finally the analysis, categorisation, techniques and the capabilities of the workflow are tested by creating procedural textures with them and preseting their results.
 
 Details about implementations of noise or other alogrithms will be not part of this work. As well as a performance analysis of algorithms or entire procedural materials.
 
 
 # Analysis of surfaces
-Analysing existing surfaces and references is essential for procedural texture generation. Through the analysis of a surface we will see that surfaces are often compositions of sub-surfaces. All informations of how a surface is layered and how they are madeup is resued later by replicating them, suiting algorithms and teqniques which are available in fragment shaders.
+Through the analysis of a surface we will see that surfaces are often compositions of sub-surfaces. All informations how a surface is layered and how they are madeup is resued later by replicating them, suiting algorithms, order  and teqniques that are available in fragment shaders.
 
-The overall objective of the analysis of surfaces should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric informations about the visual appearance, including height informations. To retrieve these informations, the analysis is carried out in three streps:
+The overall objective of the analysis should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric informations about the visual appearance, including height informations. To retrieve these informations, the analysis is carried out in three streps:
 - Extracting surface layers
 - Visual properties
 - Environmental influences
 
-## Extracting surface layers
-Natural surfaces are build up from multiple real world materials, which work like layers in image editing softwares. Where through blending multiple layers the final image is created. For seperating surfaces into layers, pattern and shape recognition is the key. While many surfaces may have a complex visual appeareance, shapes and patterns still appear on them.
+DETAILS!!!
 
-TODO: Die Seperation soll von grob nach fein erfolgen. Gabs schon in vielen Beispielen, muss hier verweiß suchen. Auch kann hier vieleicht zwischen überlagerungu nd zusammensetzung unterscheiden werden. Ist aber schwammig.
-Auch sollte noch geklärt werden was indikatoren für einen trennung sind?
+## Extracting surface layers
+Natural surfaces are build up from multiple real world materials, which work like layers in image editing softwares. Where through blending multiple layers the final image is created. For extracting surfaces into layers; pattern, noise and shape recognition is the key. While many surfaces may have a complex visual appeareance, shapes and patterns still appear on them. A hirachical aproach looking out for patterns and shapes is recomended because the depth of the analysis will differ by the required level of detail. Further a hierarchical separation ensures that created sub-materials can be reused in other materials. Indicators where and how surfaces can be seperated are:
+- natural given seperation due to manufaturing or creation *(e.g. bricks and mortar, solar panels)*
+- closeness to basic shapes *(pebbles, knobs, nails, tiles)*
+- closeness to noise algorithms *(rusting metal, leather)*
+
+For demonstration I took a picture of the floor from a local Pub. The floor is quite old and therefore has a complex apereance. The first seperation is made by the planks, because:
+- they break the continuity of the wood structure.
+- they control the main height of the surface.
+- the space left defines the area for dirt, together they cover the whole surface
+- the arrangement and shape suits perfectly for tilling.
 
 ![alt][SEP01]
 > *Left: Floor of a Pub, Mid: Seperation into planks, Right: Seperation into Gums*
 
-I took a picture of the floor of a local Pub for demonstration. The floor is quite old and therefore has a complex apereance. The first seperation is made by the planks, because:
-- they break the continuity of the wood structure.
-- they control the main height of the surface.
-- the space left defines the area for dirt, together they cover the whole surface
-
 While the first seperation is oriented to the wood structure, the black dots on the floor apear to be independent to the plank strukture. This is because these dots are old trampled chewing gums. So a second seperation is made because the chewing gums:
-- they are not part of the plank or wood structure.
-- they are overlaping planks.
-- they are are a physical layer ontop of the floor.
-
-Generally seperating a surface into layers creates several advantages:
-- extracted sub-surfaces can be reused in other procedural materials.
-- sub-surfaces can be exchanged without breaking the procedural material.
-- layers of surfaces which have dependecies on the exchanged surface will adjust automaticaly to changes.
+- are not part of the plank or wood structure, they can overlap planks.
+- they are are a physical placed ontop of the floor.
 
 ## Visual properties
-To replicate the visual properties of a surface, the matieral which represents the surface has to be analysed. While valuable properties which make a surface recognizable are easily seperatable, it may be beneficial to know the reason why the properties are how they are. By gathering informations about the properties themself, these can may be replicated more easily and a understanding is build up which can be transfered to other related materials.
+The surface is now split into several layers of subsurfaces. To fill it with compelling information about color, height, and other properties required for the lighting model, the visual appearance of the surface must be disassembled. Properties which make a surface recognizable are easily seperatable, it nonetheless may be beneficial to know the reason why the properties are how they are. By gathering informations about the origin of properties themself, the properties can be transfered plausible to other related materials.
 
 ![alt][WOD01]
 > *Left: Plank of a floor in a Pub, Mid: ..., Right: ...*
@@ -95,15 +98,28 @@ TODO: Wie erkläre ich jetzt hier das das Wissen einen weiterbringt? War Holz ei
 While a surface can be seperated into layers, and the materials which made up the layers are treated seperatly, the surfaces still exists in the environment as single surface. This means the environment where the surface exists has a strong influence to it. The best example are the trampled chewing gums from the pub floor. This property of this specific floor is based on the location. A wodden floor in a living room may not have this proeprty. But there is another property of the pub floor where additional inforation about the location is needed to see and replicate it: The floor is located in a smoking area. Also the floor has all over like "freckles". After a close inspection, these freckles are burned spots from thrown away and trampled cigarett ends.
 
 ![alt][SEP02]
-> *Left: Plank of a floor in a Pub, Mid:  burned spots from thrown away and trampled cigarett ends, Right: discoloration from spilled liquids*
+> *Left: Plank of a floor in a Pub, Mid: burned spots from trampled cigarett ends, Right: color variation due to spilled liquids*
 
 Environmental influences have are the factors which make materials finnaly beliveable. Thinking of possible chemical and physical interactions and their duration through time will give a procedural materials the final touch. Therefore it is important of gatherin information about location and story of the environment where the material have to be placed.
 
 
 # Toolbox of algorithms
+To use and replicate information from the analysis, first a overview of the technical possibilities has to be created. Therefore available algorithms and mathematical functions are categorised by their tasks. This has to be done because on the one hand interfaces in render applications have diffrent predefined algorithms and functions, still serving the same purpose, or their missing. On the other hand, due to the shader-environment, solutions with fitting algorithms have to be found to break some restrictions. With that there is an advantage created where, due to the categorisation, algorithms can be added, exchanged or altered in the render application interfaces. The categorization works like a toolbox with which defined tasks have to be solved. However, the tools contained therein can be selected by yourself.
 
+By creating materials for this thesis, i have collected many algorithms for diffrent purposes. This collection resulted into a small framework of GLSL functions dedicated for creating procedural materials. By collecting algorithms and creating materials, categories for algorithms has evolved. These categories showed to cover most algorithms and tasks.
 
+## Math
+Trigonometry, common, vector, gemoetric
 
+## Noise
+
+## UV
+
+## Shapes
+
+## Easing
+
+## Helper
 
 
 
@@ -213,17 +229,6 @@ Bei der Entwicklung von mehreren prozeduralen Texturen hat sich gezeigt das die 
 
 
 
-## Analyse
-Die Analyse soll abstrakt herausarbeiten welche Techniken und Algorithmen bei der Umsetzung angewendet werden können. Das führt dazu zu schnellen ersten Ergebnissen und unnötige Trial-And-Error Phasen werden minimiert. Um eine gewünschte Textur zu abstrahieren müssen Referenzen und Informationen aus zwei Blickwinkel betrachtet werden. Aus der Sicht von Material und Komposition.
-
-Das ist notwendig um zum einen eine Wiederverwendbarkeit von erstellten Texturen und Teilumsetzungen zu ermöglichen, aber auch werden teilweise unterschiedliche Techniken für Materialien und Komposition verwendet.
-Der erste Schritt ist auszuarbeiten welche Materialien in der zu erstellenden Textur verwendet werden, und wie sie aufgeteilt werden. Am Beispiel einer einfachen Mauer sind die zu erkennenden Materialien Stein und Mörtel. Die Komposition wird bestimmt durch die Steinform und der Mörtel füllt die Lücken aus.
-
-
-### Komposition
-Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In der Realität bestehen Oberflächen aus überlagerten oder zusammengesetzten Materialien. Auch kann eine Komposition durch äußere Einflüsse entstehen, die auf den gleichen externen Faktoren der Material-Analyse basieren. Ein Beispiel: Rostendes Metall. Hier verändert ein chemischer Prozess die Oberfläche so, das aus Metall ein Oxid mit komplett eigenen Eigenschaften und Merkmalen wird. Durch das Blenden dieser zweier Materialien entsteht am Ende eine überzeugende Komposition. Die Komposition beschränkt sich aber nicht nur auf das überlagern von Materialien um ein Uber-Material zu erzeugen. Als Oberfläche können auch Mauern gesehen werden die auf ganz natürlicherweise aus mehreren Materialien zusammengesetzt werden.
-
-
 
 
 [PBRNPR]: ./img/pbrnpr.png
@@ -231,6 +236,7 @@ Viele Oberflächen bestehen meistens nicht nur aus einem uniformen Material. In 
 [NODEV01]: ./img/nodevember.jpg
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
 [SEP01]: ./img/planks.png
+[SEP02]: ./img/envi.png
 [WOD01]: ./img/wood.png
 
 
