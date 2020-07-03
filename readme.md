@@ -63,7 +63,8 @@ The overall objective of the analysis should not confound with building a physic
 - Visual properties
 - Environmental influences
 
-DETAILS!!!
+## Level of Detail
+TODO: Beschreiben das nicht alles bis in das letzte Detail analysiert werden muss. Kommt darauf an wie detailverliebt das Material werden soll.
 
 ## Extracting surface layers
 Natural surfaces are build up from multiple real world materials, which work like layers in image editing softwares. Where through blending multiple layers the final image is created. For extracting surfaces into layers; pattern, noise and shape recognition is the key. While many surfaces may have a complex visual appeareance, shapes and patterns still appear on them. A hirachical aproach looking out for patterns and shapes is recomended because the depth of the analysis will differ by the required level of detail. Further a hierarchical separation ensures that created sub-materials can be reused in other materials. Indicators where and how surfaces can be seperated are:
@@ -104,20 +105,32 @@ Environmental influences have are the factors which make materials finnaly beliv
 
 
 # Toolbox of algorithms
-To use and replicate information from the analysis, first a overview of the technical possibilities has to be created. Therefore available algorithms and mathematical functions are categorised by their tasks. This has to be done because on the one hand interfaces in render applications have diffrent predefined algorithms and functions, still serving the same purpose, or their missing. On the other hand, due to the shader-environment, solutions with fitting algorithms have to be found to break some restrictions. With that there is an advantage created where, due to the categorisation, algorithms can be added, exchanged or altered in the render application interfaces. The categorization works like a toolbox with which defined tasks have to be solved. However, the tools contained therein can be selected by yourself.
+To use and replicate information from the analysis, an overview of the technical possibilities needs to be created. Therefore available algorithms and mathematical functions will be categorised by their tasks. This is done because interfaces in render applications have diffrent predefined algorithms and functions or they missing. Additionally the categorysation enables adding and changing algorithms to your own needs. The categorization will work like a toolbox with which defined tasks have to be solved. However, the tools contained therein can be selected by yourself.
 
-By creating materials for this thesis, i have collected many algorithms for diffrent purposes. This collection resulted into a small framework of GLSL functions dedicated for creating procedural materials. By collecting algorithms and creating materials, categories for algorithms has evolved. These categories showed to cover most algorithms and tasks.
+By creating materials for this thesis, i have collected many algorithms for diffrent purposes. This collection resulted into a small framework of GLSL functions dedicated for creating procedural materials. By collecting algorithms and creating materials, categories for algorithms has been automatically evolved. These categories showed to cover most algorithms and tasks.
 
 ## Math
-Trigonometry, common, vector, gemoetric
-
-## Noise
+Baisc mathematical methods like "floor", "absolute" or "sinus" are essential general in shaders. For procedural materials every algorithm will be based on these methods. Theire also really usefull when it comes to modifying results from algorithms.
 
 ## UV
+![alt][TLUV]
+> *Left: manipulated uv coordinates, right: rectangle drawn with these manipulations*
+
+
+## Noise
+![alt][TLNOISE]
+> *Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi, voronoi edge; Left: single noise; Right: fractal browning motion*
+
+![alt][TLHASH]
+> *Left to right: 1D, 2D, 3D; Bottom to top: Scaled uv with x0.0001, x1.0, x1000*
 
 ## Shapes
+![alt][TLSHAPE]
+> *Left: various shapes with blur; Right: Distance fields*
 
 ## Easing
+![alt][TLEASE]
+> *Left to right, bottom to top: Exponential, Power, Sinus, Circular*
 
 ## Helper
 
@@ -145,15 +158,6 @@ Trigonometry, common, vector, gemoetric
 
 
 
-# Der Prozess
-Um den Prozess des Erstellens von einem prozeduralen Material zu definieren, wird dieser in seine einzelnen Teilprozesse zerlegt. Als Einstieg dient dabei die klassische Unterteilung in: Analyse und Umsetzung. Diese Teilprozesse stehen nicht für sich selbst geschlossen dar und können mehrmals im Verlauf einer Entwicklung durchlaufen werden. Sie hängen beide dennoch voneinander ab. Die Analyse muss Informationen und Referenzen so aufarbeiten und abstrahieren das diese auf die Möglichkeiten der Umsetzung angepasst sind. Die Umsetzung muss dann die aufbereiteten Informationen implementieren.
-
-Durch die Abhängigkeit der Analyse zur Umsetzung wird in dieser Arbeit die Umsetzung zuerst behandelt. Bei der Ausführung des Prozesses sollte die Analyse immer vor der Umsetzung durchgeführt werden.
-
-Eine zusätzliche essentiell übergreifende Information die in jedem Teilprozess zum tragen kommt ist der geforderte Detailgrad eines prozeduralen Materials. Dieser Detailgrad bestimmt wie intensiv Teilprozesse durchlaufen müssen, oder welche nicht benötigt werden. Welche Teilprozesse wie davon betroffen sind, muss der Anwender selbst entscheiden. Siehe Abbildung PBRNPR: Ein fotorealistisches PBR Material benötigt eine deutlich intensivere Analyse und komplexere Umsetzung als ein Low-Poly Material, welches im Extremfall einen einzelnen Farbwert als einzige Eigenschaft besitzen. Woran sich der geforderte Detailgrad ableitet ist nicht Teil dieser Arbeit, wichtig ist aber diesen zu kennen.
-
-## Umsetzung
-Für die Umsetzung eines prozeduralen Materials ist es wichtig zu wissen welche technische und künstlerische Möglichkeiten durch einen Fragment-Shader zu Verfügung stehen. Um Werkzeuge für die Umsetzung zu definieren muss zwischen Algorithmen und Techniken unterschieden werden. Durch diese Unterteilung ist es möglich tiefer in den Aufbau einer prozeduralen Materials einzugehen.
 
 ### Algorithmen
 Algorithmen bilden wiederum atomare Bausteine auf die eine prozedurale Textur aufbaut. Ähnlich vergleichbar mit einem Lego Spiel. Die Algorithmen selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material gleich. Um die spezifische Aufgabe und mögliche Verwendung eines Algorithmus besser zu verstehen und eine Austauschbarkeit zu ermöglichen, werden diese nach Ihrer Aufgabe kategorisiert.
@@ -238,6 +242,11 @@ Bei der Entwicklung von mehreren prozeduralen Texturen hat sich gezeigt das die 
 [SEP01]: ./img/planks.png
 [SEP02]: ./img/envi.png
 [WOD01]: ./img/wood.png
+[TLUV]: ./img/uv.png
+[TLNOISE]: ./img/noise.png
+[TLHASH]: ./img/hash.png
+[TLSHAPE]: ./img/shape.png
+[TLEASE]: ./img/ease.png
 
 
 
