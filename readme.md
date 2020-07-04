@@ -113,16 +113,43 @@ By creating materials for this thesis, i have collected many algorithms for diff
 Baisc mathematical methods like "floor", "absolute" or "sinus" are essential general in shaders. For procedural materials every algorithm will be based on these methods. Theire also really usefull when it comes to modifying results from algorithms.
 
 ## UV
-![alt][TLUV]
-> *Left: manipulated uv coordinates, right: rectangle drawn with these manipulations*
+The UV are texture coordinates for the underlying mesh which is usually used to access textures. Manipulating the UV enables changes like rotation or tilling. For creating procedural materials within fragment shader the UV has a extraordinary meaning. First all generative algorithms like noise or shapes are implicit, the UV represents the arbitrary point for their input.
 
+By influencing the UV, the results of algorithms can be pushed to results which would otherwise result in an inefficent implentation. In general the UV gives access to any modification as simple as well as complex ones, which will take effect regardless of the algorithms that are using it.
+
+![alt][TLUV]
+> *Left: uv manipulations; Right: rectangle with same size and position drawn with UV's from left*
 
 ## Noise
-![alt][TLNOISE]
-> *Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi, voronoi edge; Left: single noise; Right: fractal browning motion*
+Surfaces in the real world are often characterized by random patterns,  distributions or other features represented in color, height or other properties. To mimic the randomness in nature noise are the perfect tool.
+
+### Hashing as random nunmber generator
+The base of all noise algorithms and random distribution is the access to a random number generator (RNG). While true randomness is hard to achive with computers, it is even undesirable for creating noise. A RNG for procedural materials has to be unpredictable and reproducable at the same time. This is necessary because random values have to be restored, e.g. accessing the value neighbour points in a lattice.
 
 ![alt][TLHASH]
-> *Left to right: 1D, 2D, 3D; Bottom to top: Scaled uv with x0.0001, x1.0, x1000*
+> *White noise; Left to right: 1D, 2D, 3D; Bottom to top: Scaled uv with x0.0001, x1.0, x1000*
+
+Hashing is the perfect solution to be used as RNG, because the results are unpredictable but still controllable by the input. The result of a such a noise functions is named "white noise". By looking for hash functions, not any function can be used. The hash algorithms should be consistent over the range of UV scale used in the procedural material. As seen in the figure, the randomness of hash algorithms can break in extreme scales. There is a good listing in the book "Texture & Modeling A procedural approach" of other properties that a hash algorithms have to meet to be used as RNG ("noise" in the quote is refered to be white noise):
+
+"The properties of an ideal noise function are as follows:
+- noise is a repeatable pseudorandom function of its inputs.
+- noise has a known range, namely, from −1 to 1.
+- noise is band-limited, with a maximum frequency of about 1.
+- noise doesn’t exhibit obvious periodicities or regular patterns. [...]
+- noise is stationary—that is, its statistical character should be translationally invariant.
+- noise is isotropic—that is, its statistical character should be rotationally
+invariant."[(EMP01)]
+
+### Noise and fractal brownian motion
+As mentioned early, surfaces appear to have random but still repetitive patterns. To mimic these features several noise algorithms have been created. The most iconic ones are perlin noise[(P01)] and voronoi nosie[(W01)] as seen in the introduction.
+
+![alt][TLNOISE]
+> *Several noises; Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi; Left: pure noise; Right: with fractal brownian motion*
+
+The paper "A Survey of Procedural Noise Functions" [(LLC01)] gives a good insight and overview about noises and their types. But not every noise can be implemented in a fragment shader without buffers.
+
+![alt][COMPLEX]
+> *Noise created from noise; Left: noise used as displacement and color; Right: generated noise from multiple perlin noises*
 
 ## Shapes
 ![alt][TLSHAPE]
@@ -247,6 +274,7 @@ Bei der Entwicklung von mehreren prozeduralen Texturen hat sich gezeigt das die 
 [TLHASH]: ./img/hash.png
 [TLSHAPE]: ./img/shape.png
 [TLEASE]: ./img/ease.png
+[COMPLEX]: ./img/complex.png
 
 
 
