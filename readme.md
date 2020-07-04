@@ -141,32 +141,37 @@ Hashing is the perfect solution to be used as RNG, because the results are unpre
 invariant."[(EMP01)]
 
 ### Noise and fractal brownian motion
-As mentioned early, surfaces appear to have random but still repetitive patterns. To mimic these features several noise algorithms have been created. The most iconic ones are perlin noise[(P01)] and voronoi nosie[(W01)] as seen in the introduction.
+As mentioned early, surfaces appear to have random but still repetitive patterns. To mimic these features several noise algorithms have been created. The most iconic ones are perlin noise[(P01)] and voronoi nosie[(W01)] as seen in the introduction. The paper "A Survey of Procedural Noise Functions" [(LLC01)] gives a good insight about noises and their types. But not every noise can be implemented in a fragment shader without buffer. Anyway noise can replicate natural features and there are diffrent algorithms for diffrent apereances.
 
 ![alt][TLNOISE]
 > *Several noises; Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi; Left: pure noise; Right: with fractal brownian motion*
 
-The paper "A Survey of Procedural Noise Functions" [(LLC01)] gives a good insight and overview about noises and their types. But not every noise can be implemented in a fragment shader without buffers.
-
-![alt][COMPLEX]
-> *Noise created from noise; Left: noise used as displacement and color; Right: generated noise from multiple perlin noises*
+While noise algorithms result into unpredictable but still regular patterns, the output tends to lack of details. This is the case because noise algorithms will produce random values based on a single frequency. With fractal brownian motion details within the noises can be created, by adding multiple frequencies with diffrent weights. This can be aplied to any noise algorithm.
 
 ## Shapes
+While surfaces often have natural unpredictable patterns, there are also geometric patterns in nature, like stone weaving, leafs or pebbles. Especially man-made surfaces like walls, floors or windows are made out of gemetric shapes.
+To replicate geometric features, algorithms which create basic shapes are needed.
+
 ![alt][TLSHAPE]
 > *Left: various shapes with blur; Right: Distance fields*
 
+When generating geometric shapes, it is necessary for the algorithms to have a blur parameter, because with the absence of post processing there is not other way to create it. Blur is necessary because shapes and resulting results from shapes will be used as masks or height informations. By bluring the borders of the shapes linear, this border can be manipulates with easing functions for the required transitions.
+
+
 ## Easing
+Easing functions may be well know from web programming, or animations. Easing functions provide a elegant and exchangeable way to change the distribution of values within a range.
+
 ![alt][TLEASE]
 > *Left to right, bottom to top: Exponential, Power, Sinus, Circular*
 
-## Helper
 
 
 
 
 
 
-
+![alt][COMPLEX]
+> *Noise created from noise; Left: noise used as displacement and color; Right: generated noise from multiple perlin noises*
 
 
 
