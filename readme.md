@@ -149,29 +149,46 @@ As mentioned early, surfaces appear to have random but still repetitive patterns
 While noise algorithms result into unpredictable but still regular patterns, the output tends to lack of details. This is the case because noise algorithms will produce random values based on a single frequency. With fractal brownian motion details within the noises can be created, by adding multiple frequencies with diffrent weights. This can be aplied to any noise algorithm.
 
 ## Shapes
-While surfaces often have natural unpredictable patterns, there are also geometric patterns in nature, like stone weaving, leafs or pebbles. Especially man-made surfaces like walls, floors or windows are made out of gemetric shapes.
-To replicate geometric features, algorithms which create basic shapes are needed.
+While surfaces often have natural unpredictable patterns, there are also geometric patterns in nature, like stone weaving, leafs or pebbles. Especially man-made surfaces like walls, floors or windows showing gemetric shapes.
+To replicate geometric features, algorithms for shapes are necessary. Most of geometric patterns in surfaces can be replicated with basic shapes like circles or rectangles, even if there have a complex apereance. Shapes are gonna be used as template which then later are manipulated or composed to complex shapes.
 
 ![alt][TLSHAPE]
 > *Left: various shapes with blur; Right: Distance fields*
 
-When generating geometric shapes, it is necessary for the algorithms to have a blur parameter, because with the absence of post processing there is not other way to create it. Blur is necessary because shapes and resulting results from shapes will be used as masks or height informations. By bluring the borders of the shapes linear, this border can be manipulates with easing functions for the required transitions.
-
+As mentioned before, the usage of shapes later is replicating geometric patterns. These patterns can result in informations like height or color. And often these patterns have transitions. To support these transitions the algorithms which create the shapes are required to have a blur parameter. Unfortunately this has to be done within the shape generation, because after the generation there is no way to blur a shape or information without access to its neighbours, and in shaders this access is missing. To enable bluring shapes, distance functions fulfilling this requirement the most. With a distance field, the area of the shape and its blur can be set by steping the distance. Inigo Quilez made a nice listening of several distance functions in 2D and 3D space on his website [(IQ02)].
 
 ## Easing
-Easing functions may be well know from web programming, or animations. Easing functions provide a elegant and exchangeable way to change the distribution of values within a range.
+Easing functions may be well known from web programming or animations. Easing functions provide a elegant way to change the distribution of linear interpolation. Easing functions in procedural materials are used to modify height interformations or change the transitions in blending.
 
 ![alt][TLEASE]
 > *Left to right, bottom to top: Exponential, Power, Sinus, Circular*
 
 
+# Workflow
+By creating procedural materials, algorithms are often used in a repetitive or specific manner to achive certain results. Teqniques and aproaches which help creating procedural materials will be part of this section.
 
+## Height first
+The most visually perceptible characteristic of surfaces is height. Height influences distortions in reflections, the amount of recived light, ambient occlusion, selfshadowing and more. Therefore it is a good practice to start off with height first to get all details right which will end in a more belivable material.
 
+Height should be represented as single value between zero and one. This will allow efficent processing and many algorithms like easing are already expecting this range. 
 
+## Seed
+As mentioned earlier, the random number generator for procedural materials is based on hashing. Hasing needs an input to create pseudo random numbers. Noise uses this hashing for creating random values, incrementing the input for each new random value which is required. While this is fine and works perfectly, procedural materials will not make use of a single noise only, they will use a couple of them. Noise of diffrent kinds, scale, rotation or offset. The risk is, by using the same noise over and over can lead to coincidences by layering noises of the same kind. Another requirement within procedural materials is to break the continoius structure of noises to reassamble surfaces which are made of physically seperate but same kind of materials. To ensure the reuability of the algorithms and created sub-materials, every functions which uses hasing in any way should have a seed parameter. This parameter ensures the diversity of noises, materials and randomness. The parameter should also be inhertied by functions which make use of functions that require seed.
 
+## Make more noise
+While noise is a essential part for procedural materials, noise is not only restricted to be generated by interpolating random values on a lattices. TO have a extended variety of noise, new and more complex noises can be created from basic noise algorithms.
 
 ![alt][COMPLEX]
-> *Noise created from noise; Left: noise used as displacement and color; Right: generated noise from multiple perlin noises*
+> *Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise from basic noises*
+
+There are no rules or limits when it comes to create new complex noises. In the figure above the complex noise pattern was created by using perlin noise, extracted the creases and took the minimum of three layers of them. Complex noises can reasamble patterns which existing on many surfaces like grunge  platter or crackels.
+
+## Distorting
+
+
+
+## Imperfections
+By looking to surfaces from the real world, one thing they have all in common: They have all flaws in any way. This is what makes convincing and beliveable surfaces. Ment with flaws are impefections on the surfaces of any size. Examples of imperfections in surfaces are scratches, dents, discolorations, dust, fingerprints or human failure.
 
 
 
@@ -191,38 +208,14 @@ Easing functions may be well know from web programming, or animations. Easing fu
 
 
 
-### Algorithmen
-Algorithmen bilden wiederum atomare Bausteine auf die eine prozedurale Textur aufbaut. Ähnlich vergleichbar mit einem Lego Spiel. Die Algorithmen selbst können Parameter definieren um ihr Verhalten zu steuern, sind aber über jedes Material gleich. Um die spezifische Aufgabe und mögliche Verwendung eines Algorithmus besser zu verstehen und eine Austauschbarkeit zu ermöglichen, werden diese nach Ihrer Aufgabe kategorisiert.
-
-#### Noise
-Noise Algorithmen bilden wichtige Bausteine um naturgegebene Unregelmäßigkeiten Abzubilden. Noise definiert sich durch [Definition suchen]. Auf diese zufällige nicht vorhersagbare Frequenzen und WhiteNoise kann nun aufgebaut werden. Noise gibt es in vielen Variationen. Durch die unterschiedlichen Charakteristiken von Noise-Algorithmen unterscheiden sich die Einsatzmöglichkeiten.
-
-WhiteNoise nimmt dabei die Rolle eines RNG(Random Number Generator) ein. Sie ist auch die Grundlage aller Noise-Algorithmen. WhiteNoise wird aber auch dann benötigt wenn eine zufällige Entscheidungen getroffen werden sollen.
-
-Wie bereits erwähnt baut Noise auf WhiteNoise auf und Spiegel eine einzelne zufällige Frequenz wieder. Durch Noise können so natürliche Verformungen, Masken und Gradienten erzeugt werden.
-
-Da Noise nur eine einzelne Frequenz widerspiegelt erreicht man nicht immer ein gewünschtes Ergebnis das oft Details wie ausgefranste Ränder fehlen. Dur Fractal Browning Motion können solche Details erzeugt werden. Dabei ist der Grundlegende Noise Algorithmus austauschbar.
-
-#### UV
-Als UV bezeichnet man die Texturkoordinaten. Wenn in einem Material Texturen als Informationen für einen Surface-Shader genutzt werden beschreiben diese Koordinaten welche Pixel auf der Textur ausgelesen werden. Diese Koordinaten können als Eingangsinformation verwendet werden um Informationen für einen bestimmten Punkt, durch die Koordinaten gegeben, abzufragen.
-
-Die UV stellt somit die "Leinwand" für ein prozedurales Material dar. Dabei kann die UV in mehrere Teile oder Ebenen aufgeteilt werden. Durch mehrere UV's kann z.B. eine Rotation oder Skalierung von einzelnen Elementen erreicht werden. Durch eine Aufteilung wiederum ist es möglich Elemente sich wiederholen zu lassen. Sowohl bei Aufteilung als auf bei der Manipulation können wieder neue UV's davon abgeleitet werden um noch mehr Details zu erzeugen.
-
-Eine weitere Möglichkeit der Manipulation ist die Konvertierung der Koordinaten in ein anderes System. So kann z.B. kann ein Polar-Koordinatensystem verwendet werden. Dies ermöglich eine weitere Vielzahl an Möglichkeiten Elemente und Merkmale zu erzeugen, für die sonst komplexe Algorithmen hergezogen werden müssten.
-
-Eine weitere wichtige Manipulation von UV's ist das leichte verschieben oder rotieren durch Noise oder andere über die UV variierende Werte. Somit können Verformungen an Formen vorgenommen werden, bzw. eine natürliche Unregelmäßigkeit simuliert werden. Dies kann in das extreme getrieben werden wenn man mehrere Noise Verformungen aneinanderreiht um letztendlich wieder eine Noise auf diesen Koordinaten zu erzeugen [(IQ01)].
 
 
-#### Shapes
-Formen sind für Basis für komplexere Formen. Dadurch das in einem Fragment-Shader nicht auf Nachbarpixel zugegriffen werden kann, empfiehlt es sich für jede Form einen Blur-Parameter zu implementieren. Durch einen weichen Übergang an den Rändern können viele Effekte erreicht werden.
 
 
-#### Easing
-Easing-Algorithmen werden meist beim manipulieren von Höhenkarten und Masken verwendet. Auch kann als Beispiel die Verteilung von WhiteNoise gesteuert werden.
 
 
-#### Mathematische Funktionen
-Nicht alle Algorithmen oder Methoden können unter die anderen Kategorien eingeteilt werden. Manchmal sind diese einfach zu generisch und finden in jedem Bereich seine Anwendung. Nichts desto trotz gibt es Methoden die genauso wichtig sind um Werte zu brachen und manipulieren. 
+
+
 
 
 
@@ -251,17 +244,6 @@ Blending kann im ganzen Material Anwendung finden. Sowohl Höhen können manipul
 
 #### UV-Manipulationen
 Viele Ergebnisse der Algorithmen sind für sich stehend oft zu perfekt oder bieten nicht die Nötige Abwechslung und Merkmale. Durch die Manipulation der UV können diese aber so abgewandelt werden um das auszugleichen. Als Beispiel ein zertretener Kaugummi: Nimmt man einen Kreis, manipuliert seine UV mit einer Rotation die durch eine Noise gesteuert wird, können Unregelmäßigkeiten erzeugt werden.
-
-
-#### Natürliche Unregelmäßigkeit
-Durch die Definierung eines Materials mit einer mathematischen Grundlage, entstehen so schnell Ergebnisse die nahe an Oberflächen aus der Realität erinnern, sind aber häufig zu perfekt. Als Beispiel eine geflieste Oberfläche:
-Diese sieht bereits glaubhaft aus, kann aber noch weiter verbessert werden. So kann man all Kacheln zufällig um ein paar Grad drehen um den Menschlichen Fehler beim fließen zu simulieren. Zusätzlich können alle Kacheln um ein paar Grad geneigt werden. Eine weitere Noise steuert zuletzt die Kalkablagerung.
-
-Festzuhalten ist, das keine Oberfläche perfekt ist. Eine Oberfläche ist immer äußeren Auswirkungen ausgesetzt. Die können je nach Material und Umgebung sehr unterschiedlich ausfallen. Bei der Analyse sollten diese aber erkannt werden. Ein Material kann somit deutlich an Glaubhaftigkeit und Realismus gewinnen.
-
-
-#### Seed
-Bei der Entwicklung von mehreren prozeduralen Texturen hat sich gezeigt das die Verwendung eines Seed Überschneidungen und Korrelationen innerhalb von Teilergebnissen eines Materials vermieden werden können. Dies liegt daran, das es auf der Grafikkarte kein keinen persistierten Pseudozufallsgenerator gibt. Dieser muss zum einen selbst implementiert werden und mit mindestens einem Eingangswert aufgerufen werden. Um nun innerhalb von Teilergebnissen nicht immer eine magische Nummer statisch im Code verankern zu müssen, ist es Hilfreich bei Methoden die auf Zufall basieren einen Seed-Parameter mit zu implementieren. Dieser kann hierarchisch immer weiter gegeben werden und bei jeder Verwendung oder Weitergabe wird dieser inkrementiert oder verändert.
 
 
 
