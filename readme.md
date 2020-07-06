@@ -172,6 +172,8 @@ The most visually perceptible characteristic of surfaces is height. Height influ
 
 Height should be represented as single value between zero and one. This will allow efficent processing and many algorithms like easing are already expecting this range. 
 
+DERIVING!
+
 ## Seed
 As mentioned earlier, the random number generator for procedural materials is based on hashing. Hasing needs an input to create pseudo random numbers. Noise uses this hashing for creating random values, incrementing the input for each new random value which is required. While this is fine and works perfectly, procedural materials will not make use of a single noise only, they will use a couple of them. Noise of diffrent kinds, scale, rotation or offset. The risk is, by using the same noise over and over can lead to coincidences by layering noises of the same kind. Another requirement within procedural materials is to break the continoius structure of noises to reassamble surfaces which are made of physically seperate but same kind of materials. To ensure the reuability of the algorithms and created sub-materials, every functions which uses hasing in any way should have a seed parameter. This parameter ensures the diversity of noises, materials and randomness. The parameter should also be inhertied by functions which make use of functions that require seed.
 
@@ -210,40 +212,6 @@ By looking to surfaces from the real world, one thing they have all in common: T
 
 
 
-
-
-
-
-
-
-
-
-
-### Techniken
-Techniken definieren sich durch das geschickte kombinieren von Algorithmen um optische Modifikationen oder Eigenschaften zu erreichen. 
-
-Techniken beschreiben das allgemeine Vorgehen und Lösungsansätze für wiederkehrende Aufgaben und Probleme.
-
-
-#### Höhe als Grundlage
-Die Höhe sollte in schwarz weiß dargestellt werden. Schwarz für die Tiefen als 0.0, Weiß für de Höhen als 1.0. Das hat den Vorteil dass das Ergebnis einfach für den AAnwender zu interpretieren ist. Auch ist die Performance von Floating-Point Operationen besser als wenn man mit einem Vektor arbeiten würde.
-Viele Algorithmen können somit die Höhenwerte einfach und transparent verarbeiten.
-
-Die Höhe ist deshalb als Grundlage wichtig, da viele visuelle Eigenschaften davon abgeleitet werden können. Es können Aufgrund der Höhe beispielweise Masken erstellt werden um andere Materialien miteinander zu verbinden. Auch die Verteilung von Schmutz und Gebrauchsspuren können mit einer Höhenkarte glaubhaft verteilt werden.
-
-Ein weiterer Vorteil ist die Entstehung eines Non-Destruktiv-Workflows. Sprich da alles was in einem prozeduralen Material geschieht auf der Höhe basiert, kann diese im Nachhinein immer noch bearbeitet werden, ohne die Nachfolgende Arbeit zu zerstören. Die nachfolgende Logik wird auf die neue Höhenverteilung korrekt reagieren. 
-
-Die Bearbeitung der Höhenkarte ist ein Prozess der sich fast bis zum Ende des Materials hindurchzieht.
-
-
-#### Blending
-Durch das Kombinieren von Formen und oder Noise entstehen die gewünschten Merkmale eines Materials. Dies funktioniert wie in einer Bildbearbeitungs-Software. Die miteinander zu verbindenden Ergebnisse sind als Layer zu betrachten. Durch eine gegebene Maske können diese mit einer Blend-Logik miteinander verbunden werden. Dabei muss Blending nicht immer nur zwei eigenständige komplexe Ergebnisse miteinander verbinden. Es kann auch dazu genutzt werden um bestehende Ergebnisse leicht abzuwandeln.
-
-Blending kann im ganzen Material Anwendung finden. Sowohl Höhen können manipuliert werden, als auch Farbwerte.
-
-
-#### UV-Manipulationen
-Viele Ergebnisse der Algorithmen sind für sich stehend oft zu perfekt oder bieten nicht die Nötige Abwechslung und Merkmale. Durch die Manipulation der UV können diese aber so abgewandelt werden um das auszugleichen. Als Beispiel ein zertretener Kaugummi: Nimmt man einen Kreis, manipuliert seine UV mit einer Rotation die durch eine Noise gesteuert wird, können Unregelmäßigkeiten erzeugt werden.
 
 
 
