@@ -69,18 +69,22 @@ Unfortunately there are no specific factors which will define the layers which a
 - similarities to shapes *(pebbles, knobs, nails, tiles)*
 - similarities to noise *(rusting metal, leather)*
 
-For demonstration I took a picture of the floor from a local Pub. The floor is quite old and therefore has a complex apereance. The first seperation is made by the planks, because:
+In general often the natural surface itself is already composed of different materials. This can have physical causes like leaves on the ground or screws in furniture, other times there are chemical reasons like oxidation. These causes are also good indicators where a surface can be separated into sub-surfaces. 
+
+For demonstration of the separation I took a picture of the floor from a local Pub. The floor is quite old and therefore has a complex appearance.
+
+![alt][Figure04]
+> *[Figure04] Left: Floor of a Pub; Mid: Separation by planks; Right: Separation by trampled gums*
+
+The first separation is made by the planks, because:
 - they break the continuity of the wood structure.
 - they control the main height of the surface.
-- the space left defines the area for dirt, together they cover the whole surface
+- the space left defines the area for dirt.
 - the arrangement and shape suits perfectly for tilling.
 
-![alt][SEP01]
-> *Left: Floor of a Pub, Mid: Seperation into planks, Right: Seperation into Gums*
-
-While the first seperation is oriented to the wood structure, the black dots on the floor apear to be independent to the plank strukture. This is because these dots are old trampled chewing gums. So a second seperation is made because the chewing gums:
+While the first separation is oriented to the wood structure, the black dots on the floor appear to be independent to the plank structure. This is because these dots are old trampled chewing gums. So a second separation is made because the chewing gums:
 - are not part of the plank or wood structure, they can overlap planks.
-- they are are a physical placed ontop of the floor.
+- they are are a physical placed on top of the floor.
 
 ## Visual properties
 The surface is now split into several layers of subsurfaces. To fill it with compelling information about color, height, and other properties required for the lighting model, the visual appearance of the surface must be disassembled. Properties which make a surface recognizable are easily seperatable, it nonetheless may be beneficial to know the reason why the properties are how they are. By gathering informations about the origin of properties themself, the properties can be transfered plausible to other related materials.
@@ -236,9 +240,9 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [Figure01]: ./img/earlyNoise.png
 [Figure02]: ./img/nodevember.jpg
 [Figure03]: ./img/pbrnpr.png
+[Figure04]: ./img/planks.png
 
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
-[SEP01]: ./img/planks.png
 [SEP02]: ./img/envi.png
 [WOD01]: ./img/wood.png
 [TLUV]: ./img/uv.png
