@@ -4,25 +4,22 @@
 # Abstract
 ...
 
-# Prerequisites
-This work requires basic understanding for fragment shaders.
-
 # Introduction
-Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today and essential for procedural texture generation, due to their appeareance which suits replicating natural properties.
+Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today and essential for procedural texture generation, due to their appearance which suits replicating natural properties.
 
-![alt][NOISE01]
-> *Images from papers. Left: Perlin noise [(P01)], Right: Worley noise [(W01)]*
+![alt][Figure01]
+> *[Figure01] Images from early papers; Left: Perlin noise [(P01)]; Right: Worley noise [(W01)]*
 
-In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Imlicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used imclicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
+In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Implicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used implicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
 
-Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural informations, because they work and behave like a fragment shader.
-These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The posibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependecies to textures or other external references.
+Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural information, because they work and behave like a fragment shader.
+These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The possibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependencies to textures or other external references.
 
-![alt][NODEV01]
-> *Procedural Materials in Blender, created for "Nodevember" with a sphere as base; By Simon Thommes 2019*
+![alt][Figure02]
+> *[Figure02] Procedural Materials in Blender, created for "Nodevember"; Made by Simon Thommes 2019*
 
-## Annotation
-By dealing with render applications, procedural texture generation and shaders, some terms can have a similar meaning and sound. Therefore important terms have to be defined to prevent misunderstandings.
+## Annotations
+By dealing with render applications, procedural texture generation and shaders, some terms can have similar meaning and sound. Therefore important terms and their meaning in this work have to be defined to prevent misunderstandings.
 
 ### Procedural
 The paper "A Survey of Procedural Noise Functions" gave following definition:
@@ -30,43 +27,47 @@ The paper "A Survey of Procedural Noise Functions" gave following definition:
 computer-generated model or effect." [(LLC01)]
 
 ### Texture
-Textures are images where a single or more informations about surface properties can be stored. Combined with the definition for "procedural", procedural textures are defined as: "A procedural texture is a computer-generated image created using an algorithm [...], instead of a digital painting or image processing application[...]" [(D01)]
+Textures are images where a single or more information about surface properties can be stored. Combined with the definition for "procedural", procedural textures are defined as: "A procedural texture is a computer-generated image created using an algorithm [...], instead of a digital painting or image processing application[...]" [(D01)]. These textures are then later used to drive the properties of the surface shader.
 
 ### Material
-TODO: Ich möchte hier die Bereiche von einem Material abdecken. Innerhalb von Engines wird ein Material als zusammenschluss aus Oberflächen informationen und Surface-Shader betrachtet. Aus meiner Sicht möchte ich aber das Wort Materials nur auf Oberflächen-EIgenschaften eingrenzen, da diese auch in anderen Surface-Shader verwendet werden können.
+Most render applications will use the term "material" for the combination of the used lighting model and the collection of information about the surface which should be drawn. In this work the term "material" will be used for the collection of information only, excluding the lighting model because the lightning model has only a minor influence to the process of replicating a surface in a procedurally manner.
 
-![alt][PBRNPR]
-> *Unterschiedliche Surface-Shader mit gleichem Material und Mesh. Links: PBR, Rechts: NPR*
+![alt][Figure03]
+> *[Figure03] Different lighting models, same material information; Right: Physical based (PBR); Left: Non-photorealistic (NPR)*
 
+As seen in the figure, with different lighting models the visual appearance of surfaces can change drastically, even if the offered properties are the same. The lightning model will influence the result of procedural materials which are gonna specially made for it, because specialized properties may have to be controlled by the material. Nonetheless this will not change the general approach of how to analyze and replicate surfaces. Used techniques and algorithms will stay the same, regardless which lightning model will process the information.
 
 
 ## Motivation
-While its possible to use and layer multiple algorithms in shader and interfaces of various applications, creating convincing procedural materials can be a tidious and complex task. Manipulating results of algorithms in the right manner relies on repetitive tasks and practical knowledge to get convincing results. While there many possibilities and freedom for manipulations and choice of algorithms, shader and interfaces will not enfoce or guide creators to a workflow of creating procedural materials. Additionally, the limitation that only implicit algorithms can be used, exclude post processing algorithms like blur, normal map generation from height or ambient occlusion, because they rely on neighbour informations.
+While its possible to use and layer multiple algorithms in shader and in interfaces of various render applications, creating procedural materials can be a tedious and complex task. Manipulating results of algorithms in the right manner relies on repetitive tasks and practical knowledge to get convincing results. While there many possibilities and creative freedom for manipulations and choice of algorithms, shader and interfaces in render applications will not enforce or guide creators to a workflow of creating procedural materials. In addition the limitation implicit algorithms can be used only, excludes post processing algorithms like blur, normal map generation from height or ambient occlusion, because they rely on neighbor information. These neighbor information can not be accessed within a shader without additional buffers. Buffers are not available in every render application and if, the usage of them will vary per application.
 
-## Ojective
-First a understanding for surfaces and their composition must be created. Therefore surfaces have to be analysed, how they can be decomposed in informations, layers, forms and pattern which then can be replicated by algorithms.
+## Objective
+First a understanding for real world surfaces and their composition must be created. Therefore they have to be analyzed, how they can be decomposed in distinct information, layers, forms and patterns. Which then can be replicated by algorithms.
 
-To know which algortihms are usefull and in which ways they can be used, a categorisation based on their task is created. This allows the extension and usage of algortihms of own choice.
+To know which algorithms are suited for procedural generation and which common use cases exist for them, a categorization based on their task is created. This allows the usage of algorithms of own choice and implementation.
 
-For reduced Trial-And-Error phases and guide creators to a structural process, a workflow and teqniques will be presented.
+To reduce Trial-And-Error phases and guide creators to a structural process, a workflow and techniques will be presented.
 
-Finally the analysis, categorisation, techniques and the capabilities of the workflow are tested by creating procedural textures with them and preseting their results.
+Finally the analysis, categorization, techniques and the capabilities of the workflow are tested by creating a procedural texture and documenting each step.
 
-Details about implementations of noise or other alogrithms will be not part of this work. As well as a performance analysis of algorithms or entire procedural materials.
+Details about implementation or specific algorithms will be not part of this work. As well as a performance analysis of algorithms or entire procedural materials.
 
 
 # Analysis of surfaces
-Through the analysis of a surface we will see that surfaces are often compositions of sub-surfaces. All informations how a surface is layered and how they are madeup is resued later by replicating them, suiting algorithms, order  and teqniques that are available in fragment shaders.
-
-The overall objective of the analysis should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric informations about the visual appearance, including height informations. To retrieve these informations, the analysis is carried out in three streps:
+The overall objective of the analysis should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric information about the visual appearance. To retrieve these information, the analysis is carried out in three steps:
 - Extracting surface layers
 - Visual properties
 - Environmental influences
+
+All information about the surface composition and visual features is reused later by replicating them with suiting algorithms, order and techniques that are available in fragment shaders.
 
 ## Level of Detail
 TODO: Beschreiben das nicht alles bis in das letzte Detail analysiert werden muss. Kommt darauf an wie detailverliebt das Material werden soll.
 
 ## Extracting surface layers
+
+By looking to natural surfaces they can bee seen as a composite of multiple sub-surfaces, separated physically. 
+
 Natural surfaces are build up from multiple real world materials, which work like layers in image editing softwares. Where through blending multiple layers the final image is created. For extracting surfaces into layers; pattern, noise and shape recognition is the key. While many surfaces may have a complex visual appeareance, shapes and patterns still appear on them. A hirachical aproach looking out for patterns and shapes is recomended because the depth of the analysis will differ by the required level of detail. Further a hierarchical separation ensures that created sub-materials can be reused in other materials. Indicators where and how surfaces can be seperated are:
 - natural given seperation due to manufaturing or creation *(e.g. bricks and mortar, solar panels)*
 - closeness to basic shapes *(pebbles, knobs, nails, tiles)*
@@ -174,6 +175,14 @@ Height should be represented as single value between zero and one. This will all
 
 DERIVING!
 
+## Distortions
+Shape and noise algorithms are a start for reasemble surface structures, but these algortihms may are to perfect or to uniform to replicate wanted surface structures. Structures in natural surfaces have often imperfections because pof various reasons as human failure or aging. While it is possible to implement deformation logic into the shape and noise algortihms themself, this is not recommended, this will limit the generating algorithm so specific usecases. To break the perfect uniform nature of noise and shape algorithms, their paramters can be manipulated with shapes or noises.
+
+![alt][IQFBM]
+> *manipulated UV with noise for noise: "f(p) = fbm(p + fbm(p + fbm(p)))" [(IQ03)]*
+
+Manipulating the UV with noise or other patterns can emulate unregularities of natural or manufatured surfaces. While manipulating the UV is one way, all other parameters can be manipulated in the same manner to, which will lead to unique results.
+
 ## Seed
 As mentioned earlier, the random number generator for procedural materials is based on hashing. Hasing needs an input to create pseudo random numbers. Noise uses this hashing for creating random values, incrementing the input for each new random value which is required. While this is fine and works perfectly, procedural materials will not make use of a single noise only, they will use a couple of them. Noise of diffrent kinds, scale, rotation or offset. The risk is, by using the same noise over and over can lead to coincidences by layering noises of the same kind. Another requirement within procedural materials is to break the continoius structure of noises to reassamble surfaces which are made of physically seperate but same kind of materials. To ensure the reuability of the algorithms and created sub-materials, every functions which uses hasing in any way should have a seed parameter. This parameter ensures the diversity of noises, materials and randomness. The parameter should also be inhertied by functions which make use of functions that require seed.
 
@@ -183,11 +192,23 @@ While noise is a essential part for procedural materials, noise is not only rest
 ![alt][COMPLEX]
 > *Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise from basic noises*
 
+```glsl
+float noise_complex(vec2 point, vec2 seed)
+{
+    float complex = 1.0;
+    for(int i = 0; i < 3; i++)
+    {
+        float noise = noise_perlin(point, seed++);
+        noise = noise_vallies(noise); // --> abs(noise * 2.0 -1.0)
+        complex = min(complex, noise);
+    }
+
+    return easing_power_out(complex, 3.0);
+}
+```
+> Code for the complex noise shown in figure
+
 There are no rules or limits when it comes to create new complex noises. In the figure above the complex noise pattern was created by using perlin noise, extracted the creases and took the minimum of three layers of them. Complex noises can reasamble patterns which existing on many surfaces like grunge  platter or crackels.
-
-## Distorting
-
-
 
 ## Imperfections
 By looking to surfaces from the real world, one thing they have all in common: They have all flaws in any way. This is what makes convincing and beliveable surfaces. Ment with flaws are impefections on the surfaces of any size. Examples of imperfections in surfaces are scratches, dents, discolorations, dust, fingerprints or human failure.
@@ -216,10 +237,10 @@ By looking to surfaces from the real world, one thing they have all in common: T
 
 
 
+[Figure01]: ./img/earlyNoise.png
+[Figure02]: ./img/nodevember.jpg
+[Figure03]: ./img/pbrnpr.png
 
-[PBRNPR]: ./img/pbrnpr.png
-[NOISE01]: ./img/noiseExamples.png
-[NODEV01]: ./img/nodevember.jpg
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
 [SEP01]: ./img/planks.png
 [SEP02]: ./img/envi.png
@@ -230,6 +251,7 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [TLSHAPE]: ./img/shape.png
 [TLEASE]: ./img/ease.png
 [COMPLEX]: ./img/complex.png
+[IQFBM]: ./img/iqfbm.jpg
 
 
 
@@ -277,8 +299,11 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [(IQ01)]: https://www.iquilezles.org/www/articles/warp/warp.htm
 > [(IQ01)]: *domain warping* | 2002 | Inigo Quilez
 
+[(IQ02)]: https://www.iquilezles.org/www/articles/warp/warp.htm
+> [(IQ02)]: *Warp* | 2002 | Inigo Quilez
+
 [(IQ02)]: https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-> [(IQ02)]: *2D distance functions* | ???? | Inigo Quilez
+> [(IQ03)]: *2D distance functions* | ???? | Inigo Quilez
 
 [(IQ03)]: https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
 > [(IQ03)]: *distance functions* | ???? | Inigo Quilez
