@@ -59,19 +59,15 @@ The overall objective of the analysis should not confound with building a physic
 - Visual properties
 - Environmental influences
 
-All information about the surface composition and visual features is reused later by replicating them with suiting algorithms, order and techniques that are available in fragment shaders.
-
-## Level of Detail
-TODO: Beschreiben das nicht alles bis in das letzte Detail analysiert werden muss. Kommt darauf an wie detailverliebt das Material werden soll.
+The extraction process is relying completely on pattern, noise and shape recognition. And the retrieved information about the surface composition and visual features is reused later by replicating them with suiting algorithms, order and techniques that are available in fragment shaders.
 
 ## Extracting surface layers
+By looking to natural surfaces they can bee seen as a composite of multiple sub-surfaces. By separating the surfaces into different layers of sub-surfaces, these layers are later reassembled in the same manner as image editing software does this through blending them into an final image. Indeed there will be no final image, as every point in the final rendered surface is arbitrary, the blending will result into a final point of information. A hierarchical approach looking out for layers is recommended, because first the depth of the analysis will differ by the required level of detail. Secondly, breaking a surface into a hierarchy of multiple layers makes them more clear and patterns are more recognizable. Further the hierarchical approach also ensures that replicated sub-materials can be reused in other materials.
 
-By looking to natural surfaces they can bee seen as a composite of multiple sub-surfaces, separated physically. 
-
-Natural surfaces are build up from multiple real world materials, which work like layers in image editing softwares. Where through blending multiple layers the final image is created. For extracting surfaces into layers; pattern, noise and shape recognition is the key. While many surfaces may have a complex visual appeareance, shapes and patterns still appear on them. A hirachical aproach looking out for patterns and shapes is recomended because the depth of the analysis will differ by the required level of detail. Further a hierarchical separation ensures that created sub-materials can be reused in other materials. Indicators where and how surfaces can be seperated are:
-- natural given seperation due to manufaturing or creation *(e.g. bricks and mortar, solar panels)*
-- closeness to basic shapes *(pebbles, knobs, nails, tiles)*
-- closeness to noise algorithms *(rusting metal, leather)*
+Unfortunately there are no specific factors which will define the layers which are a material is made of. But there are indicators that can help:
+- natural given separation due to manufacturing or creation *(e.g. bricks and mortar, solar panels)*
+- similarities to shapes *(pebbles, knobs, nails, tiles)*
+- similarities to noise *(rusting metal, leather)*
 
 For demonstration I took a picture of the floor from a local Pub. The floor is quite old and therefore has a complex apereance. The first seperation is made by the planks, because:
 - they break the continuity of the wood structure.
