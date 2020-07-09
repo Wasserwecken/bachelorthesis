@@ -10,7 +10,7 @@ Procedural texturing always has been a subject in computer graphics. Researchers
 ![alt][Figure01]
 > *[Figure01] Images from early papers; Left: Perlin noise [(P01)]; Right: Worley noise [(W01)]*
 
-In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardwareaccelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Implicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used implicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
+In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardware accelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Implicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used implicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
 
 Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural information, because they work and behave like a fragment shader.
 These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The possibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependencies to textures or other external references.
@@ -56,7 +56,7 @@ Details about implementation or specific algorithms will be not part of this wor
 # Analysis of surfaces
 The overall objective of the analysis should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric information about the visual appearance. To retrieve these information, the analysis is carried out in three steps:
 - Extracting surface layers
-- Visual properties
+- Visual properties of materials
 - Environmental influences
 
 The extraction process is relying completely on pattern, noise and shape recognition. And the retrieved information about the surface composition and visual features is reused later by replicating them with suiting algorithms, order and techniques that are available in fragment shaders.
@@ -84,25 +84,32 @@ The first separation is made by the planks, because:
 
 While the first separation is oriented to the wood structure, the black dots on the floor appear to be independent to the plank structure. This is because these dots are old trampled chewing gums. So a second separation is made because the chewing gums:
 - are not part of the plank or wood structure, they can overlap planks.
+- are made out of a different material than wood.
 - they are are a physical placed on top of the floor.
 
-## Visual properties
-The surface is now split into several layers of subsurfaces. To fill it with compelling information about color, height, and other properties required for the lighting model, the visual appearance of the surface must be disassembled. Properties which make a surface recognizable are easily seperatable, it nonetheless may be beneficial to know the reason why the properties are how they are. By gathering informations about the origin of properties themself, the properties can be transfered plausible to other related materials.
+## Visual properties of materials
+After separating a surface in multiple layers, visual properties about the isolated materials have to be extracted for recreation. Again a hierarchical approach is recommended, this time driven by the strikingness / obtrusiveness of visual features. By looking to the most strikingness / obtrusiveness features first, the material will be later immediate recognizable. And with the hierarchical approach will later match the workflow for reassembling a materials by iterating from rough to small details and features in the surface structure which are unnecessary for the required level of detail will be ignored.
 
-![alt][WOD01]
-> *Left: Plank of a floor in a Pub, Mid: ..., Right: ...*
+To extract features of a surface, recognizing patterns, shapes and noise are again important. Because later by reassembling the material, the materials themselves will be created by layers of and dependencies between the different extracted features. It is the same process as extracting layers. In [Figure04] the separation into layers has been shown. To continue the demonstration a single plank will be analyzed for recreating the wood material.
 
-For the floor from the pub by looking closer to the planks, the typical wood structure can be seen. The structure is made up visually by jiggly lines which are pushed away by darker spots. The physical explanation is that these lines are annual rings, and the darker sports are branches.
+![alt][Figure05]
+> *[Figure05] Left: Single plank of the floor; Mid: annual rings, Right: branches*
 
-TODO: Wie erkläre ich jetzt hier das das Wissen einen weiterbringt? War Holz ein schlechtes beispiel weil obvious? Bzw. das wissen ist ja übertragbar, aber jedes Holz sieht fast so aus.
+THe floor of the pub is made out of planks of wood. The two most recognizable features of wood are annual rings and branches. These features are definitely present in the reference photo and therefore they will be recreated later.  There would be many more features which can be extracted from the reference photo, but these two initial features are enough for a first approach of recreation. Also the depth of the analysis can be adjusted while reassembling the material. These processes can run in parallel. If the material will later lack of detail to match the required level, the analysis will be continued where it stopped before. This is another advantage of analyzing surfaces in a hierarchical manner.
 
 ## Environmental influences
-While a surface can be seperated into layers, and the materials which made up the layers are treated seperatly, the surfaces still exists in the environment as single surface. This means the environment where the surface exists has a strong influence to it. The best example are the trampled chewing gums from the pub floor. This property of this specific floor is based on the location. A wodden floor in a living room may not have this proeprty. But there is another property of the pub floor where additional inforation about the location is needed to see and replicate it: The floor is located in a smoking area. Also the floor has all over like "freckles". After a close inspection, these freckles are burned spots from thrown away and trampled cigarett ends.
+While a surface can be separated into layers, and the materials which made up the layers are treated separately, the surfaces still exists in the environment as a single instance. This means the environment where the surface exists has a strong influence to it. The best example are the trampled chewing gums on the floor. This is because the floor is located in a public place, a wooden floor in a living room may not have the feature of trampled gums.
 
-![alt][SEP02]
-> *Left: Plank of a floor in a Pub, Mid: burned spots from trampled cigarett ends, Right: color variation due to spilled liquids*
+Visual features which may appear at first glance inexplicable often can be explained by looking though the history of an surface. Environmental influences are the factors which make materials finally believable. Thinking of possible chemical and physical interactions and their duration through time will give a procedural materials the final touch. This cannot only applied to reference photos, this knowledge can also applied factionary to any surface to mimic a surface in a specific environment.
 
-Environmental influences have are the factors which make materials finnaly beliveable. Thinking of possible chemical and physical interactions and their duration through time will give a procedural materials the final touch. Therefore it is important of gatherin information about location and story of the environment where the material have to be placed.
+As mentioned early, the floor in the pub is no exclusion to that and environmental influences took place in the visual appearance.
+
+![alt][Figure06]
+> *[Figure06] Left: Floor in a Pub; Mid: burned spots from trampled cigarettes; Right: color variation due to spilled liquids*
+
+Another information about the environment is that the floor is located in a smoking area. And in the reference photo there are all over small dark points like "freckles" on the floor. After a close inspection, these freckles are burned spots from thrown away and trampled cigarettes.
+
+Another information which is obvious in a pub is the possibility of spilled liquids. These liquids cannot be wiped away immediately, so the liquid will be soaked up from the floor. This leads to discolorations.
 
 
 # Toolbox of algorithms
@@ -241,10 +248,10 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [Figure02]: ./img/nodevember.jpg
 [Figure03]: ./img/pbrnpr.png
 [Figure04]: ./img/planks.png
+[Figure05]: ./img/wood.png
+[Figure06]: ./img/envi.png
 
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
-[SEP02]: ./img/envi.png
-[WOD01]: ./img/wood.png
 [TLUV]: ./img/uv.png
 [TLNOISE]: ./img/noise.png
 [TLHASH]: ./img/hash.png
