@@ -107,26 +107,22 @@ As mentioned early, the floor in the pub is no exclusion to that and environment
 ![alt][Figure06]
 > *[Figure06] Left: Floor in a Pub; Mid: burned spots from trampled cigarettes; Right: color variation due to spilled liquids*
 
-Another information about the environment is that the floor is located in a smoking area. And in the reference photo there are all over small dark points like "freckles" on the floor. After a close inspection, these freckles are burned spots from thrown away and trampled cigarettes.
-
-Another information which is obvious in a pub is the possibility of spilled liquids. These liquids cannot be wiped away immediately, so the liquid will be soaked up from the floor. This leads to discolorations.
+Another information about the environment is that the floor is located in a smoking area. And in the reference photo there are all over small dark points like "freckles" on the floor. After a close inspection, these freckles are burned spots from thrown away and trampled cigarettes. Another information which is obvious in a pub is the possibility of spilled liquids. These liquids cannot be wiped away immediately, so the liquid will be soaked up from the floor. This leads to discolorations.
 
 
 # Toolbox of algorithms
-To use and replicate information from the analysis, an overview of the technical possibilities needs to be created. Therefore available algorithms and mathematical functions will be categorised by their tasks. This is done because interfaces in render applications have diffrent predefined algorithms and functions or they missing. Additionally the categorysation enables adding and changing algorithms to your own needs. The categorization will work like a toolbox with which defined tasks have to be solved. However, the tools contained therein can be selected by yourself.
+By creating materials for this thesis, several algorithms have been collected for different purposes. The collection resulted into a small library of GLSL functions dedicated to create procedural materials. While collecting algorithms, categories evolved over time which represented the purpose of the algorithms. These categories showed to cover all the tasks of procedural texturing. Categorizing algorithms about their task has also other advantages. A categorization allows to use algorithms of own choice and implementation. This is important because each render application interface will provide a different subset of algorithms in availability and implementation. With the categorization the subset can be extended to match later the workflow of creating procedural materials. Overall the categorization will work like a toolbox with which defined tasks have to be solved. However, the tools contained therein can be selected by yourself.
 
-By creating materials for this thesis, i have collected many algorithms for diffrent purposes. This collection resulted into a small framework of GLSL functions dedicated for creating procedural materials. By collecting algorithms and creating materials, categories for algorithms has been automatically evolved. These categories showed to cover most algorithms and tasks.
-
-## Math
-Baisc mathematical methods like "floor", "absolute" or "sinus" are essential general in shaders. For procedural materials every algorithm will be based on these methods. Theire also really usefull when it comes to modifying results from algorithms.
+## Basic math
+Basic mathematical methods like "floor", "absolute" or "sinus" are essential general in shaders. Every algorithms will rely on their ability to either break or create gradients. But their not only useful when it comes to create powerful complex algorithms, using basic mathematic functions to process results from previous calculations and algorithms will be a common task too. Many results later will be represented through a one dimensional value between 0 and 1, therefore these algorithms can be easily applied.
 
 ## UV
-The UV are texture coordinates for the underlying mesh which is usually used to access textures. Manipulating the UV enables changes like rotation or tilling. For creating procedural materials within fragment shader the UV has a extraordinary meaning. First all generative algorithms like noise or shapes are implicit, the UV represents the arbitrary point for their input.
+The UV, better known as texture coordinates, are as essential for procedural materials as basic math functions. The UV's basically defines the space where and how any information is is drawn. Due to this meaning of UV's, manipulating them has a huge influence to the results of algorithms. First basic transformations as translate, rotate and scaling are achieved by manipulations to the UV. Otherwise these transformations have to be implemented in every single generative algorithm, which is not recommended and creates unnecessary redundancy. Another advantage about manipulating the UV with dedicated algorithms is the option to reuse the manipulated UV for subsequent algorithms.
 
-By influencing the UV, the results of algorithms can be pushed to results which would otherwise result in an inefficent implentation. In general the UV gives access to any modification as simple as well as complex ones, which will take effect regardless of the algorithms that are using it.
+![alt][Figure07]
+> *[Figure07] Left: UV manipulations; Right: rectangle with same size and position drawn with UV's from left*
 
-![alt][TLUV]
-> *Left: uv manipulations; Right: rectangle with same size and position drawn with UV's from left*
+Besides transforming the UV, there are other important manipulations which should be named. Often surfaces have repetitive shapes or patterns. These can be replicated by tilling the UV. Tilling is showed in [Figure07], middle row first column. With tilling the UV will be splitted into independent repetitive UV's. Another useful kind of manipulation is to change the mapping of the coordinates itself. By default the UV represents a cartesian coordinate system. By converting the system into another one, like the polar coordinate system, some desired shapes or patterns may can be achieved more easily. The affect of the polar coordinate system to a basic shape is also shown in [Figure7], bottom row, second column.
 
 ## Noise
 Surfaces in the real world are often characterized by random patterns,  distributions or other features represented in color, height or other properties. To mimic the randomness in nature noise are the perfect tool.
@@ -250,9 +246,9 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [Figure04]: ./img/planks.png
 [Figure05]: ./img/wood.png
 [Figure06]: ./img/envi.png
+[Figure07]: ./img/uv.png
 
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
-[TLUV]: ./img/uv.png
 [TLNOISE]: ./img/noise.png
 [TLHASH]: ./img/hash.png
 [TLSHAPE]: ./img/shape.png
