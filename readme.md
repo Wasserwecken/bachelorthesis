@@ -127,13 +127,13 @@ Besides transforming the UV, there are other important manipulations which shoul
 ## Noise
 Surfaces in the real world are often characterized by random patterns,  distributions or other features represented in color, height or other properties. To mimic the randomness in nature noise are the perfect tool.
 
-### Hashing as random nunmber generator
-The base of all noise algorithms and random distribution is the access to a random number generator (RNG). While true randomness is hard to achive with computers, it is even undesirable for creating noise. A RNG for procedural materials has to be unpredictable and reproducable at the same time. This is necessary because random values have to be restored, e.g. accessing the value neighbour points in a lattice.
+### Hashing as random number generator
+The base of all noise algorithms and random distribution is the access to a random number generator (RNG). While true randomness is hard to achieve with computers, it is even undesirable for creating noise. A RNG for procedural materials has to be unpredictable and reproducible at the same time. This is necessary because random values have to be restored, e.g. accessing the value neighbor points in a lattice.
 
-![alt][TLHASH]
-> *White noise; Left to right: 1D, 2D, 3D; Bottom to top: Scaled uv with x0.0001, x1.0, x1000*
+![alt][Figure08]
+> *[Figure08] White noise; Left to right: 1D, 2D, 3D; Bottom to top: Scaled by x0.0001, x1.0, x1000.0*
 
-Hashing is the perfect solution to be used as RNG, because the results are unpredictable but still controllable by the input. The result of a such a noise functions is named "white noise". By looking for hash functions, not any function can be used. The hash algorithms should be consistent over the range of UV scale used in the procedural material. As seen in the figure, the randomness of hash algorithms can break in extreme scales. There is a good listing in the book "Texture & Modeling A procedural approach" of other properties that a hash algorithms have to meet to be used as RNG ("noise" in the quote is refered to be white noise):
+Hashing is the perfect solution to be used as RNG, because the results are unpredictable but still controllable by the input. The result of a such a noise functions is named "white noise". By looking for hash functions, not any function can be used. The hash algorithms should be consistent over the range of UV scale used in the procedural material. As seen in the figure, the randomness of hash algorithms can break in extreme scales. There is a good listing in the book "Texture & Modeling A procedural approach" of other properties that a hash algorithms have to meet to be used as RNG ("noise" in the quote is referred to be white noise):
 
 "The properties of an ideal noise function are as follows:
 - noise is a repeatable pseudorandom function of its inputs.
@@ -247,10 +247,10 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [Figure05]: ./img/wood.png
 [Figure06]: ./img/envi.png
 [Figure07]: ./img/uv.png
+[Figure08]: ./img/hash.png
 
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
 [TLNOISE]: ./img/noise.png
-[TLHASH]: ./img/hash.png
 [TLSHAPE]: ./img/shape.png
 [TLEASE]: ./img/ease.png
 [COMPLEX]: ./img/complex.png
