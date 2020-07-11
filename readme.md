@@ -125,10 +125,10 @@ The UV, better known as texture coordinates, are as essential for procedural mat
 Besides transforming the UV, there are other important manipulations which should be named. Often surfaces have repetitive shapes or patterns. These can be replicated by tilling the UV. Tilling is showed in [Figure07], middle row first column. With tilling the UV will be splitted into independent repetitive UV's. Another useful kind of manipulation is to change the mapping of the coordinates itself. By default the UV represents a cartesian coordinate system. By converting the system into another one, like the polar coordinate system, some desired shapes or patterns may can be achieved more easily. The affect of the polar coordinate system to a basic shape is also shown in [Figure7], bottom row, second column.
 
 ## Noise
-Surfaces in the real world are often characterized by random patterns,  distributions or other features represented in color, height or other properties. To mimic the randomness in nature noise are the perfect tool.
+Noise algorithms are the element which enables reassembling unpredictable patterns or random distributions on surfaces. There are two kinds of algorithms for this category. The first are algorithms that will work as pseudo random number generators (RNG), the second are the noise algorithms themselves which rely on the RNG's to create unpredictable still repetitive gradients.
 
 ### Hashing as random number generator
-The base of all noise algorithms and random distribution is the access to a random number generator (RNG). While true randomness is hard to achieve with computers, it is even undesirable for creating noise. A RNG for procedural materials has to be unpredictable and reproducible at the same time. This is necessary because random values have to be restored, e.g. accessing the value neighbor points in a lattice.
+The base of all noise algorithms and random distributions is the access to a random number generator (RNG). While true randomness is hard to achieve with computers, it is even undesirable for creating procedural noise. A RNG for procedural materials has to be unpredictable and reproducible at the same time. Often algorithms need to restore random values e.g. accessing the value of neighbor points in a lattice.
 
 ![alt][Figure08]
 > *[Figure08] White noise; Left to right: 1D, 2D, 3D; Bottom to top: Scaled by x0.0001, x1.0, x1000.0*
@@ -144,13 +144,13 @@ Hashing is the perfect solution to be used as RNG, because the results are unpre
 - noise is isotropic—that is, its statistical character should be rotationally
 invariant."[(EMP01)]
 
-### Noise and fractal brownian motion
-As mentioned early, surfaces appear to have random but still repetitive patterns. To mimic these features several noise algorithms have been created. The most iconic ones are perlin noise[(P01)] and voronoi nosie[(W01)] as seen in the introduction. The paper "A Survey of Procedural Noise Functions" [(LLC01)] gives a good insight about noises and their types. But not every noise can be implemented in a fragment shader without buffer. Anyway noise can replicate natural features and there are diffrent algorithms for diffrent apereances.
+### Noise base functions
+Base functions of noise are considered as functions which create repetitive unpredictable gradients by interpolating random numbers. The paper "A Survey of Procedural Noise Functions" [(LLC01)] gives a good insight about the noises themselves and a categorization of their types. The may most known algorithms are perlin noise[(P01)] and voronoi noise (also known as cellular noise)[(W01)].
 
-![alt][TLNOISE]
-> *Several noises; Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi; Left: pure noise; Right: with fractal brownian motion*
+![alt][Figure09]
+> *[Figure09] Several noises; Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi; Left: pure noise; Right: fractal brownian motion based on left sided algorithms*
 
-While noise algorithms result into unpredictable but still regular patterns, the output tends to lack of details. This is the case because noise algorithms will produce random values based on a single frequency. With fractal brownian motion details within the noises can be created, by adding multiple frequencies with diffrent weights. This can be aplied to any noise algorithm.
+As shown in [Figure09] the visual appearance of noise can be very different. This is useful in terms of mimicking different natural patterns, where some algorithms are better suited than other. Another consideration of collecting algorithms besides the visual appearance is their application in different dimensions than 2D. One dimensional noises are quite useful when it comes to created color gradients. Their result could either be used to mix defined colors, or their results could control a single color channel. A good example of controlling color channels was made by Inigo Quilez where he used a single  offsetted and scaled cosines function for each channel [IQ04].
 
 ## Shapes
 While surfaces often have natural unpredictable patterns, there are also geometric patterns in nature, like stone weaving, leafs or pebbles. Especially man-made surfaces like walls, floors or windows showing gemetric shapes.
@@ -248,9 +248,9 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [Figure06]: ./img/envi.png
 [Figure07]: ./img/uv.png
 [Figure08]: ./img/hash.png
+[Figure09]: ./img/noise.png
 
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
-[TLNOISE]: ./img/noise.png
 [TLSHAPE]: ./img/shape.png
 [TLEASE]: ./img/ease.png
 [COMPLEX]: ./img/complex.png
@@ -310,6 +310,9 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(IQ03)]: https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
 > [(IQ03)]: *distance functions* | ???? | Inigo Quilez
+
+[(IQ04)]: https://iquilezles.org/www/articles/palettes/palettes.htm
+> [(IQ04)]: *palettes* | 1999 | Inigo Quilez
 
 [(K01)]: https://www.khronos.org/opengl/wiki/Fragment_Shader
 > [(K01)]: *Fragment Shader* | 2020 | Khronos Group
