@@ -2,7 +2,7 @@
 
 
 # Abstract
-...
+TODO: Muss noch geschrieben werden
 
 # Introduction
 Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today and essential for procedural texture generation, due to their appearance which suits replicating natural properties.
@@ -217,7 +217,7 @@ float noise_complex(vec2 point, vec2 seed)
 [Figure13] shows a complex noise which was generated combining the results of base noise functions. This noise also used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a great selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
 
 ## Imperfections
-TODO: besser ausformulieren!
+TODO: ausformulieren!
 By looking to surfaces from the real world, one thing they have all in common: They have all flaws in any way. This is what makes convincing and beliveable surfaces. Ment with flaws are impefections on the surfaces of any size. Examples of imperfections in surfaces are scratches, dents, discolorations, dust, fingerprints or human failure.
 
 # Applied surface recreation
