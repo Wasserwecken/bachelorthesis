@@ -148,24 +148,25 @@ invariant."[(EMP01)]
 Base functions of noise are considered as functions which create repetitive unpredictable gradients by interpolating random numbers. The paper "A Survey of Procedural Noise Functions" [(LLC01)] gives a good insight about the noises themselves and a categorization of their types. The may most known algorithms are perlin noise[(P01)] and voronoi noise (also known as cellular noise)[(W01)].
 
 ![alt][Figure09]
-> *[Figure09] Several noises; Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi; Left: pure noise; Right: fractal brownian motion based on left sided algorithms*
+> *[Figure09] Several noises; Left to right: 1D, 2D, 3D; Bottom to top: value, perlin, voronoi; Left: pure noise; Right: fractal Brownian motion based on left sided algorithms*
 
 As shown in [Figure09] the visual appearance of noise can be very different. This is useful in terms of mimicking different natural patterns, where some algorithms are better suited than other. Another consideration of collecting algorithms besides the visual appearance is their application in different dimensions than 2D. One dimensional noises are quite useful when it comes to created color gradients. Their result could either be used to mix defined colors, or their results could control a single color channel. A good example of controlling color channels was made by Inigo Quilez where he used a single  offsetted and scaled cosines function for each channel [IQ04].
 
 ## Shapes
-While surfaces often have natural unpredictable patterns, there are also geometric patterns in nature, like stone weaving, leafs or pebbles. Especially man-made surfaces like walls, floors or windows showing gemetric shapes.
-To replicate geometric features, algorithms for shapes are necessary. Most of geometric patterns in surfaces can be replicated with basic shapes like circles or rectangles, even if there have a complex apereance. Shapes are gonna be used as template which then later are manipulated or composed to complex shapes.
+While noise algorithms are utilized to mimic unpredictable surface structures, shape algorithms are the complementary solution for geometric structures. These structures will appear likely on man-made surfaces like rooftops or fabrics. But also natural surfaces can show derivatives of geometric forms like leaves or pebbles in mud. To mimic geometric features, algorithms for basic shapes are needed. These algorithms should produce, like noise algorithms, a single value within the range of 0 and 1. Not every complex geometric shape has to be implemented as algorithm. They can be often reassembled by combining basic shapes with boolean operations as subtraction, intersection and union.
 
-![alt][TLSHAPE]
-> *Left: various shapes with blur; Right: Distance fields*
+![alt][Figure10]
+> *[Figure10] Left: various shapes with blur; Right: Distance fields*
 
-As mentioned before, the usage of shapes later is replicating geometric patterns. These patterns can result in informations like height or color. And often these patterns have transitions. To support these transitions the algorithms which create the shapes are required to have a blur parameter. Unfortunately this has to be done within the shape generation, because after the generation there is no way to blur a shape or information without access to its neighbours, and in shaders this access is missing. To enable bluring shapes, distance functions fulfilling this requirement the most. With a distance field, the area of the shape and its blur can be set by steping the distance. Inigo Quilez made a nice listening of several distance functions in 2D and 3D space on his website [(IQ02)].
+An important feature which every shape algorithm has to provide is blur, as shown in [Figure10]. Unfortunately this has to be done within the shape generation, because after the generation there is no way to blur a shape or information without access to neighbor information, which is not given in shader. Blurring shapes is essential for creating procedural materials, because geometric shapes, like noise, have transitions that are represented in various features of a surfaces, where a transition into another height or color is needed. Without blur there would be an instantaneous change in information which do not reflect most surfaces. To provide blurring basic shapes, using a distance field as base is recommended, because then only the start and end point of the transition has to be given. Inigo Quilez made a nice listening of several distance functions in 2D and 3D space on his website [(IQ02)]. Another detail for blurring shapes which should be noticed is that the blur should be linear. A linear gradient will make modifications to the transition distribution easier and exchangeable.
 
 ## Easing
-Easing functions may be well known from web programming or animations. Easing functions provide a elegant way to change the distribution of linear interpolation. Easing functions in procedural materials are used to modify height interformations or change the transitions in blending.
+Manipulating values is a common element for creating procedural materials. Usually the result of shape and noise algorithms are in the range between 0 and 1. To utilize these results, often their range or distribution has to be adjusted to achieve desired results. This can be either done by scaling and offsetting the result for simple adjustments or the result can be manipulated through easing functions where the results can be very distinguishable from the original input.
 
-![alt][TLEASE]
-> *Left to right, bottom to top: Exponential, Power, Sinus, Circular*
+![alt][Figure11]
+> *[Figure11] Left: Left to right, bottom to top: Exponential, Power, Sinus, Circular; Right: blurred circle as displacement and color with applied easing*
+
+Easing is a well known technique for animations to improve linear interpolation between keyframes to emphasize them. Many algorithms, as mentioned before, will also have gradients within a fixed range. These functions are perfect suited to recreate information like color, height (showed in [Figure11]), basically wherever transitions are.
 
 
 # Workflow
@@ -198,8 +199,8 @@ Fractal Brownian motion (fBm) is a well known approach to combine multiple frequ
 ### Noise by Noise
 The base noise algorithms, even extended by fBm, may do not cover all cases of  unpredictable patterns. To extend the toolbox of noises even more, noise can be combined in any way to create new complex noises for reassembling grunge or other surface features.
 
-![alt][Figure10]
-> *[Figure10] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise by base noise functions*
+![alt][FigureXY]
+> *[FigureXY] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise by base noise functions*
 
 ```glsl
 float noise_complex(vec2 point, vec2 seed)
@@ -217,7 +218,7 @@ float noise_complex(vec2 point, vec2 seed)
 ```
 > Code for the complex noise shown in figure
 
-[Figure10] shows a complex noise which was generated combining the results of base noise functions. This noise also used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a great selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
+[FigureXY] shows a complex noise which was generated combining the results of base noise functions. This noise also used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a great selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
 
 
 ## Imperfections
@@ -256,11 +257,11 @@ By looking to surfaces from the real world, one thing they have all in common: T
 [Figure07]: ./img/uv.png
 [Figure08]: ./img/hash.png
 [Figure09]: ./img/noise.png
-[Figure10]: ./img/complex.png
+[Figure10]: ./img/shape.png
+[FigureXY]: ./img/complex.png
+[Figure11]: ./img/ease.png
 
 >[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
-[TLSHAPE]: ./img/shape.png
-[TLEASE]: ./img/ease.png
 [IQFBM]: ./img/iqfbm.jpg
 
 
