@@ -4,6 +4,39 @@
 # Abstract
 TODO: Muss noch geschrieben werden
 
+# Content
+- Introduction
+    - Annotations
+        - Procedural
+        - Texture
+        - Material
+    - Motivation
+    - Objective
+- Analysis of surfaces
+    - Extracting surface layers
+    - Visual properties of materials
+    - Environmental influences
+- Toolbox of algorithms
+    - Basic math
+    - UV
+    - Noise
+        - Hashing as random number generator
+        - Noise base functions
+    - Shapes
+    - Easing
+- Workflow
+    - Height first
+    - Distorting parameters
+    - Seed
+    - Make more noise
+        - Fractal Brownian motion
+        - Noise by Noise
+    - Imperfections
+- Applied surface recreation
+- Conclusion
+- References
+
+
 # Introduction
 Procedural texturing always has been a subject in computer graphics. Researchers sought for algorithms and improvements to synthesize textures to represent natural looking surfaces. Early algorithms as Perlin-Noise [(P01)] or Worley-Noise [(W01)] are still present today and essential for procedural texture generation, due to their appearance which suits replicating natural properties.
 
@@ -235,7 +268,7 @@ TODO: Muss noch geschrieben werden. Aber das Ergbnis steht schon grob fest:
 
 
 
-# Literatur
+# References
 [(LLC01)]: https://lirias.kuleuven.be/retrieve/126051
 > [(LLC01)]: *A survey of procedural noise functions* | 2010 | A. Lagae, S. Lefebvre, R. Cook, T. DeRose, G. Drettakis, D.S. Ebert,
 J.P. Lewis, K. Perlin, M. Zwicker
