@@ -13,7 +13,7 @@ Procedural texturing always has been a subject in computer graphics. Researchers
 In the early ages of procedural texture generation, algorithms and renderers where executed on the CPU. But now, "With the ever increasing levels of performance for programmable shading in GPU architectures, hardware accelerated procedural texturing in GLSL is now becoming quite useful[...]" [(G01)]. Implicit algorithms, where a query for information about a arbitrary point is evaluated, suiting perfectly the conditions for fragment shaders, because it's task is to return the color of a arbitrary pixel without knowledge about it's neighbors [(K01)]. Some Algorithms like Perlin-Noise already defined implicit. Other Algorithms may need some modifications to be used implicit, e.g. rendering shapes, where distance fields can be used to represent them implicit [(IQ02)], [(IQ03)]. But as concluded in the quoted paper from Gustavson: "[...] modern shader-capable GPUs are mature enough to render procedural patterns at fully interactive speeds [...]" [(G01)].
 
 Today, a variety of modern 3D applications like  "Blender" [(BLE01)], "Unity 3D" [(UNI01)], "Unreal Engine" [(UNR01)] or "Cinema 4D" [(CIN01)] offering a interface to the attached renderer to handle the shading of objects in a modular manner, as proposed in the paper "shade trees" [(C01)]. While these interfaces enabling modifications to shading, it also enables generating procedural information, because they work and behave like a fragment shader.
-These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The possibilities of these interfaces can been pushed so far that convincing and abstract Surfaces can be created with them, without dependencies to textures or other external references.
+These interfaces already take advantage of this architecture and shipping with a variety of predefined algorithms to hide the complexity of those, like noise generation or UV projection. The possibilities of these interfaces can pushed so far that convincing and abstract Surfaces can be created with them, without dependencies to textures or other external references.
 
 ![alt][Figure02]
 > *[Figure02] Procedural Materials in Blender, created for "Nodevember"; Made by Simon Thommes 2019*
@@ -50,7 +50,7 @@ To reduce Trial-And-Error phases and guide creators to a structural process, a w
 
 Finally the analysis, categorization, techniques and the capabilities of the workflow are tested by creating a procedural texture and documenting each step.
 
-Details about implementation or specific algorithms will be not part of this work. As well as a performance analysis of algorithms or entire procedural materials.
+The order of the named objectives will also represent the following structure of this thesis. Details about implementation or specific algorithms will be not part of this work. As well as a performance analysis of algorithms or entire procedural materials.
 
 
 # Analysis of surfaces
@@ -62,14 +62,14 @@ The overall objective of the analysis should not confound with building a physic
 The extraction process is relying completely on pattern, noise and shape recognition. And the retrieved information about the surface composition and visual features is reused later by replicating them with suiting algorithms, order and techniques that are available in fragment shaders.
 
 ## Extracting surface layers
-By looking to natural surfaces they can bee seen as a composite of multiple sub-surfaces. By separating the surfaces into different layers of sub-surfaces, these layers are later reassembled in the same manner as image editing software does this through blending them into an final image. Indeed there will be no final image, as every point in the final rendered surface is arbitrary, the blending will result into a final point of information. A hierarchical approach looking out for layers is recommended, because first the depth of the analysis will differ by the required level of detail. Secondly, breaking a surface into a hierarchy of multiple layers makes them more clear and patterns are more recognizable. Further the hierarchical approach also ensures that replicated sub-materials can be reused in other materials.
+By looking to natural surfaces they can been seen as a composite of multiple sub surfaces. By separating the surfaces into different layers of sub-surfaces, these layers are later reassembled in the same manner as image editing software does this through blending them into an final image. Indeed there will be no final image, as every point in the final rendered surface is arbitrary, the blending will result into a final point of information. A hierarchical approach looking out for layers is recommended, because first the depth of the analysis will differ by the required level of detail. Secondly, breaking a surface into a hierarchy of multiple layers makes them more clear and patterns are more recognizable. Further the hierarchical approach also ensures that replicated sub-materials can be reused in other materials.
 
-Unfortunately there are no specific factors which will define the layers which are a material is made of. But there are indicators that can help:
+Unfortunately there are no specific factors which will define the layers which a material is made of. But there are indicators that can help:
 - natural given separation due to manufacturing or creation *(e.g. bricks and mortar, solar panels)*
 - similarities to shapes *(pebbles, knobs, nails, tiles)*
 - similarities to noise *(rusting metal, leather)*
 
-In general often the natural surface itself is already composed of different materials. This can have physical causes like leaves on the ground or screws in furniture, other times there are chemical reasons like oxidation. These causes are also good indicators where a surface can be separated into sub-surfaces. 
+In general most natural surfaces themselves are already composed of different materials. This can have physical causes like leaves on the ground or screws in furniture, other times there are chemical reasons like oxidation. These causes are also good indicators where a surface can be separated into sub-surfaces. 
 
 For demonstration of the separation I took a picture of the floor from a local Pub. The floor is quite old and therefore has a complex appearance.
 
@@ -85,20 +85,20 @@ The first separation is made by the planks, because:
 While the first separation is oriented to the wood structure, the black dots on the floor appear to be independent to the plank structure. This is because these dots are old trampled chewing gums. So a second separation is made because the chewing gums:
 - are not part of the plank or wood structure, they can overlap planks.
 - are made out of a different material than wood.
-- they are are a physical placed on top of the floor.
+- they are a physical placed on top of the floor.
 
 ## Visual properties of materials
-After separating a surface in multiple layers, visual properties about the isolated materials have to be extracted for recreation. Again a hierarchical approach is recommended, this time driven by the strikingness / obtrusiveness of visual features. By looking to the most strikingness / obtrusiveness features first, the material will be later immediate recognizable. And with the hierarchical approach will later match the workflow for reassembling a materials by iterating from rough to small details and features in the surface structure which are unnecessary for the required level of detail will be ignored.
+After separating a surface in multiple layers, visual properties about the isolated materials have to be extracted for recreation. Again a hierarchical approach is recommended, this time driven by the strikingness / obtrusiveness of visual features. By looking to the most strikingness / obtrusiveness features first, the material will be later immediate recognizable. And the hierarchical approach will match the workflow for reassembling materials by iterating from rough to small details and features in the surface structure which are unnecessary for the required level of detail will be ignored.
 
-To extract features of a surface, recognizing patterns, shapes and noise are again important. Because later by reassembling the material, the materials themselves will be created by layers of and dependencies between the different extracted features. It is the same process as extracting layers. In [Figure04] the separation into layers has been shown. To continue the demonstration a single plank will be analyzed for recreating the wood material.
+To extract features of a surface, recognizing patterns, shapes and noise are again important. Because later by reassembling the material, the materials themselves will be created by layers of and dependencies between the different extracted features. It is the same process as extracting layers, showed by [Figure04]. To continue the demonstration a single plank will be analyzed for recreating the wood material.
 
 ![alt][Figure05]
 > *[Figure05] Left: Single plank of the floor; Mid: annual rings, Right: branches*
 
-THe floor of the pub is made out of planks of wood. The two most recognizable features of wood are annual rings and branches. These features are definitely present in the reference photo and therefore they will be recreated later.  There would be many more features which can be extracted from the reference photo, but these two initial features are enough for a first approach of recreation. Also the depth of the analysis can be adjusted while reassembling the material. These processes can run in parallel. If the material will later lack of detail to match the required level, the analysis will be continued where it stopped before. This is another advantage of analyzing surfaces in a hierarchical manner.
+The floor of the pub is made of wooden planks. The two most recognizable features of wood are annual rings and branches, which are definitely present in the reference photo. There would be many more features which can be extracted from the reference photo, but the two initial features, annual rings and branches, are enough for a first approach / iteration of recreation. Also the depth of the analysis can be adjusted while reassembling the material. These processes can run in parallel. If the material will later lack of detail to match the required level, the analysis will be continued where it stopped before. This is another advantage of analyzing surfaces in a hierarchical manner.
 
 ## Environmental influences
-While a surface can be separated into layers, and the materials which made up the layers are treated separately, the surfaces still exists in the environment as a single instance. This means the environment where the surface exists has a strong influence to it. The best example are the trampled chewing gums on the floor. This is because the floor is located in a public place, a wooden floor in a living room may not have the feature of trampled gums.
+While a surface can be separated into layers, and the materials which made up the layers are treated separately, the surfaces still is present as single surface in the environment. This means the environment where the surface exists has a strong influence to it, the trampled chewing gums on the floor as example are a result of an environmental influence. This is because the floor is located in a public place, a wooden floor in a living room may not have the feature of trampled gums.
 
 Visual features which may appear at first glance inexplicable often can be explained by looking though the history of an surface. Environmental influences are the factors which make materials finally believable. Thinking of possible chemical and physical interactions and their duration through time will give a procedural materials the final touch. This cannot only applied to reference photos, this knowledge can also applied factionary to any surface to mimic a surface in a specific environment.
 

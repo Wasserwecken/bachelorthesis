@@ -1,0 +1,2 @@
+- Implizit erklären?
+- Aufzählungen standarisieren
