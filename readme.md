@@ -170,22 +170,20 @@ Easing is a well known technique for animations to improve linear interpolation 
 
 
 # Workflow
-By creating procedural materials, algorithms are often used in a repetitive or specific manner to achive certain results. Teqniques and aproaches which help creating procedural materials will be part of this section.
+Creating procedural materials, algorithms are often used in a repetitive or specific manner to achieve certain results. Techniques and approaches which help creating materials will be part of this section.
 
 ## Height first
-The most visually perceptible characteristic of surfaces is height. Height influences distortions in reflections, the amount of recived light, ambient occlusion, selfshadowing and more. Therefore it is a good practice to start off with height first to get all details right which will end in a more belivable material.
+The most visually perceptible characteristic of surfaces is height. Height influences distortions of reflections, the amount of received light, ambient occlusion, self shadowing and more. Therefore it is a good practice to start off by recreating the height only. Later other features like color or roughness can then derived by the height information. This is possible because many  features depending on the height of the surface, like dust deposits or wearing.
 
-Height should be represented as single value between zero and one. This will allow efficent processing and many algorithms like easing are already expecting this range. 
-
-DERIVING!
+By recreating the height of the surface, information from the analysis should be used. Because the analysis is carried out hierarchical and the the most recognizable features where noticed first, this order should be maintained though the hole creation process. Because when the most recognizable features are done right, it will be no problem to add new and more detailed features without changing the visual appearance. This will also support the hierarchical aspect, because the analysis and height creation can be executed simultaneously in a iterative manner. When the created material will match the requirements, there will be no need for further analyses or detail recreations.
 
 ## Distortions
-Shape and noise algorithms are a start for reasemble surface structures, but these algortihms may are to perfect or to uniform to replicate wanted surface structures. Structures in natural surfaces have often imperfections because pof various reasons as human failure or aging. While it is possible to implement deformation logic into the shape and noise algortihms themself, this is not recommended, this will limit the generating algorithm so specific usecases. To break the perfect uniform nature of noise and shape algorithms, their paramters can be manipulated with shapes or noises.
+Shape and noise algorithms are the base to reassemble surface structures, but these algorithms may are to to uniform or to poor in details to replicate wanted surface structures. Structures in natural surfaces have often imperfections or turbulences because or reasons like human failure or aging. While it is possible to implement deformations directly into shape and noise algorithms themselves. This approach is not recommended, because this will limit the generating algorithm so specific use cases. To break the perfection or lack of detail of noise and shape algorithms, manipulating their parameters, including the UV, is a efficient and reusable approach.
 
-![alt][IQFBM]
-> *manipulated UV with noise for noise: "f(p) = fbm(p + fbm(p + fbm(p)))" [(IQ03)]*
+![alt][Figure12]
+> *[Figure12] manipulated UV with noise for noise: "f(p) = fbm(p + fbm(p + fbm(p)))" [(IQ03)]*
 
-Manipulating the UV with noise or other patterns can emulate unregularities of natural or manufatured surfaces. While manipulating the UV is one way, all other parameters can be manipulated in the same manner to, which will lead to unique results.
+The most interesting parameter to manipulate may be the UV. Manipulating the UV with a noise can easily mimic turbulence or irregularities. [Figure12] showed this technique, where the UV was manipulated multiple times.
 
 ## Seed
 As mentioned earlier, the random number generator for procedural materials is based on hashing. Hasing needs an input to create pseudo random numbers. Noise uses this hashing for creating random values, incrementing the input for each new random value which is required. While this is fine and works perfectly, procedural materials will not make use of a single noise only, they will use a couple of them. Noise of diffrent kinds, scale, rotation or offset. The risk is, by using the same noise over and over can lead to coincidences by layering noises of the same kind. Another requirement within procedural materials is to break the continoius structure of noises to reassamble surfaces which are made of physically seperate but same kind of materials. To ensure the reuability of the algorithms and created sub-materials, every functions which uses hasing in any way should have a seed parameter. This parameter ensures the diversity of noises, materials and randomness. The parameter should also be inhertied by functions which make use of functions that require seed.
@@ -199,8 +197,8 @@ Fractal Brownian motion (fBm) is a well known approach to combine multiple frequ
 ### Noise by Noise
 The base noise algorithms, even extended by fBm, may do not cover all cases of  unpredictable patterns. To extend the toolbox of noises even more, noise can be combined in any way to create new complex noises for reassembling grunge or other surface features.
 
-![alt][FigureXY]
-> *[FigureXY] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise by base noise functions*
+![alt][Figure13]
+> *[Figure13] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise from base noise functions*
 
 ```glsl
 float noise_complex(vec2 point, vec2 seed)
@@ -209,60 +207,33 @@ float noise_complex(vec2 point, vec2 seed)
     for(int i = 0; i < 3; i++)
     {
         float noise = noise_perlin(point, seed++);
-        noise = noise_vallies(noise); // --> abs(noise * 2.0 -1.0)
+        noise = noise_vallies(noise); // --> return abs(noise * 2.0 - 1.0)
         complex = min(complex, noise);
     }
 
-    return easing_power_out(complex, 3.0);
+    return easing_power_out(complex, 3.0); // --> return pow(complex, 3.0)
 }
 ```
 > Code for the complex noise shown in figure
 
-[FigureXY] shows a complex noise which was generated combining the results of base noise functions. This noise also used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a great selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
+[Figure13] shows a complex noise which was generated combining the results of base noise functions. This noise also used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a great selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
 
 
 ## Imperfections
 By looking to surfaces from the real world, one thing they have all in common: They have all flaws in any way. This is what makes convincing and beliveable surfaces. Ment with flaws are impefections on the surfaces of any size. Examples of imperfections in surfaces are scratches, dents, discolorations, dust, fingerprints or human failure.
 
+# Applied surface recreation
+TODO: Hier werde das Beispiel aus der Analyse umsetzen. Und bei jeden Schritt auf die Analyse, die erwähnten Algorithmen und Techniken eingehen.
 
+Frage: Reicht ein Material im Detail? Würde sonst noch Dachziegel und eine Mauer umsetzen.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[Figure01]: ./img/earlyNoise.png
-[Figure02]: ./img/nodevember.jpg
-[Figure03]: ./img/pbrnpr.png
-[Figure04]: ./img/planks.png
-[Figure05]: ./img/wood.png
-[Figure06]: ./img/envi.png
-[Figure07]: ./img/uv.png
-[Figure08]: ./img/hash.png
-[Figure09]: ./img/noise.png
-[Figure10]: ./img/shape.png
-[FigureXY]: ./img/complex.png
-[Figure11]: ./img/ease.png
-
->[NODEV01]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
-[IQFBM]: ./img/iqfbm.jpg
+# Conclusion
+TODO: Muss noch geschrieben werden. Aber das Ergbnis steht schon grob fest:
+- Analyse passt und kann auch womöglich auch auf Applikationen angewendet werden die mit post processing algorithmen arbeiten können (z.B. Substance Designer), weil die Vorgehensweise sehr abstrakt ist und keine Abhängigkeiten zu anderen Dingen besitzt.
+- Genannte Kategorisierung von Algorithmen passt auch weil bei der Umsetzung keine Algorithmen verwendet wurden die nicht in eine der Kategoriuen einsortiert werden konnten, die Algorithmen und Kategorisierung ist aber spezialisiert auf implizite Algorithmen. Die Kategorisierung könnte anders aussehen wenn nicht mit shadern gearbeitet wird.
+- Techniken passen auch, gleiches wie bei der Kategorisierung.
+- Workflow passt auch, gleiches wie bei der Kategorisierung.
+- Umsetzung hat funktioniert. Aber durch die verwendung von impliziten algorithmen kann das nachempfinden von Oberflächen deutlich komplizierter sein als wenn man post processing verwenden kann. Auch wenn Performance nicht behandelt wurde: Alleine bei der menge an berechnungen ist es wohl nicht realisitisch das ein komplettes komplexes material in echtzeit jeden Frame neu berechnet werden kann. Für offline renderer kann das aber eine Option sein.
 
 
 
@@ -330,3 +301,23 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(SD01)]: https://docs.substance3d.com/sddoc/blur-hq-159450455.html
 > [(SD01)]: Blur HQ | 2020 | Allegorithmic / Adobe Inc.
+
+
+
+
+
+[Figure01]: ./img/earlyNoise.png
+[Figure02]: ./img/nodevember.jpg
+[Figure03]: ./img/pbrnpr.png
+[Figure04]: ./img/planks.png
+[Figure05]: ./img/wood.png
+[Figure06]: ./img/envi.png
+[Figure07]: ./img/uv.png
+[Figure08]: ./img/hash.png
+[Figure09]: ./img/noise.png
+[Figure10]: ./img/shape.png
+[Figure11]: ./img/ease.png
+[Figure12]: ./img/iqfbm.jpg
+[Figure13]: ./img/complex.png
+
+>[Figure02]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
