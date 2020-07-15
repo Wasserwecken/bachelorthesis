@@ -257,7 +257,7 @@ By looking to surfaces from the real world, one thing they have all in common: T
 To prove and show the concepts mentioned above, the floor from the analysis will be recreated as procedural material.
 
 ## First iteration
-In the first iteration the most perceptible features of the floor is recreated. This includes the planks and the wood structure for the planks. To begin the recreation, the order of layers from the analysis is used. Therefore first the planks recreated.
+In the first iteration the most perceptible features of the floor is recreated. This includes the planks and the wood structure for the planks. To begin the recreation, the order of layers from the analysis is used. Therefore the planks are recreated first.
 
 ![alt][Figure14]
 > *[Figure14] Left to right: Tilling & scaling, rectangle as height, render, reference photo*
@@ -271,6 +271,8 @@ The first appearance of the planks is reassembling the layout from the reference
 
 
 
+![alt][Figure16]
+> *[Figure16] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
 
 
 
@@ -373,5 +375,6 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [Figure13]: ./img/complex.png
 [Figure14]: ./img/applied1.png
 [Figure15]: ./img/applied2.png
+[Figure16]: ./img/applied3.png
 
 >[Figure02]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg

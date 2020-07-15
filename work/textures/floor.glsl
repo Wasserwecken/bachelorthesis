@@ -60,6 +60,25 @@ vec3 v2(vec2 uv, vec2 seed)
     return vec3(plank_shape);
 }
 
+vec3 v3(vec2 uv, vec2 seed)
+{
+    uv *= vec2(1.1, 0.1);
+
+
+    float ring_base = noise_perlin(uv, seed);
+    
+    float rings = easing_power_out(ring_base, 3.0);
+    rings = fract(rings * 5.0);
+    float rings2 = fract(rings * 5.0);
+    float rings3 = fract(rings2 * 5.0);
+    rings = rings * 0.5 + rings2 * 0.25 + rings3 * 0.125;
+    return vec3(rings);
+
+
+
+    return vec3(rings);
+}
+
 
 void main() {
     vec2 uv = uv_provide();
@@ -67,7 +86,8 @@ void main() {
 
     vec3 result;
     //result = v1(uv, seed);
-    result = v2(uv, seed);
+    //result = v2(uv, seed);
+    result = v3(uv, seed);
 
 	gl_FragColor = vec4(result, 1.0);
 }
