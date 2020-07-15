@@ -254,7 +254,28 @@ TODO: ausformulieren!
 By looking to surfaces from the real world, one thing they have all in common: They have all flaws in any way. This is what makes convincing and beliveable surfaces. Ment with flaws are impefections on the surfaces of any size. Examples of imperfections in surfaces are scratches, dents, discolorations, dust, fingerprints or human failure.
 
 # Applied surface recreation
-TODO: Hier werde das Beispiel aus der Analyse umsetzen. Und bei jeden Schritt auf die Analyse, die erwähnten Algorithmen und Techniken eingehen.
+To prove and show the concepts mentioned above, the floor from the analysis will be recreated as procedural material.
+
+## First iteration
+In the first iteration the most perceptible features of the floor is recreated. This includes the planks and the wood structure for the planks. To begin the recreation, the order of layers from the analysis is used. Therefore first the planks recreated.
+
+![alt][Figure14]
+> *[Figure14] Left to right: Tilling & scaling, rectangle as height, render, reference photo*
+
+As noticed from the analysis, the planks are a repetitive geometric pattern of rectangles. Placing each plank individually is therefore unpractical, because the material would be through this either limited in size and or also in variation. The applied technique for that which can be seen as first item in [Figure14] is called "tilling". Tilling will be applied to the UV to ensure the texture is endless and every tile has its own individual appearance. The used algorithm takes a continuous UV as input and return on the one hand a fractured UV and on the other hand a two dimensional ID for each tile, which is a very important part that comes later in play. The tilling is applied per axis differently to match the layout of required plank size. In addition to the tilling, every column of planks is randomly shifted to mimic the irregular shift in the photo reference. This UV is then used to draw a rectangle for recreating the basic heightmap. The rectangle which was drawn is seen as second item in [Figure14] and makes use of a small blur with easing, see [Figure11], to mimic the height transition at the border.
+
+![alt][Figure15]
+> *[Figure15] Left to right: variation in distortion and tilt, render comparison, reference photo*
+
+The first appearance of the planks is reassembling the layout from the reference phot, but it is not convincing. Besides the lack of detail in many ways, the current appearance of the planks is to perfect. Currently the heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every planks is in level and has the same height. This is where environmental influences and imperfections come in play. As wood planks are aging, in this case drying, they will often bend. This can be seen in the reference photo where the distance between the planks will vary. To mimic this, the UV for the planks and the result of the heightmap has been modified. The distortion on the UV reassembles the bend in the XY axes, the modification of the result reassembles the bend in height. In both cases a large scaled perlin noise was used. [Figure15] compares these changes which are subtle, nonetheless improving the plausibility the heightmap.
+
+
+
+
+
+
+
+
 
 Frage: Reicht ein Material im Detail? Würde sonst noch Dachziegel und eine Mauer umsetzen.
 
@@ -350,5 +371,7 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [Figure11]: ./img/ease.png
 [Figure12]: ./img/iqfbm.jpg
 [Figure13]: ./img/complex.png
+[Figure14]: ./img/applied1.png
+[Figure15]: ./img/applied2.png
 
 >[Figure02]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
