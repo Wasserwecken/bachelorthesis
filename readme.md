@@ -256,7 +256,7 @@ By looking to surfaces from the real world, one thing they have all in common: T
 # Applied surface recreation
 To prove and show the concepts mentioned above, the floor from the analysis will be recreated as procedural material.
 
-## First iteration
+## Planks
 In the first iteration the most perceptible features of the floor is recreated. This includes the planks and the wood structure for the planks. To begin the recreation, the order of layers from the analysis is used. Therefore the planks are recreated first.
 
 ![alt][Figure14]
@@ -269,11 +269,23 @@ As noticed from the analysis, the planks are a repetitive geometric pattern of r
 
 The first appearance of the planks is reassembling the layout from the reference phot, but it is not convincing. Besides the lack of detail in many ways, the current appearance of the planks is to perfect. Currently the heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every planks is in level and has the same height. This is where environmental influences and imperfections come in play. As wood planks are aging, in this case drying, they will often bend. This can be seen in the reference photo where the distance between the planks will vary. To mimic this, the UV for the planks and the result of the heightmap has been modified. The distortion on the UV reassembles the bend in the XY axes, the modification of the result reassembles the bend in height. In both cases a large scaled perlin noise was used. [Figure15] compares these changes which are subtle, nonetheless improving the plausibility the heightmap.
 
+## Wood material
 
+
+### Rings
 
 ![alt][Figure16]
 > *[Figure16] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
 
+
+![alt][Figure17]
+> *[Figure17] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
+
+
+![alt][Figure18]
+> *[Figure18] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
+
+### Branches
 
 
 
@@ -376,5 +388,7 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [Figure14]: ./img/applied1.png
 [Figure15]: ./img/applied2.png
 [Figure16]: ./img/applied3.png
+[Figure17]: ./img/applied4.png
+[Figure18]: ./img/applied5.png
 
 >[Figure02]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
