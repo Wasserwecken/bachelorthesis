@@ -270,23 +270,28 @@ As noticed from the analysis, the planks are a repetitive geometric pattern of r
 The first appearance of the planks is reassembling the layout from the reference phot, but it is not convincing. Besides the lack of detail in many ways, the current appearance of the planks is to perfect. Currently the heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every planks is in level and has the same height. This is where environmental influences and imperfections come in play. As wood planks are aging, in this case drying, they will often bend. This can be seen in the reference photo where the distance between the planks will vary. To mimic this, the UV for the planks and the result of the heightmap has been modified. The distortion on the UV reassembles the bend in the XY axes, the modification of the result reassembles the bend in height. In both cases a large scaled perlin noise was used. [Figure15] compares these changes which are subtle, nonetheless improving the plausibility the heightmap.
 
 ## Wood material
-
+The creation of the wood material is split in two parts, recording to the analysis and showed in [Figure05].
 
 ### Rings
+There are several ways to recreate a wood ring pattern. One way to mimic the pattern accurately is to recreate the whole tree trunk with his branches as a three dimensional distance field. A taken cross-section simulates then the saw cut of the log. While recreating material structures as accurate distance field can work out, the computation might be expensive and the implementation complicated. Often it is easier to fake structures to create look a likes which will be convincing enough to trick the viewer. The following process for the structure fake is one of many approaches that will work.
 
 ![alt][Figure16]
 > *[Figure16] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
 
-
-![alt][Figure17]
-> *[Figure17] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
-
-
-![alt][Figure18]
-> *[Figure18] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
+The fake of the structure starts by stretching a perlin noise in one direction to mimic the run direction of the wood. This noise is then fractured in three different gradations and finally combined as fBm, which reassembles the changing colors of wood rings due to different climatic conditions and summer winter cycles. Another technique to achieve similar patterns is to bring turbulence into the UV which feeds the noise algorithm. Turbulence is added by relative rotations in the UV, controlled by another noise. The showed technique however utilizes only a single noise.
 
 ### Branches
+The other important recognizable feature of wood are branches, as noticed in the analysis. The shape of branches are often circular, because of that, random placed circles are a good start to mimic them. While the following demonstration will utilize perfect circles, these circles can be manipulated in further iterations to gain more realism.
 
+![alt][Figure17]
+> *[Figure17] Left to right: random circles in size and position, wood ring structure, modified structure, modified structure with branches*
+
+To create random placed circles in a endless manner, tilling the underlying UV is necessary. In each created grid is the placed a circle with random position and size. Nonetheless this technique can still appear retentive which will reveal the invisible grid. To conceal that, only a percentage of the circles is drawn, which is determined by random based on the grid id. The other part of recreating branches in a wood materials is the integration. As mentioned in the analysis, the branches are influencing the layout of the wood rings, where the branches pushes the rings away from them. To continue the fake...?
+
+
+## Composition
+![alt][Figure18]
+> *[Figure18] Left to right: prepared wood material and planks, merged planks with wood, previous render, render with merged wood material*
 
 
 
