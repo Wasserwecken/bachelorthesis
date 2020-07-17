@@ -286,12 +286,17 @@ The other important recognizable feature of wood are branches, as noticed in the
 ![alt][Figure17]
 > *[Figure17] Left to right: random circles in size and position, wood ring structure, modified structure, modified structure with branches*
 
-To create random placed circles in a endless manner, tilling the underlying UV is necessary. In each created grid is the placed a circle with random position and size. Nonetheless this technique can still appear retentive which will reveal the invisible grid. To conceal that, only a percentage of the circles is drawn, which is determined by random based on the grid id. The other part of recreating branches in a wood materials is the integration. As mentioned in the analysis, the branches are influencing the layout of the wood rings, where the branches pushes the rings away from them. To continue the fake...?
+To create random placed circles in a endless manner, tilling the underlying UV is necessary. In each created grid is the placed a circle with random position and size. Nonetheless this technique can still appear retentive which will reveal the invisible grid. To conceal that, only a percentage of the circles is drawn, which is determined by random based on the grid id.
 
+The other part of recreating branches in a wood materials is the integration. As mentioned in the analysis, the branches are influencing the layout of the wood rings, where the branches pushes the rings away from them. To trick the viewer again, the UV nearby branches is rotated. Because of that the circles which represent the branches are blurred. The blur is then used as rotation information. Finally the center of the circles and the wood structure is merge together by adding the values. The created heightmap will be the base for further information like albedo or roughness.
 
 ## Composition
 ![alt][Figure18]
 > *[Figure18] Left to right: prepared wood material and planks, merged planks with wood, previous render, render with merged wood material*
+
+The composition of the planks and the wood material is applied in two steps. First the material has to utilize the plank UV's, then the heightmap is merged with the height of the planks.
+
+The global UV has been tilled earlies to recreate the planks of the floor. Either the global UV or the plank UV can be used as input for the wood material. Which UV is used will depend on the related effects. While the global UV is in the example untouched, the plank UV is modified to mimic the bending of the planks. Therefore the plank UV is used to take the modifications into the wood material. The UV is equal for every plank and therefore the wood material. To have different version of wood for each plank, the wood material needs a unique seed for each plank. As mentioned earlier, by tilling the UV an id for each plank was created, which is now used as seed. 
 
 
 
