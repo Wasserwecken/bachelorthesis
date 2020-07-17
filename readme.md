@@ -296,14 +296,36 @@ The other part of recreating branches in a wood materials is the integration. As
 
 The composition of the planks and the wood material is applied in two steps. First the material has to utilize the plank UV's, then the heightmap is merged with the height of the planks.
 
-The global UV has been tilled earlies to recreate the planks of the floor. Either the global UV or the plank UV can be used as input for the wood material. Which UV is used will depend on the related effects. While the global UV is in the example untouched, the plank UV is modified to mimic the bending of the planks. Therefore the plank UV is used to take the modifications into the wood material. The UV is equal for every plank and therefore the wood material. To have different version of wood for each plank, the wood material needs a unique seed for each plank. As mentioned earlier, by tilling the UV an id for each plank was created, which is now used as seed. 
+The global UV has been tilled earlies to recreate the planks of the floor. Either the global UV or the plank UV can be used as input for the wood material. Which UV is used will depend on the related effects. While the global UV is in the example untouched, the plank UV is modified to mimic the bending of the planks. Therefore the plank UV is used to take the modifications into the wood material. The UV is equal for every plank and therefore the wood material. To have different version of wood for each plank, the wood material needs a unique seed for each plank. As mentioned earlier, by tilling the UV an id for each plank was created, which is now used as seed.
 
+The information of plank and wood heights is merged by scaling the height of the wood and substracting it from the plank height. This approach provides full control over intensity of the wood structure represented in the planks. Finally the values of the merge heightmap have to be clamped, because the subtracting will cause values below zero between the planks. The approach ensures in addition addition the linearity of the plank and wood height, which would not be given by a multiplication. Nonetheless, the merge algorithm depends on the required result, where the multiplication might be preferred. 
 
+## Deriving from height
+As mentioned earlier, the height of the surface is the most perceptible feature of a surface. Therefore the recreation of the surface is the most time consuming part of creating a procedural material. But once created and the structure is establish, all other properties of a surface which have to feed the lightning model can be derived from the height, which takes only a fraction of the effort.
+
+### Color
+The color of the surface of the floor from the example is mainly influenced by two parts. First, by the wood itself and then by the different planks and environment.
+
+![alt][Figure19]
+> *[Figure19] Left to right: wood structure, burned cigarette spots, generated surface color, render, reference photo*
+
+Colorizing the wood material is quite straight forward. The generated height is used as interpolation value between two brownish colors which represent the darkest and brightest color of the wood. To refine the distribution between bight and dark colors, the heightmap was eased to show more bright than dark values.
+
+The color information is then utilized by the floor layout, where the existing heightmap of the floor is simply multiplied to the color. This is possible due to specific coincidences. First, the gabs between the planks are filled with deep black dust, which will match the color of the heightmap on this position where the lowest points of the material is represented by zero. Then second coincidence is the height variation of the planks to mimic the bend. Every plank will have a small color variation to other ones, because not every plank is manufactured from the same trunk and position. By multiplying the height information with albedo, the color variation for each plank and the dust is achieved.
+
+Finally the cigarette burns are added to the surface color. The spots are reassembled, like the branches in the wood structure, as circles with random position, size and strength on a tilled UV. This mask is then used to blend between a reddish dark brown, to mimic nearly burned wood, and the existing albedo.
+
+### Roughness
+![alt][Figure20]
+> *[Figure20] Left to right: prepared wood material and planks, merged planks with wood, previous render, render with merged wood material*
 
 
 Frage: Reicht ein Material im Detail? Würde sonst noch Dachziegel und eine Mauer umsetzen.
 
 # Conclusion
+
+
+
 TODO: Muss noch geschrieben werden. Aber das Ergbnis steht schon grob fest:
 - Analyse passt und kann auch womöglich auch auf Applikationen angewendet werden die mit post processing algorithmen arbeiten können (z.B. Substance Designer), weil die Vorgehensweise sehr abstrakt ist und keine Abhängigkeiten zu anderen Dingen besitzt.
 - Genannte Kategorisierung von Algorithmen passt auch weil bei der Umsetzung keine Algorithmen verwendet wurden die nicht in eine der Kategoriuen einsortiert werden konnten, die Algorithmen und Kategorisierung ist aber spezialisiert auf implizite Algorithmen. Die Kategorisierung könnte anders aussehen wenn nicht mit shadern gearbeitet wird.
@@ -400,5 +422,7 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [Figure16]: ./img/applied3.png
 [Figure17]: ./img/applied4.png
 [Figure18]: ./img/applied5.png
+[Figure19]: ./img/applied6.png
+[Figure20]: ./img/applied7.png
 
 >[Figure02]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
