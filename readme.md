@@ -328,14 +328,29 @@ Once a procedural material feeds all the parameters of the lighting model, furth
 
 
 # Conclusion
+The results of the solutions for the named objectives are now analyzed.
+
+## Analyzing surfaces
+The analysis of surfaces pointed out to be an essential part of creating procedural materials. The recreation of procedural materials showed that the natural layering and composition of a surface can be transferred into the implementation. Extracted layers from the analysis are corresponding to created UV layouts and general height information, as showed in the example of the pub floor. The splitted analysis of layers and surface materials can be also used to implement surface materials separately to make them reusable for other procedural materials. The wood material from the pub floor could be used also in a furniture material. This will save time and effort by creating such materials. By thinking about environment influences, interesting and characterizing details are added to the material. With these influences, materials are becoming convincing for the viewer. In addition, many environmental influences can be transferred easily to other materials, without the need of reference photos or existing materials. Therefore, some of them can be also prepared as separate material, like cracks or grease, for reuse.
+
+The proposed approach of the analysis showed also to have no dependencies to programming languages or applications. And the restriction for shader programming did not influence the analysis either. Therefore it can be assumed that the approach of the analysis, with its three steps and hierarchical method, can be applied not only to implicit procedural surface creation. The approach may also work for explicit environments and applications like Substance Designer [(SD02)].
+
+## Algorithm categorization
+The defined categorization showed to be useful and helpful while creating procedural materials. On the one hand helped the categorization looking for new algorithms to achieve new and distinct results besides the results from existing algorithms, because through the name and appointed task of the categories. On the other hand showed the categorization to be useful by exploring the results of new combinations of algorithms. Due to the sorting of the algorithms is the structure of parameters similar. This made it easy to exchange specific algorithms with other o the same kind to check out new results.
+
+While the analysis showed to be independent from the implementation, the categorization is influenced by the restrictions of shaders. Due to the limitation that only implicit algorithms are suited for shaders, all generative algorithms like noise and shapes depending on UV coordinates. These UV coordinates may are not given in other environments or applications, again like Substance Designer. Therefore the defined categorization might only work for fragment shader implementations.
+
+Nonetheless showed the categorization that through sorting algorithms and implementing them abstract, without specializations, they can be used like Lego bricks. It also abstracts the complexity of the algorithms which makes them usable for a wider range of users and looses creativity from technology.
+
+## Workflow
+The proposed workflow guidelines showed to be useful and ensured a structured procedure. The workflow matched also with the hierarchical approach of the analysis, therefore iteration to reach the desired level of detail are built in and are easy to integrate. Similar to the analysis showed the guidelines of the workflow no dependencies to a environment or application, which they may can ne apply to them.
+
+## General
 
 
 
-TODO: Muss noch geschrieben werden. Aber das Ergbnis steht schon grob fest:
-- Analyse passt und kann auch womöglich auch auf Applikationen angewendet werden die mit post processing algorithmen arbeiten können (z.B. Substance Designer), weil die Vorgehensweise sehr abstrakt ist und keine Abhängigkeiten zu anderen Dingen besitzt.
-- Genannte Kategorisierung von Algorithmen passt auch weil bei der Umsetzung keine Algorithmen verwendet wurden die nicht in eine der Kategoriuen einsortiert werden konnten, die Algorithmen und Kategorisierung ist aber spezialisiert auf implizite Algorithmen. Die Kategorisierung könnte anders aussehen wenn nicht mit shadern gearbeitet wird.
-- Techniken passen auch, gleiches wie bei der Kategorisierung.
-- Workflow passt auch, gleiches wie bei der Kategorisierung.
+
+
 - Umsetzung hat funktioniert. Aber durch die verwendung von impliziten algorithmen kann das nachempfinden von Oberflächen deutlich komplizierter sein als wenn man post processing verwenden kann. Auch wenn Performance nicht behandelt wurde: Alleine bei der menge an berechnungen ist es wohl nicht realisitisch das ein komplettes komplexes material in echtzeit jeden Frame neu berechnet werden kann. Für offline renderer kann das aber eine Option sein.
 
 
@@ -404,6 +419,9 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(SD01)]: https://docs.substance3d.com/sddoc/blur-hq-159450455.html
 > [(SD01)]: Blur HQ | 2020 | Allegorithmic / Adobe Inc.
+
+[(SD02)]: https://www.substance3d.com/products/substance-designer/
+> [(SD02)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
 
 
 
