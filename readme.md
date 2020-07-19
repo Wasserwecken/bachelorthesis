@@ -301,7 +301,7 @@ The global UV has been tilled earlies to recreate the planks of the floor. Eithe
 The information of plank and wood heights is merged by scaling the height of the wood and substracting it from the plank height. This approach provides full control over intensity of the wood structure represented in the planks. Finally the values of the merge heightmap have to be clamped, because the subtracting will cause values below zero between the planks. The approach ensures in addition addition the linearity of the plank and wood height, which would not be given by a multiplication. Nonetheless, the merge algorithm depends on the required result, where the multiplication might be preferred. 
 
 ## Deriving from height
-As mentioned earlier, the height of the surface is the most perceptible feature of a surface. Therefore the recreation of the surface is the most time consuming part of creating a procedural material. But once created and the structure is establish, all other properties of a surface which have to feed the lightning model can be derived from the height, which takes only a fraction of the effort.
+As mentioned earlier, the height of the surface is the most perceptible feature of a surface. Therefore the recreation of the surface is the most time consuming part of creating a procedural material. But once created and the structure is establish, all other properties of a surface which have to feed the lightning model can be derived from the height, which takes only a fraction of the effort. The amount of properties and the way of derivation from the heightmap depends on the lightning model. The chosen lightning model is based on Disney's paper for physically based shading [(B01)]. The procedural material will feed the albedo and roughness parameter beside the height displacement.
 
 ### Color
 The color of the surface of the floor from the example is mainly influenced by two parts. First, by the wood itself and then by the different planks and environment.
@@ -316,11 +316,16 @@ The color information is then utilized by the floor layout, where the existing h
 Finally the cigarette burns are added to the surface color. The spots are reassembled, like the branches in the wood structure, as circles with random position, size and strength on a tilled UV. This mask is then used to blend between a reddish dark brown, to mimic nearly burned wood, and the existing albedo.
 
 ### Roughness
+The roughness parameter of the lighting model controls the diffusion of light. In general the floor from the reference photo is a very rough surface because of the shoes from guests. The shoes will cause deposits of dirt and brush up the surface of the wood.
+
 ![alt][Figure20]
-> *[Figure20] Left to right: prepared wood material and planks, merged planks with wood, previous render, render with merged wood material*
+> *[Figure20] Left to right: Roughness map, render, reference photo*
 
+To simulate the different levels of roughness in the example surface, the heightmap as it is will be utilized, because dirt deposits are located in lower places of the surface. There fore the height is inverted and remapped to cover a small range in the higher level of roughness.
 
-Frage: Reicht ein Material im Detail? Würde sonst noch Dachziegel und eine Mauer umsetzen.
+## Further iterations
+Once a procedural material feeds all the parameters of the lighting model, further iteration on the details can be made. Right now the example has a comic appearance. This can be improved by using the information from the analysis.
+
 
 # Conclusion
 

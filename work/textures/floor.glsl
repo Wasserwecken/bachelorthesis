@@ -185,7 +185,7 @@ void wood_v2(vec2 uv, vec2 seed, out vec3 albedo, out float height)
     ring_uv *= vec2(1.1, 0.1);
 
     vec2 ring_seed = random_vec2(seed);
-    float ring_base = noise_perlin(ring_uv, ring_seed);
+    float ring_base = noise_perlin(ring_uv, ring_seed, 1, 0.5, 2.0);
     float rings = easing_power_out(ring_base, 3.0);
     rings = fract(rings * 5.0);
     float rings2 = fract(rings * 5.0);
@@ -249,6 +249,57 @@ vec3 v5(vec2 uv, vec2 seed)
     return vec3(plank_albedo);
 }
 
+vec3 v6(vec2 uv, vec2 seed)
+{
+    vec2 plank_id;
+    vec2 plank_seed;
+    vec2 plank_scale = vec2(20.0, 1.0);
+    vec2 plank_uv = uv_rotate(uv, vec2(0.5), 90.0);
+    plank_uv = uv_tilling(plank_uv, plank_id, plank_scale.yx);
+
+    float offset;
+    offset = random(plank_id.y);
+    plank_uv = uv_tilling_offset(plank_uv, plank_id, offset, 1.0);
+    plank_uv *= plank_scale;
+    plank_seed = seed++ + plank_id;
+
+    float distortion;
+    distortion = noise_perlin(plank_uv * 0.01, plank_seed++);
+    plank_uv = uv_distort_twirl(plank_uv, distortion, vec2(0.12), 1.0);
+
+    float plank_shape;
+    plank_shape = shape_box(plank_uv, vec2(0.5) * plank_scale, plank_scale * 0.5 - 0.05, vec2(0.07));
+    plank_shape = easing_power_out(plank_shape, 3.0);
+
+    float tilt;
+    tilt = noise_perlin(plank_uv * 0.01, plank_seed++);
+    tilt = easing_power_inout(tilt, 3.0);
+    plank_shape -= tilt * 0.3;
+
+
+    float wood_height;
+    vec3 wood_albedo;
+    vec2 wood_uv = uv_rotate(plank_uv, vec2(0.5), -90.0);
+    wood_v2(wood_uv * 0.1, plank_seed++, wood_albedo, wood_height);
+    plank_shape -= wood_height * 0.2;
+    vec3 plank_albedo = wood_albedo * plank_shape;
+
+    vec2 zig_id;
+    vec2 zig_uv = uv * 1.0;
+    zig_uv = uv_tilling(zig_uv, zig_id, vec2(50.0));
+    vec2 zig_seed = random_vec2(seed++ + zig_id);
+
+    float zig_size = random(zig_seed++) * 0.1;
+    vec2 zig_pos = value_remap(random_vec2(zig_seed++), 0.0, 1.0, zig_size, 1.0 - zig_size);
+    float zig_shape = shape_circle(zig_uv, zig_pos, zig_size, zig_size);
+    zig_shape *= random(zig_seed++);
+    plank_albedo = mix(plank_albedo, color_hex(0x592E17), zig_shape * 0.5);
+
+    float roughness = 1.0 - (plank_shape * 0.5);
+
+    return vec3(plank_albedo);
+}
+
 void main() {
     vec2 uv = uv_provide();
     vec2 seed = vec2(33.33);
@@ -258,7 +309,8 @@ void main() {
     //result = v2(uv, seed);
     //result = v3(uv, seed);
     //result = v4(uv, seed);
-    result = v5(uv, seed);
+    //result = v5(uv, seed);
+    result = v6(uv, seed);
 
 	gl_FragColor = vec4(result, 1.0);
 }
