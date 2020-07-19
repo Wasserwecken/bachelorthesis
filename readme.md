@@ -345,13 +345,12 @@ Nonetheless showed the categorization that through sorting algorithms and implem
 ## Workflow
 The proposed workflow guidelines showed to be useful and ensured a structured procedure. The workflow matched also with the hierarchical approach of the analysis, therefore iteration to reach the desired level of detail are built in and are easy to integrate. Similar to the analysis showed the guidelines of the workflow no dependencies to a environment or application, which they may can ne apply to them.
 
+While creating materials, the workflow guidelines showed yet to be vague. And Try-And-Error phases taking still a big portion of the creation process. Foreknowledge of combinations of algorithms cannot be eliminated by the named guidelines. Nonetheless they will help to guide experiments to reach desired results faster.
+
 ## General
+As showed in the applied recreation, creating procedural materials entirely within a fragment shader will work and can create complex materials with great details. By abstracting the algorithms, it seems that only the creativity might limit the process. Also the restrictions for shaders might not seem to be a big problem. This might be true for the first glance, where also most every structure can be replicated by combining algorithms and or modifying according parameters. On the second glance, it shows that sometimes complex and long chains of algorithms are needed to get desired results, where environments which can utilize post processing algorithms might be way more efficient.
 
-
-
-
-
-- Umsetzung hat funktioniert. Aber durch die verwendung von impliziten algorithmen kann das nachempfinden von Oberflächen deutlich komplizierter sein als wenn man post processing verwenden kann. Auch wenn Performance nicht behandelt wurde: Alleine bei der menge an berechnungen ist es wohl nicht realisitisch das ein komplettes komplexes material in echtzeit jeden Frame neu berechnet werden kann. Für offline renderer kann das aber eine Option sein.
+The aspects of performance and anti aliasing also have to be mentioned, even their where not part of this work. Using complex materials entirely created in fragment shaders might not be useful in realtime applications, where every frame per second matters. As showed in the applied recreation, procedural materials are build upon many algorithms which will have an impact on the performance. The approach of procedural material within fragment shaders might work for offline render application, it would be interesting to test how much impact a procedural material will have to the render time besides ordinary textures. The problem with anti aliasing is the level of detail. As more a material gets detail, the more aliasing will appear. Some papers already explored the problem of anti aliasing and discovered approaches to counter it, nonetheless, these techniques have to be implemented to if the aliasing gets to noticeable.
 
 
 
