@@ -45,6 +45,9 @@ Textures are images where a single or more information about surface properties 
 ## Material
 Most render applications using the term "material" for the combination of the used lighting model and the collection of information for the lightning model, like albedo or specularity. This thesis uses the term "material" for the collection of information only, excluding the lighting model. Because the lightning model has only a minor influence on the process of replicating a surface in a procedural manner.
 
+![alt][Figure03]
+> *[Figure03] Different lighting models, same material information; Right: Physical based (PBR); Left: Non-photorealistic (NPR)*
+
 As seen in the figure, with different lighting models the visual appearance of surfaces can change drastically, even if the offered information about the surface properties are the same. The lightning model can influence the process of procedural materials by requiring special information. Nonetheless this will not change the general approach of how to analyze and replicate surfaces, as well as the underlying techniques and algorithms.
 
 ## Implicit and explicit algorithms
@@ -82,60 +85,62 @@ Disadvantages are:
 
 
 # Analysis of surfaces
-The overall objective of the analysis should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric information about the visual appearance. To retrieve these information, the analysis is carried out in three steps:
+The overall objective of the analysis should not confound with building a physical and chemical understanding of real world materials, which nonetheless may be helpful or necessary. The main objective is to extract patterns and geometric information about the visual appearance. To retrieve these information, the analysis of surfaces is carried out in three steps:
 - Extracting surface layers
 - Visual properties of materials
 - Environmental influences
 
-The extraction process is relying completely on pattern, noise and shape recognition. And the retrieved information about the surface composition and visual features is reused later by replicating them with suiting algorithms, order and techniques that are available in fragment shaders.
+The steps were derived on one hand by looking through guides of the specialized software for procedural texture creation “Substance Designer” [(SD03)], and on the other hand by transferring the knowledge to a pure shader based environment. While creating several textures, these steps have been evolved over the time by analyzing several types of surfaces with the goal in mind to get the information as structured as possible. To support each step in their explanation, their concept is applied to an example reference photo of a wooden floor in a Pub.
+
+The proposed extraction steps rely on pattern, noise and shape recognition. The retrieved information about the surface composition and visual features is reused later by replicating them with matching algorithms, order and techniques that are available to fragment shaders. To utilize the extracted information, they can either be implemented directly while analyzing the surface in parallel or persisted in any preferred way. The implementation does rely on the content of the information, not on its persistence.
+
 
 ## Extracting surface layers
-By looking to natural surfaces they can been seen as a composite of multiple sub surfaces. By separating the surfaces into different layers of sub-surfaces, these layers are later reassembled in the same manner as image editing software does this through blending them into an final image. Indeed there will be no final image, as every point in the final rendered surface is arbitrary, the blending will result into a final point of information. A hierarchical approach looking out for layers is recommended, because first the depth of the analysis will differ by the required level of detail. Secondly, breaking a surface into a hierarchy of multiple layers makes them more clear and patterns are more recognizable. Further the hierarchical approach also ensures that replicated sub-materials can be reused in other materials.
+Separating surfaces into different layers of sub-materials helps later to reassemble the surface in the material in the same manner as image editing software does this through blending them into an final image. In addition the separation serves as simplification to the reference surface to overcome possible complex compositions, which then can be understood more easily detached from other influences.
 
-Unfortunately there are no specific factors which will define the layers which a material is made of. But there are indicators that can help:
-- natural given separation due to manufacturing or creation *(e.g. bricks and mortar, solar panels)*
-- similarities to shapes *(pebbles, knobs, nails, tiles)*
-- similarities to noise *(rusting metal, leather)*
+A hierarchical approach for looking out for layers is recommended, because the depth of the analysis will differ by the required level of detail for the material. Further the hierarchical approach can also mimic the creation process, physical and chemical processes over the lifetime. These influences create natural layers of materials on a surface, like leaves on the ground, oxidations or screws in furniture, which almost matches the chronological appearance and history of the surface. Another advantage of a hierarchical approach is the option that replicated materials can be reused in other materials, because the layering should only control their distribution in the final material.
 
-In general most natural surfaces themselves are already composed of different materials. This can have physical causes like leaves on the ground or screws in furniture, other times there are chemical reasons like oxidation. These causes are also good indicators where a surface can be separated into sub-surfaces. 
+Factors which are decisive for separations are:
+- Physical factors; Many surfaces are already separated naturally through manufacturing processes, like stone walls and floors, where the final surface is man made. It also includes occurrences where different materials are placed on top or worn away without initial intent, like posters on a wall, leaves on grass or peeled plaster
+- Chemical Factors; surfaces will change their appearance over time. Oxidation is a typical everywhere occurring process for metals, where the metal slowly converts to rust.
+- Abstract patterns; Surfaces may also have noticeable features which are expressed in height, color or other properties without dependency to a distinctive material. Patterns on wallpapers or height structures on surfaces to provide more grip are an example of that.
 
-For demonstration of the separation I took a picture of the floor from a local Pub. The floor is quite old and therefore has a complex appearance.
 
 ![alt][Figure04]
 > *[Figure04] Left: Floor of a Pub; Mid: Separation by planks; Right: Separation by trampled gums*
 
-The first separation is made by the planks, because:
-- they break the continuity of the wood structure.
-- they control the main height of the surface.
-- the space left defines the area for dirt.
-- the arrangement and shape suits perfectly for tilling.
+The first separation is made by the wooden planks, because:
+The planks are physically separated and are independent to each other.
+they are the most perceptible feature of the floor.
+they control the base height of the surface.
+the arrangement and shape results in an almost regular pattern.
 
-While the first separation is oriented to the wood structure, the black dots on the floor appear to be independent to the plank structure. This is because these dots are old trampled chewing gums. So a second separation is made because the chewing gums:
-- are not part of the plank or wood structure, they can overlap planks.
-- are made out of a different material than wood.
-- they are a physical placed on top of the floor.
+While the first separation is oriented to the wood structure, the black dots on the floor appear to be independent to the plank structure. This is because these dots are old trampled chewing gums. Therefore a second separation is made since:
+- they do not show a dependency to the plank or wood structure and overlap some planks.
+- they are a different material than wood.
+- they are physically placed on top of the floor.
+
 
 ## Visual properties of materials
-After separating a surface in multiple layers, visual properties about the isolated materials have to be extracted for recreation. Again a hierarchical approach is recommended, this time driven by the strikingness / obtrusiveness of visual features. By looking to the most strikingness / obtrusiveness features first, the material will be later immediate recognizable. And the hierarchical approach will match the workflow for reassembling materials by iterating from rough to small details and features in the surface structure which are unnecessary for the required level of detail will be ignored.
+After separating a surface in multiple layers, visual properties about the isolated materials have to be extracted for recreation. Again a hierarchical approach is recommended, this time driven by the obtrusiveness of visual features, which ensures that the material is later immediately recognizable. The hierarchical approach matches the later proposed workflow for implementation by iterating from rough to small details. This takes only features into account which are necessary and required by level of detail for the material.
 
-To extract features of a surface, recognizing patterns, shapes and noise are again important. Because later by reassembling the material, the materials themselves will be created by layers of and dependencies between the different extracted features. It is the same process as extracting layers, showed by [Figure04]. To continue the demonstration a single plank will be analyzed for recreating the wood material.
+While the factors for the separation often are quite obvious, the extraction of features from materials is still oriented to the named factors earlier.
+
 
 ![alt][Figure05]
 > *[Figure05] Left: Single plank of the floor; Mid: annual rings, Right: branches*
 
-The floor of the pub is made of wooden planks. The two most recognizable features of wood are annual rings and branches, which are definitely present in the reference photo. There would be many more features which can be extracted from the reference photo, but the two initial features, annual rings and branches, are enough for a first approach / iteration of recreation. Also the depth of the analysis can be adjusted while reassembling the material. These processes can run in parallel. If the material will later lack of detail to match the required level, the analysis will be continued where it stopped before. This is another advantage of analyzing surfaces in a hierarchical manner.
+The floor planks are made of wood. The two most recognizable features of wood are annual rings and branches, which are also represented in the reference photo. There are more features in the reference photo which can be extracted, but the two initial features, annual rings and branches, are enough for a first recognizable implementation of a wood material.
 
 ## Environmental influences
-While a surface can be separated into layers, and the materials which made up the layers are treated separately, the surfaces still is present as single surface in the environment. This means the environment where the surface exists has a strong influence to it, the trampled chewing gums on the floor as example are a result of an environmental influence. This is because the floor is located in a public place, a wooden floor in a living room may not have the feature of trampled gums.
+While a surface can be separated into layers, and the materials which made up the layers are treated separately, a surface is still part as a single instance of the environment. This means the environment where the surface exists has a strong influence on the appearance. Trampled chewing gums on the floor are a result of an environmental influence, because the floor is located in a public place, a wooden floor in a living room may not have the feature of trampled gums.
 
-Visual features which may appear at first glance inexplicable often can be explained by looking though the history of an surface. Environmental influences are the factors which make materials finally believable. Thinking of possible chemical and physical interactions and their duration through time will give a procedural materials the final touch. This cannot only applied to reference photos, this knowledge can also applied factionary to any surface to mimic a surface in a specific environment.
-
-As mentioned early, the floor in the pub is no exclusion to that and environmental influences took place in the visual appearance.
+Visual features which may appear at first glance inexplicable often can be explained by looking though the history of a surface. Environmental influences are the factors which make materials finally believable. Thinking about the environment and gathering background information about the history, conditions or story can leave visual impressions on surfaces. This knowledge can be applied factionary to surfaces to integrate them in the resulting material to fit more convincingly in the final environment.
 
 ![alt][Figure06]
 > *[Figure06] Left: Floor in a Pub; Mid: burned spots from trampled cigarettes; Right: color variation due to spilled liquids*
 
-Another information about the environment is that the floor is located in a smoking area. And in the reference photo there are all over small dark points like "freckles" on the floor. After a close inspection, these freckles are burned spots from thrown away and trampled cigarettes. Another information which is obvious in a pub is the possibility of spilled liquids. These liquids cannot be wiped away immediately, so the liquid will be soaked up from the floor. This leads to discolorations.
+The wooden floor of the example is no exclusion to that. The floor is located in a smoking area and in the reference photo are all over the place small dark points like "freckles" on the floor. With a close inspection these freckles are identified burned spots from trampled cigarettes. Another information to consider in a pub is the possibility of spilled liquids. These liquids may not be wiped away immediately, so the liquid will be soaked up from the floor, which can cause discolorations to the wood.
 
 
 
@@ -494,6 +499,9 @@ J.P. Lewis, K. Perlin, M. Zwicker
 
 [(SD02)]: https://www.substance3d.com/products/substance-designer/
 > [(SD02)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
+
+[(SD03)]: https://academy.substance3d.com/courses/Creating-your-first-Substance-material/
+> [(SD03)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
 
 
 
