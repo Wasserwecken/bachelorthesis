@@ -331,41 +331,41 @@ Imperfections are important when it comes to creating materials that should have
 
 
 # Applied surface recreation
-To prove and show the concepts mentioned above, the floor from the analysis will be recreated as procedural material.
+To continue the example from the analysis and illustrate the proposed algorithm categorization and concepts of the workflow, the implementation of the wooden floor is described in detail. The objective of the recreation is to show the concepts and effects of algorithms, not to create a photorealistic representation. Nonetheless will the implementation provide a base for continuation to achieve such result by adding more and more details to the material in a hierarchical and iterative manner.
 
 ## Planks
-In the first iteration the most perceptible features of the floor is recreated. This includes the planks and the wood structure for the planks. To begin the recreation, the order of layers from the analysis is used. Therefore the planks are recreated first.
+In the first iteration the most perceptible features of the floor are recreated. This includes the planks and the wood structure of them. To begin the recreation, the order of layers from the analysis is used.
 
 ![alt][Figure14]
 > *[Figure14] Left to right: Tilling & scaling, rectangle as height, render, reference photo*
 
-As noticed from the analysis, the planks are a repetitive geometric pattern of rectangles. Placing each plank individually is therefore unpractical, because the material would be through this either limited in size and or also in variation. The applied technique for that which can be seen as first item in [Figure14] is called "tilling". Tilling will be applied to the UV to ensure the texture is endless and every tile has its own individual appearance. The used algorithm takes a continuous UV as input and return on the one hand a fractured UV and on the other hand a two dimensional ID for each tile, which is a very important part that comes later in play. The tilling is applied per axis differently to match the layout of required plank size. In addition to the tilling, every column of planks is randomly shifted to mimic the irregular shift in the photo reference. This UV is then used to draw a rectangle for recreating the basic heightmap. The rectangle which was drawn is seen as second item in [Figure14] and makes use of a small blur with easing, see [Figure11], to mimic the height transition at the border.
+As noticed from the analysis, the planks are a repetitive geometric pattern of rectangles. Placing each plank individually is therefore impractical, because the material would be through this either limited in size and or also in variation. Therefore was the global UV tilled to create endless equal sized UV’s that match the shape of the planks in the reference photo. The used tiling algorithm takes a continuous UV as input and returns a fractured UV, and in addition a two dimensional ID for each tile, which is an important information that is utilized later by other requirements. In addition to the tilling, every column of planks is randomly shifted to mimic the irregular shift in the photo reference. The tiled UV is then used to draw rectangles to resemble the  base heightmap. The rectangle which was drawn is seen as the second item in [Figure14] and makes use of a small blur with easing, see [Figure11], to mimic the fall of of the planks at the border.
 
 ![alt][Figure15]
 > *[Figure15] Left to right: variation in distortion and tilt, render comparison, reference photo*
 
-The first appearance of the planks is reassembling the layout from the reference phot, but it is not convincing. Besides the lack of detail in many ways, the current appearance of the planks is to perfect. Currently the heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every planks is in level and has the same height. This is where environmental influences and imperfections come in play. As wood planks are aging, in this case drying, they will often bend. This can be seen in the reference photo where the distance between the planks will vary. To mimic this, the UV for the planks and the result of the heightmap has been modified. The distortion on the UV reassembles the bend in the XY axes, the modification of the result reassembles the bend in height. In both cases a large scaled perlin noise was used. [Figure15] compares these changes which are subtle, nonetheless improving the plausibility the heightmap.
+The first result of the material shows similarities to the reference photo. Besides the lack of detail in many ways, the current layout of the planks is too perfect. The heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every plank is in level and has the same height. This is where environmental influences and imperfections take place. As wood planks age, in this case drying, they often bend themselves. This can be seen in the reference photo where the distance between the planks varies. To mimic the variations, the UV for the planks is modified which concludes to a change of the heightmap, which resembles the bend in the XY axes. The values of the heightmap are then modified too to add the bend information in height. Both modifications use a large scaled perlin noise. [Figure15] compares these changes which are subtle, nonetheless improving the plausibility of the heightmap.
 
 ## Wood material
 The creation of the wood material is split in two parts, recording to the analysis and showed in [Figure05].
 
 ### Rings
-There are several ways to recreate a wood ring pattern. One way to mimic the pattern accurately is to recreate the whole tree trunk with his branches as a three dimensional distance field. A taken cross-section simulates then the saw cut of the log. While recreating material structures as accurate distance field can work out, the computation might be expensive and the implementation complicated. Often it is easier to fake structures to create look a likes which will be convincing enough to trick the viewer. The following process for the structure fake is one of many approaches that will work.
+There are several ways to recreate a wood ring pattern. One way to mimic the pattern accurately would be to recreate the whole tree trunk with his branches as a three dimensional distance field. A taken cross-section simulates then the saw cut of the log. While recreating material structures as accurate distance fields can work out, the computation might be expensive and complex to implement. Often it is easier to fake structures to create lookalikes which will be convincing enough to trick the viewer. The applied process to fake the structure is one of many approaches that can work.
 
 ![alt][Figure16]
 > *[Figure16] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
 
-The fake of the structure starts by stretching a perlin noise in one direction to mimic the run direction of the wood. This noise is then fractured in three different gradations and finally combined as fBm, which reassembles the changing colors of wood rings due to different climatic conditions and summer winter cycles. Another technique to achieve similar patterns is to bring turbulence into the UV which feeds the noise algorithm. Turbulence is added by relative rotations in the UV, controlled by another noise. The showed technique however utilizes only a single noise.
+The fake of the structure starts by stretching a perlin noise in one direction to mimic the run direction of the wood trunk. The resulting noise values are then fractured in three different gradations and finally combined as fBm, which reassembles the changing colors of wood rings due to different climatic conditions and summer winter cycles. An alternative technique to achieve similar patterns is to bring turbulence into the UV before passing it to the noise algorithm. Turbulence can be added through relative rotations in the UV, controlled by another noise, shown in [Figure12]. The applied technique however utilizes only a single noise.
 
 ### Branches
-The other important recognizable feature of wood are branches, as noticed in the analysis. The shape of branches are often circular, because of that, random placed circles are a good start to mimic them. While the following demonstration will utilize perfect circles, these circles can be manipulated in further iterations to gain more realism.
+The other important recognizable feature of wood are branches. The shape of branches are often circular, because of that, random placed circles are a good start to mimic them. While the applied approach will utilize perfect circles, these circles can be manipulated in further iterations to gain more realism by achieving elliptical and irregular shapes.
 
 ![alt][Figure17]
 > *[Figure17] Left to right: random circles in size and position, wood ring structure, modified structure, modified structure with branches*
 
-To create random placed circles in a endless manner, tilling the underlying UV is necessary. In each created grid is the placed a circle with random position and size. Nonetheless this technique can still appear retentive which will reveal the invisible grid. To conceal that, only a percentage of the circles is drawn, which is determined by random based on the grid id.
+To create random placed circles in an endless manner, tilling the underlying UV is necessary. In each created sub-UV is a circle placed with random position and size. Nonetheless this technique can still appear retentive which will reveal the invisible grid. To conceal that, only a percentage of the circles are drawn, which is determined by a random value generated through the tile id.
 
-The other part of recreating branches in a wood materials is the integration. As mentioned in the analysis, the branches are influencing the layout of the wood rings, where the branches pushes the rings away from them. To trick the viewer again, the UV nearby branches is rotated. Because of that the circles which represent the branches are blurred. The blur is then used as rotation information. Finally the center of the circles and the wood structure is merge together by adding the values. The created heightmap will be the base for further information like albedo or roughness.
+The other part of recreating branches in wood materials is the integration. As mentioned in the analysis, the branches are influencing the layout of the wood rings, where the branches push the rings away from them. To trick the viewer again, the UV nearby branches are rotated. Because of that the circles which represent the branches are blurred. The blur is then used as rotation information. Finally the center of the circles and the wood structure are merged together by adding the values. The created heightmap will be the base for further information like albedo or roughness.
 
 ## Composition
 ![alt][Figure18]
@@ -373,35 +373,34 @@ The other part of recreating branches in a wood materials is the integration. As
 
 The composition of the planks and the wood material is applied in two steps. First the material has to utilize the plank UV's, then the heightmap is merged with the height of the planks.
 
-The global UV has been tilled earlies to recreate the planks of the floor. Either the global UV or the plank UV can be used as input for the wood material. Which UV is used will depend on the related effects. While the global UV is in the example untouched, the plank UV is modified to mimic the bending of the planks. Therefore the plank UV is used to take the modifications into the wood material. The UV is equal for every plank and therefore the wood material. To have different version of wood for each plank, the wood material needs a unique seed for each plank. As mentioned earlier, by tilling the UV an id for each plank was created, which is now used as seed.
+The global UV has been tilled in forehand to recreate the planks of the floor. Either the global UV or the plank UV can be used as input for the wood material. Which UV is used will depend on the related effects. While the global UV is in the example untouched, the plank UV is modified to mimic the bending of the planks. Therefore the plank UV is used to transfer the modifications into the wood material. The problem of using the plank UV’s is that the wood material has for every plank the same appearance, because the UV are all uniform. But through the concept of seed propagation this can be solved by utilizing the id of the planks as seed for the wood material. This will cause for each plank different random values for the underlying algorithms.
 
-The information of plank and wood heights is merged by scaling the height of the wood and substracting it from the plank height. This approach provides full control over intensity of the wood structure represented in the planks. Finally the values of the merge heightmap have to be clamped, because the subtracting will cause values below zero between the planks. The approach ensures in addition addition the linearity of the plank and wood height, which would not be given by a multiplication. Nonetheless, the merge algorithm depends on the required result, where the multiplication might be preferred. 
+To merge the information of plank and wood heights, the applied approach is achieved by scaling the wood information and subtracting it from the plank height. This provides full control over the intensity of the wood structure through the scaling that is represented in the planks. Finally the values of the merged heightmap have to be clamped, because the subtracting will cause values below zero between the planks. The approach ensures in addition the linearity of the plank and wood height information, which would not be given by a multiplication. Nonetheless, the merge algorithm depends on the required result, where multiplication might be preferred on other materials or heights.
 
-## Deriving from height
-As mentioned earlier, the height of the surface is the most perceptible feature of a surface. Therefore the recreation of the surface is the most time consuming part of creating a procedural material. But once created and the structure is establish, all other properties of a surface which have to feed the lightning model can be derived from the height, which takes only a fraction of the effort. The amount of properties and the way of derivation from the heightmap depends on the lightning model. The chosen lightning model is based on Disney's paper for physically based shading [(B01)]. The procedural material will feed the albedo and roughness parameter beside the height displacement.
+
+## Height derivations
+The amount of properties and the way of derivation from the heightmap depends on the lightning model. The chosen lightning model for the example is based on Disney's paper for physically based shading [(B01)]. The procedural material will feed the albedo and roughness parameter besides the height displacement.
 
 ### Color
-The color of the surface of the floor from the example is mainly influenced by two parts. First, by the wood itself and then by the different planks and environment.
+The color of the floor is reassembled in three steps: First, by the wood itself and then by the different planks and finally through environment.
 
 ![alt][Figure19]
 > *[Figure19] Left to right: wood structure, burned cigarette spots, generated surface color, render, reference photo*
 
-Colorizing the wood material is quite straight forward. The generated height is used as interpolation value between two brownish colors which represent the darkest and brightest color of the wood. To refine the distribution between bight and dark colors, the heightmap was eased to show more bright than dark values.
+Colorizing the wood material is quite straight forward. The generated height is used as an interpolation between two brownish colors which represent the darkest and brightest color of the wood. To refine the distribution between bright and dark colors, the heightmap was eased to show more bright than dark values.
 
-The color information is then utilized by the floor layout, where the existing heightmap of the floor is simply multiplied to the color. This is possible due to specific coincidences. First, the gabs between the planks are filled with deep black dust, which will match the color of the heightmap on this position where the lowest points of the material is represented by zero. Then second coincidence is the height variation of the planks to mimic the bend. Every plank will have a small color variation to other ones, because not every plank is manufactured from the same trunk and position. By multiplying the height information with albedo, the color variation for each plank and the dust is achieved.
+The color information is then utilized by the floor layout, where the existing heightmap of the floor is simply multiplied to the color. This is possible due to specific coincidences. First, the gaps between the planks are filled with deep black dust, which will match the color of the heightmap on this position where the lowest points of the material are represented by zero. Then the second coincidence is the height variation of the planks which mimic the bend. Every plank will have a small color variation to other ones, because not every plank is manufactured from the same trunk and position. By multiplying the height information with albedo, the color variation for each plank and the dust is achieved.
 
-Finally the cigarette burns are added to the surface color. The spots are reassembled, like the branches in the wood structure, as circles with random position, size and strength on a tilled UV. This mask is then used to blend between a reddish dark brown, to mimic nearly burned wood, and the existing albedo.
+Finally the cigarette burns are added to the surface color. The spots are reassembled, like the branches in the wood structure, as circles with random position, size and strength on a tiled UV. This mask is then used to blend between a reddish dark brown, to mimic nearly burned wood, and the existing albedo.
+
 
 ### Roughness
-The roughness parameter of the lighting model controls the diffusion of light. In general the floor from the reference photo is a very rough surface because of the shoes from guests. The shoes will cause deposits of dirt and brush up the surface of the wood.
+The roughness parameter of the lighting model controls the diffusion of light. In general the floor from the reference photo is a very rough surface mainly because of wearing through dirty shoes. The shoes also cause deposits of dirt and brushing the surface of the floor.
 
 ![alt][Figure20]
 > *[Figure20] Left to right: Roughness map, render, reference photo*
 
-To simulate the different levels of roughness in the example surface, the heightmap as it is will be utilized, because dirt deposits are located in lower places of the surface. There fore the height is inverted and remapped to cover a small range in the higher level of roughness.
-
-## Further iterations
-Once a procedural material feeds all the parameters of the lighting model, further iteration on the details can be made. Right now the example has a comic appearance. This can be improved by using the information from the analysis.
+To simulate the different levels of roughness in the example surface, the heightmap as it is will be utilized, because dirt deposits are located in lower places of the surface. Therefore the height is inverted and remapped to cover a small range in the higher level of roughness.
 
 
 
