@@ -253,55 +253,63 @@ Easing is a well known technique for animations to improve linear interpolation 
 
 
 # Workflow
-Creating procedural materials, algorithms are often used in a repetitive or specific manner to achieve certain results. Techniques and approaches which help creating materials will be part of this section.
+Transferring the gathered information from the analysis into an actual implementation that represents the reference surface can be overwhelming in the first place. This section will propose several guidelines to support a structured approach of the reassemble.
 
 ## Height first
-The most visually perceptible characteristic of surfaces is height. Height influences distortions of reflections, the amount of received light, ambient occlusion, self shadowing and more. Therefore it is a good practice to start off by recreating the height only. Later other features like color or roughness can then derived by the height information. This is possible because many  features depending on the height of the surface, like dust deposits or wearing.
+Besides color, height information has a strong influence on the surface characteristics. Differences in height influences the interaction of light by distorting reflection angles, the amount of received light, ambient occlusion, and self shadowing [(K01)]. 
 
-By recreating the height of the surface, information from the analysis should be used. Because the analysis is carried out hierarchical and the the most recognizable features where noticed first, this order should be maintained though the hole creation process. Because when the most recognizable features are done right, it will be no problem to add new and more detailed features without changing the visual appearance. This will also support the hierarchical aspect, because the analysis and height creation can be executed simultaneously in a iterative manner. When the created material will match the requirements, there will be no need for further analyses or detail recreations.
+![alt][FigureXY]
+> *[FigureXY] Top to bottom: Excluded height information, both together, excluded color information.*
+
+Another observation is that height information resembles structural features that are gathered from the analysis. The correlation is expressed through transitions between different materials or structural features. These are almost always represented in height differences. In addition through the physical meaning of height, other features like dust deposits and wearing can be derived to implement and distribute environmental influences in a convincing manner. Derived features can not only result in color but also in roughness or ambient occlusion information, basically any information that is may required by the attached lighting model. 
+
+Because of this important meaning of height for materials, it is recommended to start the implementation with it. This will support the recognizability of materials and simplifies the implementation process. Height should be expressed as a single value within a range between zero and one, because many algorithms already result and expect parameters in this range. The representation is also visually easy to understand.
+
+To recreate the height, the hierarchical order of the analysis should be considered. The proposed steps of analysis already return information ordered by their 
+Obtrusiveness. This leads to an approach where rough details will be implemented first, followed by more and more detailed features. Through this workflow is it possible to create derivations at any point of the height to control other information of the material, where a more detailed height information might be undesirable.
 
 ## Distorting parameters
-Shape and noise algorithms are the base to reassemble surface structures, but these algorithms may are to to uniform or to poor in details to replicate wanted surface structures. Structures in natural surfaces have often imperfections or turbulences because or reasons like human failure or aging. While it is possible to implement deformations directly into shape and noise algorithms themselves. This approach is not recommended, because this will limit the generating algorithm so specific use cases. To break the perfection or lack of detail of noise and shape algorithms, manipulating their parameters is a efficient and reusable approach. The most interesting parameter to manipulate may be the UV. Manipulating the UV with a noise can easily mimic turbulence or irregularities. [Figure12] showed this technique, where the UV was manipulated multiple times.
+Shape and noise algorithms are the base to reassemble surface structures, but these algorithms may be too uniform or too poor in details to replicate wanted surface structures. Structures in natural surfaces often have imperfections or turbulences because of factors like human failure or aging. While it is possible to implement deformations directly into shape and noise algorithms themselves, his approach is not recommended, because this will limit the generating algorithm so specific use cases. To break the perfection or lack of detail of noise and shape algorithms, manipulating their parameters is an efficient and reusable approach. The most interesting parameter to manipulate may be the UV. Manipulating the UV with a noise can mimic turbulence or irregularities. [Figure12] showed this technique, where the UV was manipulated multiple times.
 
 ![alt][Figure12]
 > *[Figure12] manipulated UV with noise for noise: "f(p) = fbm(p + fbm(p + fbm(p)))" [(IQ03)]*
 
+The general concept of distorting parameters is to have a base value which then is manipulated slightly to create deviations. This can be applied to any parameter that an algorithm offers, which could result in differences like color, position or orientation of similar elements. Using the RNG to create deviations besides noise is also a valid technique to create incoherent differences.
+
 ## Seed
-As mentioned earlier, the random number generator for procedural materials is based on hashing. Hashing needs an input to create pseudo random numbers. Noise utilize hashing for creating random values, incrementing the input for each new random value which is required. While this is fine and works perfectly, procedural materials can not make use of a single noise only, they have to use  couple of them, noise of different kinds, scale, rotation, offset and values. The risk of using the same noise over and over is to have coincidences by layering or making decisions on them, coincidences like repetitive distribution can be immediately recognized by humans and will break the immersion. Another requirement within procedural materials is the ability to break the continuous structure of noises, this is necessary to mimic surfaces which are made of physically separate but same kind of materials, like floor planks where the planks are from the same type of wood planks but the planks are assembled in a arbitrary order. To ensure the reusability of the algorithms and created sub-materials, every functions which uses hashing in any way should provide a seed parameter. This parameter ensures the diversity of noises, materials and randomness.
+As mentioned earlier, the random number generator for procedural materials is based on hashing. Hashing needs an input to create pseudo random numbers. Noise utilizes hashing for creating random values which are interpolated with neighbor values[(LLC01)]. While this is fine and works perfectly for the noise itself, procedural materials often have to utilize noise of different kinds, scale, rotation, offset and values. The risk of using the same noise over and over can lead to coincidences by layering or making decisions based on them. Coincidences like repetitive distribution can be immediately recognized by humans and will break the immersion. Another requirement within procedural materials is the ability to break continuous structures of noises, which is used to mimic separate surface elements that are made of the material, like floor planks where the planks are from the same type of wood but the planks are assembled in an arbitrary order.
+
+To enable the possibility of different results for generative algorithms that depend on the RNG, it is recommended to propagate a seed parameter. This parameter should be then used as a base where every required random value is built upon. This can be achieved easily by either incrementing the initial seed value by every use and or also by combining the seed parameter with internal seed values. Through this recommendation, the algorithm then depends on the seed parameter that concludes to endless distinctive but still similar results. Further, this approach should not only be used in the algorithms themselves, creating a seed parameter for a whole procedural material and sub-materials allows to have endless variations with minimal effort.
 
 ## Make more noise
-While the base noise functions are useful to create unpredictable patterns, often their appearance is not detailed enough for many purposes. The lack of details is due the limited frequency in the noise. Lattice based noises will have a single frequency projected in their result. Layering the base functions can bring details into noises or create other visual appealing features.
+While the base noise functions are useful to create unpredictable patterns, often their appearance is not detailed enough for many purposes. The lack of details is usually caused by limited frequency in the noise. Lattice based noises will have a single frequency projected in their result [(LLC01)]. Layering base functions can overcome the lack of detail of noises or create other visual appealing results.
 
 ### Fractal Brownian motion
-Fractal Brownian motion (fBm) is a well known approach to combine multiple frequencies to create noise rich in details. It describes an additive layering of the same noise algorithm with different weights, scale and iterations. This can be done basically with any noise as shown in [Figure09] on the left side.
+Fractal Brownian motion (fBm) is an approach to combine multiple frequencies to create noise rich in details. It describes an additive layering of the same noise algorithm with different weights, scale and iterations. This can be done basically with any noise as shown in [Figure09] on the left side [(BS01)].
 
 ### Noise by Noise
-The base noise algorithms, even extended by fBm, may do not cover all cases of  unpredictable patterns. To extend the toolbox of noises even more, noise can be combined in any way to create new complex noises for reassembling grunge or other surface features.
+The base noise algorithms, even extended by fBm, may not cover all cases of required unpredictable patterns. To extend the toolbox of noises even more, noise can be combined in any way to create new complex noises for reassembling grunge or other surface features.
 
 ![alt][Figure13]
 > *[Figure13] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise from base noise functions*
 
 ```glsl
-float noise_complex(vec2 point, vec2 seed)
-{
-    float complex = 1.0;
-    for(int i = 0; i < 3; i++)
-    {
-        float noise = noise_perlin(point, seed++);
-        noise = noise_vallies(noise); // --> return abs(noise * 2.0 - 1.0)
-        complex = min(complex, noise);
-    }
-
-    return easing_power_out(complex, 3.0); // --> return pow(complex, 3.0)
-}
+complex = 1.0
+for i=0; i < 3; i++
+    noise = noise_perlin(uv, seed++)
+    noise = abs(noise * 2.0 - 1.0)
+    complex = min(complex, noise)
+complex = pow(complex, 3.0)
 ```
 > Code for the complex noise shown in figure
 
-[Figure13] shows a complex noise which was generated combining the results of base noise functions. This noise also used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a great selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
+[Figure13] shows a complex noise which was generated combining the results of base noise functions. This noise used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a custom selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
 
 ## Imperfections
-TODO: ausformulieren!
-By looking to surfaces from the real world, one thing they have all in common: They have all flaws in any way. This is what makes convincing and beliveable surfaces. Ment with flaws are impefections on the surfaces of any size. Examples of imperfections in surfaces are scratches, dents, discolorations, dust, fingerprints or human failure.
+By looking at real world surfaces they have one thing in common: They have all flaws in any way. These flaws may not be perceptible at first glance but they still exist. Imperfections in surfaces are irregularities which occur due to the interaction with its environment or during creation. Examples of imperfections are scratches, dents, discolorations, dust, fingerprints or inaccuracy. Nonetheless imperfections are very subtle features of surfaces.
+
+Imperfections are important when it comes to creating materials that should have photorealistic appearances. Materials that are too perfect in their composition will break the illusion of the surface, because they will break the continuity of material properties. Good examples can be found in bathroom tiles. Common imperfection could be the position, orientation and tilt of the individual tiles. By laying the tiles and filling the gaps with mortar they often show minimal deviations through the mortar. This can be caused either through inaccurate laying of the tiles and or also varying distributions of the mortar. Nonetheless differences should be very subtle and therefore considered as imperfection. Another illustrative example are fingerprints on smartphones. Looking at the switched off screen, these fingerprints may be not perceptible in various angles. But in certain angles where the screen reflects light sources or bright surfaces in the environment to the viewer, they are gonna be visible.
+
 
 
 
@@ -519,6 +527,13 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [(SD03)]: https://academy.substance3d.com/courses/Creating-your-first-Substance-material/
 > [(SD03)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
 
+[(K01)]: http://www.cse.chalmers.se/edu/year/2011/course/TDA361/2007/rend_eq.pdf
+> [(K01)]: The rendering equation | 1986 | James T. Kajiya
+
+[(BS01)]: https://thebookofshaders.com/13/
+> [(BS01)]: Fractal Brownian Motion | 2020 | The Book of Shaders by Patricio Gonzalez Vivo & Jen Lowe
+
+
 
 
 
@@ -543,5 +558,4 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [Figure18]: ./img/applied5.png
 [Figure19]: ./img/applied6.png
 [Figure20]: ./img/applied7.png
-
->[Figure02]: https://pbs.twimg.com/media/EL857feW4AAiqYr.jpg
+[FigureXY]: ./img/height.png
