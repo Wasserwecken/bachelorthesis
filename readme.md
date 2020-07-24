@@ -224,7 +224,7 @@ While noise algorithms are utilized to mimic unpredictable surface structures, s
 ![alt][Figure10]
 > *[Figure10] Left: various shapes with blur; Right: Distance fields*
 
-An important feature which every shape algorithm has to provide is blur, as shown in [Figure10]. Unfortunately this has to be done within the shape generation, because after the generation there is no way to blur a shape or information without access to neighbor information, which is not given in shader. Blurring shapes are essential for creating procedural materials, because geometric shapes, like noise, have transitions that are represented in various features of a surface, where a transition into another height or color is needed. Without blur there would be an instantaneous change in information which does not reflect most surfaces. To provide blurring basic shapes, using a distance field as base is recommended, because then only the start and end point of the transition has to be given. Inigo Quilez made a nice listening of several distance functions in 2D and 3D space on his website [(IQ02)]. Another detail for blurring shapes which should be noticed is that the blur should be linear. A linear gradient will make modifications to the transition distribution easier and exchangeable.
+An important feature which every shape algorithm has to provide is blur, as shown in [Figure10]. Unfortunately this has to be done within the shape generation, because after the generation there is no way to blur a shape or information without access to neighbor information, which is not given in shader. Blurring shapes are essential for creating procedural materials, because geometric shapes, like noise, have transitions that are represented in various features of a surface, where a transition into another height or color is needed. Without blur there would be an instantaneous change in information which does not reflect most surfaces. To provide blurring basic shapes, using a distance field as base is recommended, because then only the start and end point of the transition has to be given. Inigo Quilez made a nice listening of several distance functions in 2D and 3D space on his website [(IQ02)] [(IQ03)]. Another detail for blurring shapes which should be noticed is that the blur should be linear. A linear gradient will make modifications to the transition distribution easier and exchangeable.
 
 ## Easing
 Manipulating values is a common element for creating procedural materials. Usually the result of shape and noise algorithms are in the range between 0 and 1. To utilize these results, often their range or distribution has to be adjusted to achieve desired results. This can be either done by scaling and offsetting the result for simple adjustments or the result can be manipulated through easing functions where the results can be very distinguishable from the original input.
@@ -256,7 +256,7 @@ Easing is a well known technique for animations to improve linear interpolation 
 Transferring the gathered information from the analysis into an actual implementation that represents the reference surface can be overwhelming in the first place. This section will propose several guidelines to support a structured approach of the reassemble.
 
 ## Height first
-Besides color, height information has a strong influence on the surface characteristics. Differences in height influences the interaction of light by distorting reflection angles, the amount of received light, ambient occlusion, and self shadowing [(K01)]. 
+Besides color, height information has a strong influence on the surface characteristics. Differences in height influences the interaction of light by distorting reflection angles, the amount of received light, ambient occlusion, and self shadowing [(KJ01)]. 
 
 ![alt][FigureXY]
 > *[FigureXY] Top to bottom: Excluded height information, both together, excluded color information.*
@@ -269,10 +269,10 @@ To recreate the height, the hierarchical order of the analysis should be conside
 Obtrusiveness. This leads to an approach where rough details will be implemented first, followed by more and more detailed features. Through this workflow is it possible to create derivations at any point of the height to control other information of the material, where a more detailed height information might be undesirable.
 
 ## Distorting parameters
-Shape and noise algorithms are the base to reassemble surface structures, but these algorithms may be too uniform or too poor in details to replicate wanted surface structures. Structures in natural surfaces often have imperfections or turbulences because of factors like human failure or aging. While it is possible to implement deformations directly into shape and noise algorithms themselves, his approach is not recommended, because this will limit the generating algorithm so specific use cases. To break the perfection or lack of detail of noise and shape algorithms, manipulating their parameters is an efficient and reusable approach. The most interesting parameter to manipulate may be the UV. Manipulating the UV with a noise can mimic turbulence or irregularities. [Figure12] showed this technique, where the UV was manipulated multiple times.
+Shape and noise algorithms are the base to reassemble surface structures, but these algorithms may be too uniform or too poor in details to replicate wanted surface structures. Structures in natural surfaces often have imperfections or turbulences because of factors like human failure or aging. While it is possible to implement deformations directly into shape and noise algorithms themselves, his approach is not recommended, because this will limit the generating algorithm so specific use cases. To break the perfection or lack of detail of noise and shape algorithms, manipulating their parameters is an efficient and reusable approach. The most interesting parameter to manipulate may be the UV. Manipulating the UV with a noise can mimic turbulence or irregularities. [Figure13] showed this technique, where the UV was manipulated multiple times.
 
-![alt][Figure12]
-> *[Figure12] manipulated UV with noise for noise: "f(p) = fbm(p + fbm(p + fbm(p)))" [(IQ03)]*
+![alt][Figure13]
+> *[Figure13] manipulated UV with noise for noise: "f(p) = fbm(p + fbm(p + fbm(p)))" [(IQ01)]*
 
 The general concept of distorting parameters is to have a base value which then is manipulated slightly to create deviations. This can be applied to any parameter that an algorithm offers, which could result in differences like color, position or orientation of similar elements. Using the RNG to create deviations besides noise is also a valid technique to create incoherent differences.
 
@@ -290,8 +290,8 @@ Fractal Brownian motion (fBm) is an approach to combine multiple frequencies to 
 ### Noise by Noise
 The base noise algorithms, even extended by fBm, may not cover all cases of required unpredictable patterns. To extend the toolbox of noises even more, noise can be combined in any way to create new complex noises for reassembling grunge or other surface features.
 
-![alt][Figure13]
-> *[Figure13] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise from base noise functions*
+![alt][Figure14]
+> *[Figure14] Complex noise; Left: complex noise used for displacement and color; Right: generated complex noise from base noise functions*
 
 ```glsl
 complex = 1.0
@@ -303,7 +303,7 @@ complex = pow(complex, 3.0)
 ```
 > Code for the complex noise shown in figure
 
-[Figure13] shows a complex noise which was generated combining the results of base noise functions. This noise used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a custom selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
+[Figure14] shows a complex noise which was generated combining the results of base noise functions. This noise used a single algorithm as base, however there are no restrictions in any way for creating complex noise. Many render applications make use of this technique to provide their users a custom selection of patterns. These complex noises can amongst other things mimic surface features like scratches, cracks and grunge.
 
 ## Imperfections
 By looking at real world surfaces they have one thing in common: They have all flaws in any way. These flaws may not be perceptible at first glance but they still exist. Imperfections in surfaces are irregularities which occur due to the interaction with its environment or during creation. Examples of imperfections are scratches, dents, discolorations, dust, fingerprints or inaccuracy. Nonetheless imperfections are very subtle features of surfaces.
@@ -336,15 +336,15 @@ To continue the example from the analysis and illustrate the proposed algorithm 
 ## Planks
 In the first iteration the most perceptible features of the floor are recreated. This includes the planks and the wood structure of them. To begin the recreation, the order of layers from the analysis is used.
 
-![alt][Figure14]
-> *[Figure14] Left to right: Tilling & scaling, rectangle as height, render, reference photo*
-
-As noticed from the analysis, the planks are a repetitive geometric pattern of rectangles. Placing each plank individually is therefore impractical, because the material would be through this either limited in size and or also in variation. Therefore was the global UV tilled to create endless equal sized UV’s that match the shape of the planks in the reference photo. The used tiling algorithm takes a continuous UV as input and returns a fractured UV, and in addition a two dimensional ID for each tile, which is an important information that is utilized later by other requirements. In addition to the tilling, every column of planks is randomly shifted to mimic the irregular shift in the photo reference. The tiled UV is then used to draw rectangles to resemble the  base heightmap. The rectangle which was drawn is seen as the second item in [Figure14] and makes use of a small blur with easing, see [Figure11], to mimic the fall of of the planks at the border.
-
 ![alt][Figure15]
-> *[Figure15] Left to right: variation in distortion and tilt, render comparison, reference photo*
+> *[Figure15] Left to right: Tilling & scaling, rectangle as height, render, reference photo*
 
-The first result of the material shows similarities to the reference photo. Besides the lack of detail in many ways, the current layout of the planks is too perfect. The heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every plank is in level and has the same height. This is where environmental influences and imperfections take place. As wood planks age, in this case drying, they often bend themselves. This can be seen in the reference photo where the distance between the planks varies. To mimic the variations, the UV for the planks is modified which concludes to a change of the heightmap, which resembles the bend in the XY axes. The values of the heightmap are then modified too to add the bend information in height. Both modifications use a large scaled perlin noise. [Figure15] compares these changes which are subtle, nonetheless improving the plausibility of the heightmap.
+As noticed from the analysis, the planks are a repetitive geometric pattern of rectangles. Placing each plank individually is therefore impractical, because the material would be through this either limited in size and or also in variation. Therefore was the global UV tilled to create endless equal sized UV’s that match the shape of the planks in the reference photo. The used tiling algorithm takes a continuous UV as input and returns a fractured UV, and in addition a two dimensional ID for each tile, which is an important information that is utilized later by other requirements. In addition to the tilling, every column of planks is randomly shifted to mimic the irregular shift in the photo reference. The tiled UV is then used to draw rectangles to resemble the  base heightmap. The rectangle which was drawn is seen as the second item in [Figure15] and makes use of a small blur with easing, see [Figure11], to mimic the fall of of the planks at the border.
+
+![alt][Figure16]
+> *[Figure16] Left to right: variation in distortion and tilt, render comparison, reference photo*
+
+The first result of the material shows similarities to the reference photo. Besides the lack of detail in many ways, the current layout of the planks is too perfect. The heightmap describes them as perfectly perpendicular to each other, the edges are perfect straight and every plank is in level and has the same height. This is where environmental influences and imperfections take place. As wood planks age, in this case drying, they often bend themselves. This can be seen in the reference photo where the distance between the planks varies. To mimic the variations, the UV for the planks is modified which concludes to a change of the heightmap, which resembles the bend in the XY axes. The values of the heightmap are then modified too to add the bend information in height. Both modifications use a large scaled perlin noise. [Figure16] compares these changes which are subtle, nonetheless improving the plausibility of the heightmap.
 
 ## Wood material
 The creation of the wood material is split in two parts, recording to the analysis and showed in [Figure05].
@@ -352,8 +352,8 @@ The creation of the wood material is split in two parts, recording to the analys
 ### Rings
 There are several ways to recreate a wood ring pattern. One way to mimic the pattern accurately would be to recreate the whole tree trunk with his branches as a three dimensional distance field. A taken cross-section simulates then the saw cut of the log. While recreating material structures as accurate distance fields can work out, the computation might be expensive and complex to implement. Often it is easier to fake structures to create lookalikes which will be convincing enough to trick the viewer. The applied process to fake the structure is one of many approaches that can work.
 
-![alt][Figure16]
-> *[Figure16] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
+![alt][Figure17]
+> *[Figure17] Left to right: scaled noise, first fracture, second fracture, third fracture, combined as fractal Brownian motion*
 
 The fake of the structure starts by stretching a perlin noise in one direction to mimic the run direction of the wood trunk. The resulting noise values are then fractured in three different gradations and finally combined as fBm, which reassembles the changing colors of wood rings due to different climatic conditions and summer winter cycles. An alternative technique to achieve similar patterns is to bring turbulence into the UV before passing it to the noise algorithm. Turbulence can be added through relative rotations in the UV, controlled by another noise, shown in [Figure12]. The applied technique however utilizes only a single noise.
 
@@ -368,8 +368,8 @@ To create random placed circles in an endless manner, tilling the underlying UV 
 The other part of recreating branches in wood materials is the integration. As mentioned in the analysis, the branches are influencing the layout of the wood rings, where the branches push the rings away from them. To trick the viewer again, the UV nearby branches are rotated. Because of that the circles which represent the branches are blurred. The blur is then used as rotation information. Finally the center of the circles and the wood structure are merged together by adding the values. The created heightmap will be the base for further information like albedo or roughness.
 
 ## Composition
-![alt][Figure18]
-> *[Figure18] Left to right: prepared wood material and planks, merged planks with wood, previous render, render with merged wood material*
+![alt][Figure19]
+> *[Figure19] Left to right: prepared wood material and planks, merged planks with wood, previous render, render with merged wood material*
 
 The composition of the planks and the wood material is applied in two steps. First the material has to utilize the plank UV's, then the heightmap is merged with the height of the planks.
 
@@ -384,8 +384,8 @@ The amount of properties and the way of derivation from the heightmap depends on
 ### Color
 The color of the floor is reassembled in three steps: First, by the wood itself and then by the different planks and finally through environment.
 
-![alt][Figure19]
-> *[Figure19] Left to right: wood structure, burned cigarette spots, generated surface color, render, reference photo*
+![alt][Figure20]
+> *[Figure20] Left to right: wood structure, burned cigarette spots, generated surface color, render, reference photo*
 
 Colorizing the wood material is quite straight forward. The generated height is used as an interpolation between two brownish colors which represent the darkest and brightest color of the wood. To refine the distribution between bright and dark colors, the heightmap was eased to show more bright than dark values.
 
@@ -397,8 +397,8 @@ Finally the cigarette burns are added to the surface color. The spots are reasse
 ### Roughness
 The roughness parameter of the lighting model controls the diffusion of light. In general the floor from the reference photo is a very rough surface mainly because of wearing through dirty shoes. The shoes also cause deposits of dirt and brushing the surface of the floor.
 
-![alt][Figure20]
-> *[Figure20] Left to right: Roughness map, render, reference photo*
+![alt][Figure21]
+> *[Figure21] Left to right: Roughness map, render, reference photo*
 
 To simulate the different levels of roughness in the example surface, the heightmap as it is will be utilized, because dirt deposits are located in lower places of the surface. Therefore the height is inverted and remapped to cover a small range in the higher level of roughness.
 
@@ -418,31 +418,24 @@ To simulate the different levels of roughness in the example surface, the height
 
 
 # Conclusion
-The results of the solutions for the named objectives are now analyzed.
+Using complex materials entirely created in fragment shaders might not be useful in real time applications, where every frame per second matters. As shown in the applied recreation, procedural materials may be built upon many algorithms which have a negative impact to the performance. The approach of procedural material within fragment shaders might work for offline render applications, it would be interesting to test how much impact a procedural material will have to the render time besides ordinary textures.
 
 ## Analyzing surfaces
-The analysis of surfaces pointed out to be an essential part of creating procedural materials. The recreation of procedural materials showed that the natural layering and composition of a surface can be transferred into the implementation. Extracted layers from the analysis are corresponding to created UV layouts and general height information, as showed in the example of the pub floor. The splitted analysis of layers and surface materials can be also used to implement surface materials separately to make them reusable for other procedural materials. The wood material from the pub floor could be used also in a furniture material. This will save time and effort by creating such materials. By thinking about environment influences, interesting and characterizing details are added to the material. With these influences, materials are becoming convincing for the viewer. In addition, many environmental influences can be transferred easily to other materials, without the need of reference photos or existing materials. Therefore, some of them can be also prepared as separate material, like cracks or grease, for reuse.
+The analysis of surfaces pointed out to be an essential part of creating procedural materials. The applied recreation of surfaces showed that the natural layering and composition of a surface can be transferred into the implementation and extracted layers from the analysis are corresponding to created UV layouts and general height information, as shown in the example of the pub floor. The splitted analysis of layers and surface materials can be also used to implement surface materials separately to make them reusable for other procedural materials. The wood material for the pub floor could be used after the implementation in further materials, like a furniture material. This will save time and effort by creating such materials. By thinking about environment influences, interesting and characterizing details are added to the material. With these influences, materials are becoming convincing for the viewer. In addition, many environmental influences can be transferred easily to other materials, without the need of reference photos or existing materials. Therefore, some of them can be also prepared as separate material, like cracks or grease, for reuse.
 
 The proposed approach of the analysis showed also to have no dependencies to programming languages or applications. And the restriction for shader programming did not influence the analysis either. Therefore it can be assumed that the approach of the analysis, with its three steps and hierarchical method, can be applied not only to implicit procedural surface creation. The approach may also work for explicit environments and applications like Substance Designer [(SD02)].
 
 ## Algorithm categorization
-The defined categorization showed to be useful and helpful while creating procedural materials. On the one hand helped the categorization looking for new algorithms to achieve new and distinct results besides the results from existing algorithms, because through the name and appointed task of the categories. On the other hand showed the categorization to be useful by exploring the results of new combinations of algorithms. Due to the sorting of the algorithms is the structure of parameters similar. This made it easy to exchange specific algorithms with other o the same kind to check out new results.
+The defined categorization showed to be useful and helpful while creating procedural materials. On the one hand helped the categorization looking for new algorithms to achieve new and distinct results besides the results from existing algorithms, because through the name and appointed task of the categories. On the other hand showed the categorization to be useful by exploring the results of new combinations of algorithms. Due to the sorting of the algorithms is the structure of parameters similar. This made it easy to exchange specific algorithms with others of the same kind to explore new results.
 
-While the analysis showed to be independent from the implementation, the categorization is influenced by the restrictions of shaders. Due to the limitation that only implicit algorithms are suited for shaders, all generative algorithms like noise and shapes depending on UV coordinates. These UV coordinates may are not given in other environments or applications, again like Substance Designer. Therefore the defined categorization might only work for fragment shader implementations.
+While the analysis showed to be independent from the implementation, the categorization is influenced by the restrictions of shaders. Due to the limitation that only implicit algorithms are suited for shaders, all generative algorithms like noise and shapes depending on UV coordinates. These UV coordinates may be not given in other environments or applications, again like Substance Designer. Therefore the defined categorization might only work for fragment shader implementations.
 
-Nonetheless showed the categorization that through sorting algorithms and implementing them abstract, without specializations, they can be used like Lego bricks. It also abstracts the complexity of the algorithms which makes them usable for a wider range of users and looses creativity from technology.
+Nonetheless showed the categorization that through sorting algorithms and implementing them abstract, without specializations, they can be used like Lego bricks. It also abstracts the complexity of the algorithms which makes them usable for a wider range of users and separates creativity from technology.
 
 ## Workflow
-The proposed workflow guidelines showed to be useful and ensured a structured procedure. The workflow matched also with the hierarchical approach of the analysis, therefore iteration to reach the desired level of detail are built in and are easy to integrate. Similar to the analysis showed the guidelines of the workflow no dependencies to a environment or application, which they may can ne apply to them.
+The proposed workflow guidelines showed to be useful and ensured a structured procedure. The workflow matched also with the hierarchical approach of the analysis, therefore iteration to reach the desired level of detail are built in and are easy to integrate. Similar to the analysis showed the guidelines of the workflow no dependencies to an environment or application, which they may apply to them.
 
 While creating materials, the workflow guidelines showed yet to be vague. And Try-And-Error phases taking still a big portion of the creation process. Foreknowledge of combinations of algorithms cannot be eliminated by the named guidelines. Nonetheless they will help to guide experiments to reach desired results faster.
-
-## General
-As showed in the applied recreation, creating procedural materials entirely within a fragment shader will work and can create complex materials with great details. By abstracting the algorithms, it seems that only the creativity might limit the process. Also the restrictions for shaders might not seem to be a big problem. This might be true for the first glance, where also most every structure can be replicated by combining algorithms and or modifying according parameters. On the second glance, it shows that sometimes complex and long chains of algorithms are needed to get desired results, where environments which can utilize post processing algorithms might be way more efficient.
-
-The aspects of performance and anti aliasing also have to be mentioned, even their where not part of this work. Using complex materials entirely created in fragment shaders might not be useful in realtime applications, where every frame per second matters. As showed in the applied recreation, procedural materials are build upon many algorithms which will have an impact on the performance. The approach of procedural material within fragment shaders might work for offline render application, it would be interesting to test how much impact a procedural material will have to the render time besides ordinary textures. The problem with anti aliasing is the level of detail. As more a material gets detail, the more aliasing will appear. Some papers already explored the problem of anti aliasing and discovered approaches to counter it, nonetheless, these techniques have to be implemented to if the aliasing gets to noticeable.
-
-
 
 
 
@@ -481,9 +474,6 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [(BLE01)]: https://docs.blender.org/manual/en/latest/render/shader_nodes/index.html
 > [(BLE01)]: *Blender Shader Nodes* | 2020 | Blender Foundation
 
-[(MAY01)]: https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2019/ENU/Maya-LightingShading/files/GUID-62DAABF0-299A-4F40-894D-C8FCACD1C046-htm.html
-> [(MAY01)]: *Maya Texture Nodes* | 2020 | Autodesk
-
 [(UNI01)]: https://unity.com/de/shader-graph
 > [(UNI01)]: *Unity ShaderGraph* | 2020 | Unity Technologies
 
@@ -499,11 +489,8 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [(IQ01)]: https://www.iquilezles.org/www/articles/warp/warp.htm
 > [(IQ01)]: *domain warping* | 2002 | Inigo Quilez
 
-[(IQ02)]: https://www.iquilezles.org/www/articles/warp/warp.htm
-> [(IQ02)]: *Warp* | 2002 | Inigo Quilez
-
 [(IQ02)]: https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-> [(IQ03)]: *2D distance functions* | ???? | Inigo Quilez
+> [(IQ02)]: *2D distance functions* | ???? | Inigo Quilez
 
 [(IQ03)]: https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
 > [(IQ03)]: *distance functions* | ???? | Inigo Quilez
@@ -517,17 +504,14 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [(C01)]: https://graphics.pixar.com/library/ShadeTrees/paper.pdf
 > [(C01)]: *Shade Trees* | 1984 | Robert L. Cook
 
-[(SD01)]: https://docs.substance3d.com/sddoc/blur-hq-159450455.html
-> [(SD01)]: Blur HQ | 2020 | Allegorithmic / Adobe Inc.
+[(SD01)]: https://academy.substance3d.com/courses/Creating-your-first-Substance-material/
+> [(SD01)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
 
 [(SD02)]: https://www.substance3d.com/products/substance-designer/
 > [(SD02)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
 
-[(SD03)]: https://academy.substance3d.com/courses/Creating-your-first-Substance-material/
-> [(SD03)]: Substance Designer | 2020 | Allegorithmic / Adobe Inc.
-
-[(K01)]: http://www.cse.chalmers.se/edu/year/2011/course/TDA361/2007/rend_eq.pdf
-> [(K01)]: The rendering equation | 1986 | James T. Kajiya
+[(KJ01)]: http://www.cse.chalmers.se/edu/year/2011/course/TDA361/2007/rend_eq.pdf
+> [(KJ01)]: The rendering equation | 1986 | James T. Kajiya
 
 [(BS01)]: https://thebookofshaders.com/13/
 > [(BS01)]: Fractal Brownian Motion | 2020 | The Book of Shaders by Patricio Gonzalez Vivo & Jen Lowe
@@ -548,13 +532,13 @@ J.P. Lewis, K. Perlin, M. Zwicker
 [Figure09]: ./img/noise.png
 [Figure10]: ./img/shape.png
 [Figure11]: ./img/ease.png
-[Figure12]: ./img/iqfbm.jpg
-[Figure13]: ./img/complex.png
-[Figure14]: ./img/applied1.png
-[Figure15]: ./img/applied2.png
-[Figure16]: ./img/applied3.png
-[Figure17]: ./img/applied4.png
-[Figure18]: ./img/applied5.png
-[Figure19]: ./img/applied6.png
-[Figure20]: ./img/applied7.png
-[FigureXY]: ./img/height.png
+[Figure12]: ./img/height.png
+[Figure13]: ./img/iqfbm.jpg
+[Figure14]: ./img/complex.png
+[Figure15]: ./img/applied1.png
+[Figure16]: ./img/applied2.png
+[Figure17]: ./img/applied3.png
+[Figure18]: ./img/applied4.png
+[Figure19]: ./img/applied5.png
+[Figure20]: ./img/applied6.png
+[Figure21]: ./img/applied7.png
